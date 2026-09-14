@@ -856,6 +856,8 @@ async function carregarDadosBase(){
     totalAlunos = count || 0;
     const { data: matricula } = await sb.from('alunos_matricula').select('*').is('excluido_em', null).order('nome');
     matriculaCache = matricula || [];
+    const { data: visibilidade } = await sb.from('visibilidade_conteudo').select('*');
+    visibilidadeCache = visibilidade || [];
   }
 }
 
@@ -1483,6 +1485,7 @@ let configSimuladoMaterias = null;
 let subGerenciar = 'exercicios';
 let dadosTurmaCache = null;
 let matriculaCache = [];
+let visibilidadeCache = [];
 let turmasCache = [];
 let turmaHorariosCache = [];
 let calendarioAno = new Date().getFullYear();
@@ -2154,7 +2157,7 @@ function renderDuvidas(){
    ============================================================ */
 async function carregarDadosTurma(){
   const [alunosRes, progressoRes] = await Promise.all([
-    sb.from('profiles').select('id, nome, email, ano_escolar').eq('role', 'aluno').order('nome'),
+    sb.from('profiles').select('id, nome, email, ano_escolar, turma_id').eq('role', 'aluno').order('nome'),
     sb.from('progresso_alunos').select('aluno_id, exercicio_id, concluido, correto, atualizado_em')
   ]);
   return { alunos: alunosRes.data || [], progresso: progressoRes.data || [] };
@@ -2191,6 +2194,8 @@ function renderTurmaConteudo(){
   const rankingHtml = linhasAlunos.map((l, idx) => {
     const cadastro = matriculaCache.find(a => a.email && l.aluno.email && a.email.toLowerCase() === l.aluno.email.toLowerCase());
     const linhaCadastro = cadastro ? `${cadastro.turma ? escapeHtml(cadastro.turma) : ''}${cadastro.idade ? ' — ' + cadastro.idade + ' anos' : ''}${cadastro.observacoes ? ' — ' + escapeHtml(cadastro.observacoes) : ''}` : '';
+    const opcoesTurmaAluno = `<option value="" ${!l.aluno.turma_id ? 'selected' : ''}>Sem turma</option>` +
+      turmasCache.map(t => `<option value="${t.id}" ${l.aluno.turma_id === t.id ? 'selected' : ''}>${escapeHtml(t.nome)}</option>`).join('');
     return `
     <div class="linha-exercicio">
       <div class="linha-exercicio-topo" style="cursor:default;">
@@ -2200,6 +2205,9 @@ function renderTurmaConteudo(){
           <div class="rodape-linha"><span style="font-size:12px; color:var(--ink-suave);">${l.concluidos} de ${totalExercicios} exercícios (${l.pct}%) ${l.diasInativo !== null ? '— última atividade há ' + l.diasInativo + ' dia' + (l.diasInativo === 1 ? '' : 's') : '— ainda não começou'}</span></div>
           ${linhaCadastro ? `<div style="font-size:12px; color:var(--verde-escuro); margin-top:2px;">${linhaCadastro}</div>` : ''}
         </div>
+        <select data-atribuir-turma="${l.aluno.id}" style="font-size:12.5px; padding:6px 8px; border-radius:6px; border:1.5px solid var(--borda); margin-right:6px;">
+          ${opcoesTurmaAluno}
+        </select>
         <button class="btn-texto" data-ver-relatorio="${l.aluno.id}">Ver relatório</button>
       </div>
     </div>
@@ -2232,6 +2240,13 @@ function renderTurmaConteudo(){
   `;
 
   $$('[data-ver-relatorio]').forEach(b => b.addEventListener('click', () => renderRelatorioAlunoView(b.dataset.verRelatorio)));
+  $$('[data-atribuir-turma]').forEach(s => s.addEventListener('change', async () => {
+    const alunoId = s.dataset.atribuirTurma;
+    const turmaId = s.value || null;
+    await sb.from('profiles').update({ turma_id: turmaId }).eq('id', alunoId);
+    const aluno = dadosTurmaCache.alunos.find(a => a.id === alunoId);
+    if(aluno) aluno.turma_id = turmaId;
+  }));
 }
 
 function renderRelatorioAlunoView(alunoId){
@@ -2639,6 +2654,206 @@ async function duplicarExercicio(id){
   renderGerenciarExercicios();
 }
 
+function badgeVisibilidade(tabela, itemId){
+  const restrito = visibilidadeCache.some(v => v.tabela === tabela && v.item_id === itemId);
+  return restrito ? `<span class="tag-novo" style="background:var(--amarelo); color:#8A5F0B; margin-left:6px;">Restrito</span>` : '';
+}
+
+async function abrirModalVisibilidade(tabela, itemId, nomeItem){
+  abrirModal(`<h3>Visibilidade</h3><p style="font-size:13.5px; color:var(--ink-suave);">Carregando...</p>`);
+  const { data: alunos } = await sb.from('profiles').select('id, nome').eq('role', 'aluno').order('nome');
+
+  const restricoes = visibilidadeCache.filter(v => v.tabela === tabela && v.item_id === itemId);
+  const turmaIdsAtuais = new Set(restricoes.filter(r => r.turma_id).map(r => r.turma_id));
+  const alunoIdsAtuais = new Set(restricoes.filter(r => r.aluno_id).map(r => r.aluno_id));
+  const restrito = restricoes.length > 0;
+
+  const checksTurmas = turmasCache.map(t => `
+    <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px;">
+      <input type="checkbox" data-vis-turma="${t.id}" style="width:auto;" ${turmaIdsAtuais.has(t.id) ? 'checked' : ''}> ${escapeHtml(t.nome)}
+    </label>
+  `).join('');
+  const checksAlunos = (alunos || []).map(a => `
+    <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px;">
+      <input type="checkbox" data-vis-aluno="${a.id}" style="width:auto;" ${alunoIdsAtuais.has(a.id) ? 'checked' : ''}> ${escapeHtml(a.nome)}
+    </label>
+  `).join('');
+
+  $('#modal-corpo').innerHTML = `
+    <h3>Visibilidade</h3>
+    <p style="font-size:13.5px; color:var(--ink-suave); margin-bottom:14px;">${escapeHtml(nomeItem)}</p>
+    <label style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+      <input type="checkbox" id="vis-restringir" style="width:auto;" ${restrito ? 'checked' : ''}> <span style="font-weight:600; color:var(--azul);">Restringir quem pode ver</span>
+    </label>
+    <div id="vis-opcoes" style="display:${restrito ? 'block' : 'none'};">
+      <label style="display:block; font-size:13px; font-weight:600; color:var(--azul); margin-bottom:6px;">Turmas com acesso</label>
+      <div style="max-height:130px; overflow-y:auto; margin-bottom:14px;">${checksTurmas || '<p style="font-size:12.5px; color:var(--ink-suave);">Nenhuma turma cadastrada.</p>'}</div>
+      <label style="display:block; font-size:13px; font-weight:600; color:var(--azul); margin-bottom:6px;">Alunos específicos com acesso</label>
+      <div style="max-height:130px; overflow-y:auto; margin-bottom:14px;">${checksAlunos || '<p style="font-size:12.5px; color:var(--ink-suave);">Nenhum aluno cadastrado.</p>'}</div>
+    </div>
+    <p style="font-size:12px; color:var(--ink-suave); margin-bottom:16px;">Sem restrição, todos os alunos enxergam normalmente. Marcando pelo menos uma turma ou aluno, só quem estiver marcado passa a ver.</p>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario btn-full" id="vis-cancelar">Cancelar</button>
+      <button class="btn btn-primario btn-full" id="vis-salvar">Salvar</button>
+    </div>
+  `;
+
+  $('#vis-restringir').addEventListener('change', (e) => {
+    $('#vis-opcoes').style.display = e.target.checked ? 'block' : 'none';
+  });
+  $('#vis-cancelar').addEventListener('click', fecharModal);
+  $('#vis-salvar').addEventListener('click', async () => {
+    const restringirAtivo = $('#vis-restringir').checked;
+    await sb.from('visibilidade_conteudo').delete().eq('tabela', tabela).eq('item_id', itemId);
+    visibilidadeCache = visibilidadeCache.filter(v => !(v.tabela === tabela && v.item_id === itemId));
+
+    if(restringirAtivo){
+      const turmasMarcadas = $$('[data-vis-turma]:checked').map(el => el.dataset.visTurma);
+      const alunosMarcados = $$('[data-vis-aluno]:checked').map(el => el.dataset.visAluno);
+      const linhas = [
+        ...turmasMarcadas.map(tid => ({ tabela, item_id: itemId, turma_id: tid })),
+        ...alunosMarcados.map(aid => ({ tabela, item_id: itemId, aluno_id: aid }))
+      ];
+      if(linhas.length){
+        const { data } = await sb.from('visibilidade_conteudo').insert(linhas).select();
+        if(data) visibilidadeCache.push(...data);
+      }
+    }
+    fecharModal();
+    renderSubGerenciar();
+  });
+}
+
+let revisaoFotoExercicios = null;
+let revisaoFotoMateria = null;
+
+function redimensionarImagem(arquivo){
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const larguraMax = 1500;
+        const escala = Math.min(1, larguraMax / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * escala;
+        canvas.height = img.height * escala;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    leitor.onerror = reject;
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+async function processarFotoExercicios(arquivo){
+  const container = $('#subgerenciar-container');
+  container.innerHTML = `<div class="painel-ficha-vazio"><div class="vazio"><p>Analisando a foto com IA, isso pode levar alguns segundos...</p></div></div>`;
+
+  try{
+    const imagemBase64 = await redimensionarImagem(arquivo);
+    const { data: sessao } = await sb.auth.getSession();
+    const token = sessao?.session?.access_token;
+    const resposta = await fetch(`${SUPABASE_URL}/functions/v1/analisar-exercicios`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ imagem: imagemBase64 })
+    });
+    const dados = await resposta.json();
+
+    if(!resposta.ok){
+      container.innerHTML = `<div class="painel-ficha-vazio"><div class="vazio"><p>Não foi possível analisar a foto: ${escapeHtml(dados.error || 'erro desconhecido')}${dados.error && dados.error.includes('configurada') ? ' (verifique se a chave da OpenAI foi cadastrada nos segredos da função no Supabase)' : ''}</p></div></div>`;
+      return;
+    }
+    if(!dados.exercicios || !dados.exercicios.length){
+      container.innerHTML = `<div class="painel-ficha-vazio"><div class="vazio"><p>Não consegui identificar nenhum exercício legível nessa foto. Tente uma foto mais nítida ou mais próxima.</p></div></div>`;
+      return;
+    }
+
+    revisaoFotoExercicios = dados.exercicios.map(e => ({
+      titulo: e.titulo || '', enunciado: e.enunciado || '', gabarito: e.gabarito || '',
+      explicacao: e.explicacao || '', nivel: ['basico','intermediario','avancado'].includes(e.nivel) ? e.nivel : 'basico',
+      incluir: true
+    }));
+    revisaoFotoMateria = materiasCache[0] ? materiasCache[0].id : null;
+    renderRevisaoFotoExercicios();
+  } catch(erro){
+    container.innerHTML = `<div class="painel-ficha-vazio"><div class="vazio"><p>Algo deu errado ao analisar a foto. Tente novamente.</p></div></div>`;
+  }
+}
+
+function renderRevisaoFotoExercicios(){
+  const container = $('#subgerenciar-container');
+  const opcoesMateria = materiasCache.map(m => `<option value="${m.id}" ${revisaoFotoMateria === m.id ? 'selected' : ''}>${escapeHtml(m.nome)}</option>`).join('');
+
+  const cartoesHtml = revisaoFotoExercicios.map((ex, idx) => `
+    <div class="card" style="margin-bottom:14px; ${ex.incluir ? '' : 'opacity:.5;'}">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+        <label style="display:flex; align-items:center; gap:8px; font-weight:600; color:var(--azul);">
+          <input type="checkbox" data-incluir="${idx}" style="width:auto;" ${ex.incluir ? 'checked' : ''}> Incluir este exercício
+        </label>
+        <select data-nivel-idx="${idx}">
+          <option value="basico" ${ex.nivel==='basico'?'selected':''}>Básico</option>
+          <option value="intermediario" ${ex.nivel==='intermediario'?'selected':''}>Intermediário</option>
+          <option value="avancado" ${ex.nivel==='avancado'?'selected':''}>Avançado</option>
+        </select>
+      </div>
+      <div class="campo"><label>Título</label><input type="text" data-titulo-idx="${idx}" value="${escapeHtml(ex.titulo)}"></div>
+      <div class="campo"><label>Enunciado</label><textarea data-enunciado-idx="${idx}" rows="3">${escapeHtml(ex.enunciado)}</textarea></div>
+      <div class="campo"><label>Gabarito</label><textarea data-gabarito-idx="${idx}" rows="2">${escapeHtml(ex.gabarito)}</textarea></div>
+      <div class="campo"><label>Explicação</label><textarea data-explicacao-idx="${idx}" rows="2">${escapeHtml(ex.explicacao)}</textarea></div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="painel-professora" style="margin-bottom:18px;">
+      <h3>Revise antes de salvar</h3>
+      <p>A IA leu a foto e montou ${revisaoFotoExercicios.length} exercício${revisaoFotoExercicios.length===1?'':'s'}. Confira e ajuste o que precisar — nada é salvo até você clicar em "Salvar exercícios".</p>
+    </div>
+    <div class="campo" style="max-width:320px;"><label>Matéria (aplicada a todos)</label><select id="revisao-foto-materia">${opcoesMateria}</select></div>
+    ${cartoesHtml}
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-secundario" id="btn-cancelar-revisao-foto">Cancelar</button>
+      <button class="btn btn-primario" id="btn-salvar-revisao-foto">Salvar exercícios</button>
+    </div>
+  `;
+
+  $('#revisao-foto-materia').addEventListener('change', (e) => { revisaoFotoMateria = e.target.value; });
+  $$('[data-incluir]').forEach(c => c.addEventListener('change', (e) => {
+    revisaoFotoExercicios[c.dataset.incluir].incluir = e.target.checked;
+    renderRevisaoFotoExercicios();
+  }));
+  $$('[data-nivel-idx]').forEach(s => s.addEventListener('change', () => { revisaoFotoExercicios[s.dataset.nivelIdx].nivel = s.value; }));
+  $$('[data-titulo-idx]').forEach(i => i.addEventListener('input', () => { revisaoFotoExercicios[i.dataset.tituloIdx].titulo = i.value; }));
+  $$('[data-enunciado-idx]').forEach(i => i.addEventListener('input', () => { revisaoFotoExercicios[i.dataset.enunciadoIdx].enunciado = i.value; }));
+  $$('[data-gabarito-idx]').forEach(i => i.addEventListener('input', () => { revisaoFotoExercicios[i.dataset.gabaritoIdx].gabarito = i.value; }));
+  $$('[data-explicacao-idx]').forEach(i => i.addEventListener('input', () => { revisaoFotoExercicios[i.dataset.explicacaoIdx].explicacao = i.value; }));
+
+  $('#btn-cancelar-revisao-foto').addEventListener('click', () => {
+    revisaoFotoExercicios = null;
+    renderGerenciarExercicios();
+  });
+  $('#btn-salvar-revisao-foto').addEventListener('click', async () => {
+    if(!revisaoFotoMateria) return;
+    const incluidos = revisaoFotoExercicios.filter(e => e.incluir && e.titulo.trim() && e.enunciado.trim() && e.gabarito.trim());
+    let ordemBase = exerciciosCache.filter(e => e.materia_id === revisaoFotoMateria).length;
+    for(const ex of incluidos){
+      ordemBase++;
+      const { data } = await sb.from('exercicios').insert({
+        materia_id: revisaoFotoMateria, titulo: ex.titulo.trim(), enunciado: ex.enunciado.trim(),
+        gabarito: ex.gabarito.trim(), explicacao: ex.explicacao.trim() || null, nivel: ex.nivel, ordem: ordemBase
+      }).select().single();
+      if(data) exerciciosCache.push(data);
+    }
+    revisaoFotoExercicios = null;
+    renderGerenciar();
+  });
+}
+
 function renderGerenciarExercicios(){
   const container = $('#subgerenciar-container');
   const termo = termoBuscaGerenciar.trim().toLowerCase();
@@ -2662,13 +2877,14 @@ function renderGerenciarExercicios(){
             <input type="checkbox" class="check-lote-exercicio" data-lote-exercicio="${ex.id}" ${selecionadosGerenciar.has(ex.id) ? 'checked' : ''} style="width:auto; margin-right:2px;">
             <span class="numero-exercicio">${String(idx+1).padStart(2,'0')}</span>
             <div class="texto-linha">
-              <span class="texto-exercicio">${escapeHtml(ex.titulo)}</span>
+              <span class="texto-exercicio">${escapeHtml(ex.titulo)}${badgeVisibilidade('exercicios', ex.id)}</span>
               <div class="rodape-linha"><span class="tag-nivel tag-${ex.nivel}">${nivelLabel(ex.nivel)}</span></div>
             </div>
             <div style="display:flex; gap:4px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end;">
               <button class="btn-texto" data-mover-cima-ex="${ex.id}" ${idx === 0 ? 'disabled' : ''}>↑</button>
               <button class="btn-texto" data-mover-baixo-ex="${ex.id}" ${idx === g.itens.length - 1 ? 'disabled' : ''}>↓</button>
               <button class="btn-texto" data-duplicar-exercicio="${ex.id}">Duplicar</button>
+              <button class="btn-texto" data-visibilidade-exercicio="${ex.id}">Visibilidade</button>
               <button class="btn-texto" data-editar-exercicio="${ex.id}">Editar</button>
               <button class="btn-texto" data-excluir-exercicio="${ex.id}" style="color:var(--erro);">Excluir</button>
             </div>
@@ -2680,6 +2896,10 @@ function renderGerenciarExercicios(){
 
   container.innerHTML = `
     <button class="btn btn-amarelo" id="btn-novo-exercicio" style="margin-bottom:14px;">+ Exercício</button>
+    <label class="btn btn-secundario" style="background:#fff; margin-bottom:14px; margin-left:8px; display:inline-flex;">
+      Analisar foto (IA)
+      <input type="file" accept="image/*" id="input-analisar-foto" style="display:none;">
+    </label>
     <button class="btn btn-secundario" id="btn-ver-fotos" style="background:#fff; margin-bottom:14px; margin-left:8px;">Ver fotos enviadas</button>
     <div class="campo" style="max-width:320px;"><input type="text" id="busca-gerenciar-exercicios" placeholder="Buscar por palavra-chave..." value="${escapeHtml(termoBuscaGerenciar)}"></div>
     <div class="barra-lote" id="barra-lote-exercicios">
@@ -2693,6 +2913,11 @@ function renderGerenciarExercicios(){
 
   $('#btn-novo-exercicio').addEventListener('click', () => abrirModalExercicio());
   $('#btn-ver-fotos').addEventListener('click', abrirModalFotos);
+  $('#input-analisar-foto').addEventListener('change', (e) => {
+    const arquivo = e.target.files[0];
+    if(arquivo) processarFotoExercicios(arquivo);
+    e.target.value = '';
+  });
 
   const buscaInput = $('#busca-gerenciar-exercicios');
   buscaInput.addEventListener('input', () => {
@@ -2712,6 +2937,10 @@ function renderGerenciarExercicios(){
     renderGerenciarExercicios();
   }));
   $$('[data-duplicar-exercicio]').forEach(b => b.addEventListener('click', () => duplicarExercicio(b.dataset.duplicarExercicio)));
+  $$('[data-visibilidade-exercicio]').forEach(b => b.addEventListener('click', () => {
+    const ex = exerciciosCache.find(e => e.id === b.dataset.visibilidadeExercicio);
+    abrirModalVisibilidade('exercicios', ex.id, ex.titulo);
+  }));
   $$('[data-mover-cima-ex]').forEach(b => b.addEventListener('click', () => moverOrdemExercicio(b.dataset.moverCimaEx, -1)));
   $$('[data-mover-baixo-ex]').forEach(b => b.addEventListener('click', () => moverOrdemExercicio(b.dataset.moverBaixoEx, 1)));
 
@@ -2801,13 +3030,14 @@ function renderGerenciarAulas(){
             <input type="checkbox" class="check-lote-aula" data-lote-aula="${a.id}" ${selecionadosGerenciar.has(a.id) ? 'checked' : ''} style="width:auto; margin-right:2px;">
             <span class="numero-exercicio">${String(idx+1).padStart(2,'0')}</span>
             <div class="texto-linha">
-              <span class="texto-exercicio">${escapeHtml(a.titulo)}</span>
+              <span class="texto-exercicio">${escapeHtml(a.titulo)}${badgeVisibilidade('aulas', a.id)}</span>
               <div class="rodape-linha"><span class="tag-tipo-aula tag-tipo-${a.tipo}">${a.tipo === 'video' ? 'Vídeo' : 'PDF'}</span></div>
             </div>
             <div style="display:flex; gap:4px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end;">
               <button class="btn-texto" data-mover-cima-aula="${a.id}" ${idx === 0 ? 'disabled' : ''}>↑</button>
               <button class="btn-texto" data-mover-baixo-aula="${a.id}" ${idx === g.itens.length - 1 ? 'disabled' : ''}>↓</button>
               <button class="btn-texto" data-duplicar-aula="${a.id}">Duplicar</button>
+              <button class="btn-texto" data-visibilidade-aula="${a.id}">Visibilidade</button>
               <button class="btn-texto" data-editar-aula="${a.id}">Editar</button>
               <button class="btn-texto" data-excluir-aula="${a.id}" style="color:var(--erro);">Excluir</button>
             </div>
@@ -2849,6 +3079,10 @@ function renderGerenciarAulas(){
     renderGerenciarAulas();
   }));
   $$('[data-duplicar-aula]').forEach(b => b.addEventListener('click', () => duplicarAula(b.dataset.duplicarAula)));
+  $$('[data-visibilidade-aula]').forEach(b => b.addEventListener('click', () => {
+    const a = aulasCache.find(x => x.id === b.dataset.visibilidadeAula);
+    abrirModalVisibilidade('aulas', a.id, a.titulo);
+  }));
   $$('[data-mover-cima-aula]').forEach(b => b.addEventListener('click', () => moverOrdemAula(b.dataset.moverCimaAula, -1)));
   $$('[data-mover-baixo-aula]').forEach(b => b.addEventListener('click', () => moverOrdemAula(b.dataset.moverBaixoAula, 1)));
 
@@ -2910,11 +3144,12 @@ function renderGerenciarAvisos(){
       <div class="linha-exercicio">
         <div class="linha-exercicio-topo" style="cursor:default;">
           <div class="texto-linha">
-            <span class="texto-exercicio">${escapeHtml(v.titulo)} ${v.fixado ? '<span class="tag-novo" style="background:var(--amarelo); color:#8A5F0B;">Fixado</span>' : ''}</span>
+            <span class="texto-exercicio">${escapeHtml(v.titulo)} ${v.fixado ? '<span class="tag-novo" style="background:var(--amarelo); color:#8A5F0B;">Fixado</span>' : ''}${badgeVisibilidade('avisos', v.id)}</span>
             <div class="rodape-linha"><span style="font-size:12px; color:var(--ink-suave);">${formatarData(v.criado_em)}</span></div>
           </div>
           <div style="display:flex; gap:6px; flex-shrink:0;">
             <button class="btn-texto" data-duplicar-aviso="${v.id}">Duplicar</button>
+            <button class="btn-texto" data-visibilidade-aviso="${v.id}">Visibilidade</button>
             <button class="btn-texto" data-editar-aviso="${v.id}">Editar</button>
             <button class="btn-texto" data-excluir-aviso="${v.id}" style="color:var(--erro);">Excluir</button>
           </div>
@@ -2933,6 +3168,10 @@ function renderGerenciarAvisos(){
     abrirModalAviso(avisosCache.find(v => v.id === b.dataset.editarAviso));
   }));
   $$('[data-duplicar-aviso]').forEach(b => b.addEventListener('click', () => duplicarAviso(b.dataset.duplicarAviso)));
+  $$('[data-visibilidade-aviso]').forEach(b => b.addEventListener('click', () => {
+    const v = avisosCache.find(x => x.id === b.dataset.visibilidadeAviso);
+    abrirModalVisibilidade('avisos', v.id, v.titulo);
+  }));
   $$('[data-excluir-aviso]').forEach(b => b.addEventListener('click', async () => {
     if(!confirm('Mover este aviso para a lixeira?')) return;
     const id = b.dataset.excluirAviso;
@@ -3080,13 +3319,14 @@ function renderGerenciarMaterias(){
       <div class="linha-exercicio">
         <div class="linha-exercicio-topo" style="cursor:default;">
           <div class="texto-linha">
-            <span class="texto-exercicio">${escapeHtml(m.nome)}</span>
+            <span class="texto-exercicio">${escapeHtml(m.nome)}${badgeVisibilidade('materias', m.id)}</span>
             <div class="rodape-linha"><span style="width:12px; height:12px; border-radius:3px; background:${m.cor}; display:inline-block;"></span></div>
           </div>
           <div style="display:flex; gap:4px; flex-shrink:0;">
             <button class="btn-texto" data-mover-cima-materia="${m.id}" ${idx === 0 ? 'disabled' : ''}>↑</button>
             <button class="btn-texto" data-mover-baixo-materia="${m.id}" ${idx === lista.length - 1 ? 'disabled' : ''}>↓</button>
             <button class="btn-texto" data-duplicar-materia="${m.id}">Duplicar</button>
+            <button class="btn-texto" data-visibilidade-materia="${m.id}">Visibilidade</button>
             <button class="btn-texto" data-editar-materia="${m.id}">Editar</button>
             <button class="btn-texto" data-excluir-materia="${m.id}" style="color:var(--erro);">Excluir</button>
           </div>
@@ -3105,6 +3345,10 @@ function renderGerenciarMaterias(){
     abrirModalMateria(materiasCache.find(m => m.id === b.dataset.editarMateria));
   }));
   $$('[data-duplicar-materia]').forEach(b => b.addEventListener('click', () => duplicarMateria(b.dataset.duplicarMateria)));
+  $$('[data-visibilidade-materia]').forEach(b => b.addEventListener('click', () => {
+    const m = materiasCache.find(x => x.id === b.dataset.visibilidadeMateria);
+    abrirModalVisibilidade('materias', m.id, m.nome);
+  }));
   $$('[data-mover-cima-materia]').forEach(b => b.addEventListener('click', () => moverOrdemMateria(b.dataset.moverCimaMateria, -1)));
   $$('[data-mover-baixo-materia]').forEach(b => b.addEventListener('click', () => moverOrdemMateria(b.dataset.moverBaixoMateria, 1)));
   $$('[data-excluir-materia]').forEach(b => b.addEventListener('click', async () => {
