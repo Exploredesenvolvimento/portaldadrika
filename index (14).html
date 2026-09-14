@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Área do Aluno — Drika Moraes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --verde: #2C5F35;
+    --verde-escuro: #1F4527;
+    --verde-claro: #E3EBD9;
+    --azul: #1B2E4A;
+    --azul-claro: #EAF0F6;
+    --amarelo: #E8791E;
+    --amarelo-claro: #FBE4CE;
+    --bg: #F3ECDA;
+    --card: #FBF6EC;
+    --ink: #2A2622;
+    --ink-suave: #7A7259;
+    --borda: #DED0A0;
+    --erro: #B3492E;
+    --radius: 8px;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-numero: 'Space Grotesk', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,h4{font-family: var(--font-display); margin:0; letter-spacing:-0.01em;}
+  p{margin:0;}
+  button{font-family:var(--font-body); cursor:pointer;}
+  a{color:inherit;}
+  ::selection{background: var(--amarelo-claro);}
+
+  /* ---------- Focus visibility ---------- */
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{
+    outline: 2px solid var(--verde);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Botões ---------- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding: 11px 20px; border-radius: 8px; border: none;
+    font-weight: 600; font-size: 14.5px;
+    transition: transform .08s ease, box-shadow .15s ease;
+  }
+  .btn-primario{ background: var(--verde); color: #fff; }
+  .btn-primario:hover{ background: var(--verde-escuro); }
+  .btn-secundario{ background: transparent; color: var(--azul); border: 1.5px solid var(--borda); }
+  .btn-secundario:hover{ border-color: var(--azul); }
+  .btn-amarelo{ background: var(--amarelo); color: var(--azul); }
+  .btn-amarelo:hover{ filter: brightness(0.96); }
+  .btn-texto{ background:none; color: var(--ink-suave); padding: 6px 8px; font-size:13.5px; }
+  .btn-texto:hover{ color: var(--ink); }
+  .btn:disabled{ opacity:.55; cursor:not-allowed; }
+  .btn-full{ width:100%; }
+
+  /* ---------- Login / Cadastro ---------- */
+  #tela-login{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding: 24px; background:
+      radial-gradient(circle at 15% 20%, var(--verde-claro) 0%, transparent 45%),
+      radial-gradient(circle at 85% 80%, var(--amarelo-claro) 0%, transparent 45%),
+      var(--bg);
+  }
+  .cartao-login{
+    width:100%; max-width: 400px; background: var(--card);
+    border: 1px solid var(--borda); border-radius: 16px;
+    padding: 36px 32px; box-shadow: 0 20px 50px -25px rgba(27,46,74,.25);
+  }
+  .marca-login{ display:flex; align-items:center; gap:12px; margin-bottom: 28px; }
+  .marca-login .coruja{ width:46px; height:46px; flex-shrink:0; }
+  .marca-login .textos h1{ font-size: 18px; line-height:1.2; color: var(--azul); }
+  .marca-login .textos span{ font-size: 12.5px; color: var(--ink-suave); }
+  .cartao-login h2{ font-size: 22px; margin-bottom:4px; color: var(--azul); }
+  .cartao-login .subtitulo{ font-size: 14px; color: var(--ink-suave); margin-bottom: 24px; display:block; }
+  .campo{ margin-bottom: 16px; }
+  .campo label{ display:block; font-size: 13px; font-weight:600; margin-bottom: 6px; color: var(--azul); }
+  .campo input, .campo select, .campo textarea{
+    width:100%; padding: 11px 13px; border-radius: 8px; border: 1.5px solid var(--borda);
+    font-size: 14.5px; font-family: var(--font-body); background: var(--card); color: var(--ink);
+  }
+  .campo input:focus, .campo select:focus, .campo textarea:focus{ border-color: var(--verde); outline:none; }
+  .alterna-modo{ text-align:center; margin-top: 18px; font-size: 13.5px; color: var(--ink-suave); }
+  .alterna-modo button{ background:none; border:none; color: var(--verde-escuro); font-weight:600; text-decoration: underline; }
+  .msg-erro{ background: #FBEAE5; color: var(--erro); border: 1px solid #F0C9BC; padding: 10px 13px; border-radius: 8px; font-size: 13.5px; margin-bottom: 16px; display:none; }
+  .msg-ok{ background: var(--verde-claro); color: var(--verde-escuro); border: 1px solid #CFE2C9; padding: 10px 13px; border-radius: 8px; font-size: 13.5px; margin-bottom: 16px; display:none; }
+
+  /* ---------- App shell ---------- */
+  #app{ display:none; min-height:100vh; }
+  .layout{ display:flex; min-height:100vh; }
+  .sidebar{
+    width: 240px; flex-shrink:0; background: var(--verde); color: #fff;
+    display:flex; flex-direction:column; padding: 22px 16px;
+    position: sticky; top:0; height:100vh;
+  }
+  .sidebar .marca{ display:flex; align-items:center; gap:10px; padding: 4px 8px 22px; }
+  .sidebar .marca .coruja{ width:34px; height:34px; }
+  .sidebar .marca span{ font-family: var(--font-display); font-weight:600; font-size:15px; }
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding: 11px 12px; border-radius: 8px;
+    font-size: 14px; font-weight:500; color: rgba(255,255,255,.78); margin-bottom: 3px;
+    background:none; border:none; width:100%; text-align:left;
+  }
+  .nav-item svg{ width:18px; height:18px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background: rgba(255,255,255,.08); color:#fff; }
+  .nav-item.ativo{ background: rgba(255,255,255,.14); color:#fff; }
+  .nav-separador{ height:1px; background: rgba(255,255,255,.12); margin: 14px 4px; }
+  .nav-rotulo{ font-size:11px; text-transform:none; letter-spacing:.02em; color: rgba(255,255,255,.45); padding: 4px 12px 6px; }
+  .sidebar-rodape{ margin-top:auto; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.12); }
+  .perfil-mini{ display:flex; align-items:center; gap:10px; padding: 8px; }
+  .avatar-mini{ width:32px; height:32px; border-radius:50%; background: var(--amarelo); color: var(--azul); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+  .perfil-mini .nome{ font-size:13px; font-weight:600; line-height:1.25; }
+  .perfil-mini .papel{ font-size:11.5px; color: rgba(255,255,255,.55); }
+
+  .conteudo{ flex:1; padding: 32px 40px 60px; max-width: 980px; }
+  .cabecalho-pagina{ margin-bottom: 26px; }
+  .cabecalho-pagina h1{ font-size: 25px; color: var(--azul); margin-bottom:5px; }
+  .cabecalho-pagina p{ color: var(--ink-suave); font-size: 14.5px; }
+
+  /* ---------- Menu mobile ---------- */
+  .topo-mobile{ display:none; }
+  .btn-menu-mobile{ background:none; border:none; padding:8px; }
+  .btn-menu-mobile svg{ width:24px; height:24px; }
+
+  /* ---------- Cards genéricos ---------- */
+  .card{ background: var(--card); border:1px solid var(--borda); border-radius: var(--radius); padding: 20px; }
+  .grade-materias{ display:grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap:14px; }
+  .abas-materias{ display:flex; gap:3px; flex-wrap:wrap; }
+  .aba-materia{
+    padding: 10px 18px; border-radius: 8px 8px 0 0; font-size:13.5px; font-weight:600;
+    border:none; cursor:pointer; background: var(--borda); color: var(--ink-suave);
+    font-family: var(--font-body);
+  }
+  .aba-materia:hover{ background: var(--cor-materia, var(--verde)); color:#fff; opacity:.75; }
+  .aba-materia.ativa{ background: var(--cor-materia, var(--verde)); color:#fff; opacity:1; }
+  .painel-ficha{ background: var(--card); border:1px solid var(--borda); border-radius: 0 8px 8px 8px; padding: 22px; }
+  .painel-ficha-vazio{ background: var(--card); border:1px solid var(--borda); border-radius: 8px; padding: 22px; }
+
+  .lista-ficha{ display:flex; flex-direction:column; }
+  .linha-exercicio{ border-bottom:1px solid var(--borda); padding: 15px 0; }
+  .linha-exercicio:last-child{ border-bottom:none; }
+  .linha-exercicio-topo{ display:flex; align-items:flex-start; gap:14px; cursor:pointer; }
+  .numero-exercicio{ font-family: var(--font-numero); font-size:13px; color: var(--ink-suave); width:22px; flex-shrink:0; padding-top:2px; }
+  .caixa-check{
+    width:18px; height:18px; border:1.5px solid var(--ink-suave); flex-shrink:0; margin-top:1px;
+    display:flex; align-items:center; justify-content:center; background:transparent; border-radius:2px; position:relative;
+  }
+  .caixa-check.feito{ background: var(--verde); border-color: var(--verde); }
+  .caixa-check.feito::after{ content:'✓'; color:#fff; font-size:12px; line-height:1; }
+  .texto-linha{ flex:1; min-width:0; }
+  .texto-exercicio{ font-size:14.5px; color: var(--ink); line-height:1.5; }
+  .linha-exercicio-topo.feito .texto-exercicio{ color: var(--ink-suave); }
+  .rodape-linha{ display:flex; align-items:center; gap:10px; margin-top:4px; }
+  .tag-nivel{ font-size:11px; padding:2px 9px; border-radius:3px; font-weight:600; white-space:nowrap; }
+  .tag-basico{ background:var(--verde-claro); color:var(--verde-escuro); }
+  .tag-intermediario{ background:var(--amarelo-claro); color:#8A5F0B; }
+  .tag-avancado{ background:#F3DCD4; color:var(--erro); }
+  .corpo-exercicio{ display:none; margin: 12px 0 0 36px; }
+  .corpo-exercicio.aberto{ display:block; }
+  .enunciado{ font-size:14.5px; line-height:1.6; white-space:pre-wrap; margin-bottom:12px; color: var(--ink); }
+  .btn-revelar{
+    background:none; border:1px dashed var(--ink-suave); color: var(--ink-suave);
+    border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600;
+  }
+  .btn-revelar:hover{ border-color: var(--amarelo); color:#8A5F0B; }
+  .caixa-gabarito{ border:1px dashed var(--amarelo); background: var(--amarelo-claro); border-radius:6px; padding:12px 14px; font-size:14px; line-height:1.6; white-space:pre-wrap; color: var(--ink); }
+  .rotulo-resposta{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.6px; color:#8A5F0B; font-weight:700; display:block; margin-bottom:4px; }
+
+  .mural-item{ background: var(--card); border:1px solid var(--borda); border-radius: var(--radius); padding:16px 18px; margin-bottom:10px; position:relative; }
+  .mural-item.fixado{ border-color: var(--amarelo); background: var(--amarelo-claro); }
+  .mural-item h4{ font-size:15px; margin-bottom:5px; color:var(--azul); }
+  .mural-item p{ font-size:14px; line-height:1.55; color: var(--ink); white-space:pre-wrap; }
+  .mural-item .data{ font-size:12px; color: var(--ink-suave); margin-top:8px; display:block; }
+
+  .grade-aulas{ display:grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap:14px; }
+  .cartao-aula{ background: var(--card); border:1px solid var(--borda); border-radius:12px; overflow:hidden; }
+  .cartao-aula-topo{ background: var(--azul); color:#fff; height:76px; display:flex; align-items:center; justify-content:center; }
+  .cartao-aula-topo svg{ width:26px; height:26px; opacity:.9; }
+  .cartao-aula-corpo{ padding:14px 16px; }
+  .cartao-aula-corpo h4{ font-size:14px; color:var(--azul); margin-bottom:4px; }
+  .cartao-aula-corpo p{ font-size:12.5px; color: var(--ink-suave); margin-bottom:10px; line-height:1.4; }
+  .link-aula{ font-size:13px; font-weight:600; color: var(--verde-escuro); text-decoration:none; }
+
+  .barra-progresso-geral{ background: var(--card); border:1px solid var(--borda); border-radius: var(--radius); padding:20px; margin-bottom:20px; }
+  .trilho{ background: var(--borda); height:10px; border-radius:20px; overflow:hidden; margin: 10px 0 6px; }
+  .preenchido{ background: var(--verde); height:100%; border-radius:20px; transition: width .4s ease; }
+
+  .duvida-item{ background: var(--card); border:1px solid var(--borda); border-radius: var(--radius); padding:16px 18px; margin-bottom:12px; }
+  .duvida-cabecalho{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .duvida-cabecalho h4{ font-size:14.5px; color:var(--azul); }
+  .duvida-autor{ font-size:12px; color: var(--ink-suave); }
+  .duvida-mensagem{ font-size:14px; line-height:1.55; margin-bottom:10px; white-space:pre-wrap; }
+  .resposta-item{ background: var(--azul-claro); border-radius:8px; padding:10px 13px; margin-top:8px; font-size:13.5px; line-height:1.5; }
+  .resposta-item .autor-resposta{ font-weight:700; color: var(--azul); font-size:12.5px; display:block; margin-bottom:3px; }
+  .form-resposta{ display:flex; gap:8px; margin-top:10px; }
+  .form-resposta input{ flex:1; padding:9px 12px; border-radius:8px; border:1.5px solid var(--borda); font-size:13.5px; }
+  .tag-resolvido{ font-size:11px; background: var(--verde-claro); color:var(--verde-escuro); padding:2px 9px; border-radius:20px; font-weight:600; }
+
+  .vazio{ text-align:center; padding: 50px 20px; color: var(--ink-suave); }
+  .vazio svg{ width:40px; height:40px; opacity:.35; margin-bottom:12px; }
+  .vazio p{ font-size:14px; }
+
+  .painel-professora{ background: var(--azul); color:#fff; border-radius:12px; padding:18px 20px; margin-bottom:22px; }
+  .painel-professora h3{ font-size:15px; margin-bottom:4px; }
+  .painel-professora p{ font-size:13px; color: rgba(255,255,255,.7); margin-bottom:12px; }
+
+  .modal-fundo{ display:none; position:fixed; inset:0; background: rgba(27,34,33,.5); z-index:50; align-items:center; justify-content:center; padding:20px; }
+  .modal-fundo.aberto{ display:flex; }
+  .modal{ background:var(--card); border-radius:14px; padding:26px; width:100%; max-width:480px; max-height:88vh; overflow-y:auto; }
+  .modal h3{ font-size:18px; color:var(--azul); margin-bottom:18px; }
+  .modal-acoes{ display:flex; gap:10px; margin-top: 20px; }
+
+  .carregando{ display:flex; align-items:center; justify-content:center; min-height:100vh; color: var(--ink-suave); font-size:14px; }
+
+  @media (max-width: 860px){
+    .sidebar{ position:fixed; left:0; top:0; z-index:40; transform: translateX(-100%); transition: transform .2s ease; box-shadow: 20px 0 40px rgba(0,0,0,.15); }
+    .sidebar.aberta{ transform: translateX(0); }
+    .layout{ flex-direction:column; }
+    .topo-mobile{ display:flex; align-items:center; justify-content:space-between; padding: 14px 18px; background:var(--card); border-bottom:1px solid var(--borda); position:sticky; top:0; z-index:30; }
+    .topo-mobile .marca-mobile{ display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:600; font-size:14px; color:var(--azul); }
+    .topo-mobile .marca-mobile svg{ width:24px; height:24px; }
+    .conteudo{ padding: 22px 18px 50px; }
+    .fundo-escurecido{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:35; }
+    .fundo-escurecido.ativo{ display:block; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= TELA DE LOGIN / CADASTRO ================= -->
+<div id="tela-login">
+  <div class="cartao-login">
+    <div class="marca-login">
+      <svg class="coruja" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="98" fill="#FFFFFF"/>
+        <path id="arcoTopoLogin" d="M 22,118 A 84,84 0 1,1 178,118" fill="none"/>
+        <text font-family="'Space Grotesk', sans-serif" font-size="8.6" font-weight="700" letter-spacing="0.3" fill="#1C2321">
+          <textPath href="#arcoTopoLogin" startOffset="50%" text-anchor="middle">CURSO DE MATEMÁTICA BÁSICA E AVANÇADA</textPath>
+        </text>
+        <circle cx="100" cy="106" r="76" fill="#2C5F35"/>
+        <path d="M52 108 C40 92 44 66 62 56 C72 78 70 96 70 112 Z" fill="#E8791E"/>
+        <path d="M148 108 C160 92 156 66 138 56 C128 78 130 96 130 112 Z" fill="#E8791E"/>
+        <path d="M78 58 L86 74 L70 72 Z" fill="#A9784F"/>
+        <path d="M122 58 L114 74 L130 72 Z" fill="#A9784F"/>
+        <ellipse cx="100" cy="126" rx="34" ry="28" fill="#A9784F"/>
+        <ellipse cx="100" cy="132" rx="19" ry="19" fill="#FBF6EC"/>
+        <circle cx="100" cy="92" r="30" fill="#A9784F"/>
+        <circle cx="88" cy="90" r="11.5" fill="#FBF6EC"/>
+        <circle cx="112" cy="90" r="11.5" fill="#FBF6EC"/>
+        <circle cx="88" cy="91" r="4.5" fill="#1C2321"/>
+        <circle cx="112" cy="91" r="4.5" fill="#1C2321"/>
+        <path d="M96 100 L104 100 L100 107 Z" fill="#E8791E"/>
+        <rect x="57" y="146" width="86" height="22" rx="11" fill="#F5F1E4"/>
+        <text x="100" y="161" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700" fill="#2C5F35" text-anchor="middle">Drika Moraes</text>
+      </svg>
+      <div class="textos">
+        <h1>Drika Moraes</h1>
+        <span>Matemática Básica e Avançada</span>
+      </div>
+    </div>
+
+    <div id="bloco-login">
+      <h2>Entrar</h2>
+      <span class="subtitulo">Acesse sua área de exercícios e materiais</span>
+      <div class="msg-erro" id="erro-login"></div>
+      <div class="campo">
+        <label for="login-email">E-mail</label>
+        <input type="email" id="login-email" autocomplete="email" placeholder="seuemail@exemplo.com">
+      </div>
+      <div class="campo">
+        <label for="login-senha">Senha</label>
+        <input type="password" id="login-senha" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primario btn-full" id="btn-entrar">Entrar</button>
+      <div class="alterna-modo">Ainda não tem conta? <button id="ir-para-cadastro">Criar acesso</button></div>
+    </div>
+
+    <div id="bloco-cadastro" style="display:none;">
+      <h2>Criar acesso</h2>
+      <span class="subtitulo">Use o código de acesso que a Drika te passou</span>
+      <div class="msg-erro" id="erro-cadastro"></div>
+      <div class="msg-ok" id="ok-cadastro"></div>
+      <div class="campo">
+        <label for="cad-nome">Nome</label>
+        <input type="text" id="cad-nome" placeholder="Seu nome completo">
+      </div>
+      <div class="campo">
+        <label for="cad-ano">Ano escolar</label>
+        <select id="cad-ano">
+          <option value="">Selecione</option>
+          <option>Fundamental I</option>
+          <option>Fundamental II</option>
+          <option>Ensino Médio</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="cad-email">E-mail</label>
+        <input type="email" id="cad-email" autocomplete="email" placeholder="seuemail@exemplo.com">
+      </div>
+      <div class="campo">
+        <label for="cad-senha">Crie uma senha</label>
+        <input type="password" id="cad-senha" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="campo">
+        <label for="cad-codigo">Código de acesso</label>
+        <input type="text" id="cad-codigo" placeholder="Código informado pela Drika">
+      </div>
+      <button class="btn btn-primario btn-full" id="btn-cadastrar">Criar minha conta</button>
+      <div class="alterna-modo">Já tem conta? <button id="ir-para-login">Entrar</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="fundo-escurecido" id="fundo-escurecido"></div>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="marca">
+        <svg class="coruja" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="98" fill="#FFFFFF"/>
+          <path id="arcoTopoSidebar" d="M 22,118 A 84,84 0 1,1 178,118" fill="none"/>
+          <text font-family="'Space Grotesk', sans-serif" font-size="8.6" font-weight="700" letter-spacing="0.3" fill="#1C2321">
+            <textPath href="#arcoTopoSidebar" startOffset="50%" text-anchor="middle">CURSO DE MATEMÁTICA BÁSICA E AVANÇADA</textPath>
+          </text>
+          <circle cx="100" cy="106" r="76" fill="#2C5F35"/>
+          <path d="M52 108 C40 92 44 66 62 56 C72 78 70 96 70 112 Z" fill="#E8791E"/>
+          <path d="M148 108 C160 92 156 66 138 56 C128 78 130 96 130 112 Z" fill="#E8791E"/>
+          <path d="M78 58 L86 74 L70 72 Z" fill="#A9784F"/>
+          <path d="M122 58 L114 74 L130 72 Z" fill="#A9784F"/>
+          <ellipse cx="100" cy="126" rx="34" ry="28" fill="#A9784F"/>
+          <ellipse cx="100" cy="132" rx="19" ry="19" fill="#FBF6EC"/>
+          <circle cx="100" cy="92" r="30" fill="#A9784F"/>
+          <circle cx="88" cy="90" r="11.5" fill="#FBF6EC"/>
+          <circle cx="112" cy="90" r="11.5" fill="#FBF6EC"/>
+          <circle cx="88" cy="91" r="4.5" fill="#1C2321"/>
+          <circle cx="112" cy="91" r="4.5" fill="#1C2321"/>
+          <path d="M96 100 L104 100 L100 107 Z" fill="#E8791E"/>
+          <rect x="57" y="146" width="86" height="22" rx="11" fill="#F5F1E4"/>
+          <text x="100" y="161" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700" fill="#2C5F35" text-anchor="middle">Drika Moraes</text>
+        </svg>
+        <span>Drika Moraes</span>
+      </div>
+
+      <button class="nav-item ativo" data-view="inicio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"/></svg>
+        Início
+        <span id="ponto-aviso" style="display:none; width:7px; height:7px; border-radius:50%; background:var(--amarelo); margin-left:auto;"></span>
+      </button>
+      <button class="nav-item" data-view="exercicios">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Exercícios
+      </button>
+      <button class="nav-item" data-view="revisao">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 106-8.5"/><path d="M3 4v5h5"/></svg>
+        Revisão
+      </button>
+      <button class="nav-item" data-view="aulas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>
+        Aulas e materiais
+      </button>
+      <button class="nav-item" data-view="progresso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        Meu progresso
+      </button>
+      <button class="nav-item" data-view="duvidas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Dúvidas
+      </button>
+
+      <div id="area-professora" style="display:none;">
+        <div class="nav-separador"></div>
+        <div class="nav-rotulo">Painel da professora</div>
+        <button class="nav-item" data-view="gerenciar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+          Gerenciar conteúdo
+        </button>
+      </div>
+
+      <div class="sidebar-rodape">
+        <button class="perfil-mini" id="btn-editar-perfil" style="border:none; background:none; width:100%; text-align:left; cursor:pointer;">
+          <div class="avatar-mini" id="avatar-inicial">?</div>
+          <div>
+            <div class="nome" id="nome-usuario">—</div>
+            <div class="papel" id="papel-usuario">—</div>
+          </div>
+        </button>
+        <button class="nav-item" id="btn-sair" style="margin-top:4px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          Sair
+        </button>
+
+      </div>
+    </aside>
+
+    <div style="flex:1; min-width:0;">
+      <div class="topo-mobile">
+        <button class="btn-menu-mobile" id="btn-abrir-menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="marca-mobile">Drika Moraes</div>
+        <div style="width:24px;"></div>
+      </div>
+
+      <main class="conteudo" id="conteudo">
+        <!-- as views são renderizadas aqui via JS -->
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL GENÉRICO (usado pelo painel da professora) ================= -->
+<div class="modal-fundo" id="modal-fundo">
+  <div class="modal" id="modal-corpo"></div>
+</div>
+
+<div class="carregando" id="tela-carregando">Carregando...</div>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO SUPABASE
+   ============================================================ */
+const SUPABASE_URL = 'https://ygxxltxvhqhobaazfuql.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlneHhsdHh2aHFob2JhYXpmdXFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzNDU5MjAsImV4cCI6MjEwNDkyMTkyMH0.2dzE_qz6c7OM6PJkV1rQlvz6Mf-Zot7URaVvACm7Gf4';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Código de acesso simples para novos cadastros. Troque quando quiser invalidar convites antigos.
+const CODIGO_ACESSO = 'DRIKA2026';
+
+let perfilAtual = null;
+let materiasCache = [];
+let exerciciosCache = [];
+let progressoCache = [];
+let aulasCache = [];
+let avisosCache = [];
+let duvidasCache = [];
+let viewAtual = 'inicio';
+let materiaSelecionada = null;
+let termoBusca = '';
+
+const $ = (sel, ctx=document) => ctx.querySelector(sel);
+const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+
+function escapeHtml(str){
+  if(str===null || str===undefined) return '';
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function formatarData(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+/* ============================================================
+   AUTENTICAÇÃO
+   ============================================================ */
+$('#ir-para-cadastro').addEventListener('click', () => {
+  $('#bloco-login').style.display = 'none';
+  $('#bloco-cadastro').style.display = 'block';
+});
+$('#ir-para-login').addEventListener('click', () => {
+  $('#bloco-cadastro').style.display = 'none';
+  $('#bloco-login').style.display = 'block';
+});
+
+$('#btn-entrar').addEventListener('click', fazerLogin);
+$('#login-senha').addEventListener('keydown', e => { if(e.key==='Enter') fazerLogin(); });
+
+async function fazerLogin(){
+  const email = $('#login-email').value.trim();
+  const senha = $('#login-senha').value;
+  const erroBox = $('#erro-login');
+  erroBox.style.display = 'none';
+  if(!email || !senha){
+    erroBox.textContent = 'Preencha e-mail e senha.';
+    erroBox.style.display = 'block';
+    return;
+  }
+  const btn = $('#btn-entrar');
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+  btn.disabled = false; btn.textContent = 'Entrar';
+  if(error){
+    erroBox.textContent = 'E-mail ou senha incorretos.';
+    erroBox.style.display = 'block';
+  }
+}
+
+$('#btn-cadastrar').addEventListener('click', fazerCadastro);
+
+async function fazerCadastro(){
+  const nome = $('#cad-nome').value.trim();
+  const ano = $('#cad-ano').value;
+  const email = $('#cad-email').value.trim();
+  const senha = $('#cad-senha').value;
+  const codigo = $('#cad-codigo').value.trim();
+  const erroBox = $('#erro-cadastro');
+  const okBox = $('#ok-cadastro');
+  erroBox.style.display = 'none';
+  okBox.style.display = 'none';
+
+  if(!nome || !email || !senha || !codigo){
+    erroBox.textContent = 'Preencha todos os campos.';
+    erroBox.style.display = 'block';
+    return;
+  }
+  if(senha.length < 6){
+    erroBox.textContent = 'A senha precisa ter no mínimo 6 caracteres.';
+    erroBox.style.display = 'block';
+    return;
+  }
+  if(codigo !== CODIGO_ACESSO){
+    erroBox.textContent = 'Código de acesso inválido. Confira com a Drika.';
+    erroBox.style.display = 'block';
+    return;
+  }
+
+  const btn = $('#btn-cadastrar');
+  btn.disabled = true; btn.textContent = 'Criando conta...';
+  const { error } = await sb.auth.signUp({
+    email, password: senha,
+    options: { data: { nome, role: 'aluno' } }
+  });
+  btn.disabled = false; btn.textContent = 'Criar minha conta';
+
+  if(error){
+    erroBox.textContent = error.message.includes('already registered') ? 'Este e-mail já tem cadastro. Tente entrar.' : 'Não foi possível criar a conta. Tente novamente.';
+    erroBox.style.display = 'block';
+    return;
+  }
+
+  // salva o ano escolar após a criação do perfil (trigger cria o profile)
+  const { data: sessao } = await sb.auth.getSession();
+  if(sessao.session){
+    await sb.from('profiles').update({ ano_escolar: ano }).eq('id', sessao.session.user.id);
+  } else {
+    okBox.textContent = 'Conta criada! Verifique seu e-mail para confirmar o acesso, depois volte para entrar.';
+    okBox.style.display = 'block';
+  }
+}
+
+$('#btn-sair').addEventListener('click', async () => {
+  await sb.auth.signOut();
+});
+
+$('#btn-editar-perfil').addEventListener('click', abrirModalPerfil);
+
+function abrirModalPerfil(){
+  abrirModal(`
+    <h3>Editar perfil</h3>
+    <div class="msg-erro" id="erro-perfil"></div>
+    <div class="msg-ok" id="ok-perfil"></div>
+    <div class="campo"><label>Nome</label><input type="text" id="p-nome" value="${escapeHtml(perfilAtual.nome)}"></div>
+    <div class="campo"><label>Ano escolar</label>
+      <select id="p-ano">
+        <option value="">Selecione</option>
+        <option ${perfilAtual.ano_escolar==='Fundamental I'?'selected':''}>Fundamental I</option>
+        <option ${perfilAtual.ano_escolar==='Fundamental II'?'selected':''}>Fundamental II</option>
+        <option ${perfilAtual.ano_escolar==='Ensino Médio'?'selected':''}>Ensino Médio</option>
+        <option ${perfilAtual.ano_escolar==='Outro'?'selected':''}>Outro</option>
+      </select>
+    </div>
+    <div class="campo"><label>Nova senha (deixe em branco para manter a atual)</label><input type="password" id="p-senha" placeholder="Mínimo 6 caracteres"></div>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario btn-full" id="p-cancelar">Cancelar</button>
+      <button class="btn btn-primario btn-full" id="p-salvar">Salvar</button>
+    </div>
+  `);
+  $('#p-cancelar').addEventListener('click', fecharModal);
+  $('#p-salvar').addEventListener('click', async () => {
+    const nome = $('#p-nome').value.trim();
+    const ano = $('#p-ano').value;
+    const senha = $('#p-senha').value;
+    const erroBox = $('#erro-perfil');
+    const okBox = $('#ok-perfil');
+    erroBox.style.display = 'none';
+    okBox.style.display = 'none';
+    if(!nome){ erroBox.textContent = 'O nome não pode ficar em branco.'; erroBox.style.display = 'block'; return; }
+    if(senha && senha.length < 6){ erroBox.textContent = 'A nova senha precisa ter no mínimo 6 caracteres.'; erroBox.style.display = 'block'; return; }
+
+    const { error: erroPerfil } = await sb.from('profiles').update({ nome, ano_escolar: ano }).eq('id', perfilAtual.id);
+    if(erroPerfil){ erroBox.textContent = 'Não foi possível salvar. Tente novamente.'; erroBox.style.display = 'block'; return; }
+
+    if(senha){
+      const { error: erroSenha } = await sb.auth.updateUser({ password: senha });
+      if(erroSenha){ erroBox.textContent = 'Perfil salvo, mas a senha não pôde ser alterada.'; erroBox.style.display = 'block'; return; }
+    }
+
+    perfilAtual.nome = nome;
+    perfilAtual.ano_escolar = ano;
+    $('#nome-usuario').textContent = nome;
+    $('#avatar-inicial').textContent = nome.charAt(0).toUpperCase();
+    okBox.textContent = 'Perfil atualizado.';
+    okBox.style.display = 'block';
+    setTimeout(fecharModal, 900);
+  });
+}
+
+sb.auth.onAuthStateChange(async (event, session) => {
+  if(session){
+    await carregarPerfilEIniciar(session.user.id);
+  } else {
+    perfilAtual = null;
+    $('#tela-carregando').style.display = 'none';
+    $('#app').style.display = 'none';
+    $('#tela-login').style.display = 'flex';
+  }
+});
+
+async function carregarPerfilEIniciar(userId){
+  $('#tela-carregando').style.display = 'flex';
+  $('#tela-login').style.display = 'none';
+
+  let { data: perfil } = await sb.from('profiles').select('*').eq('id', userId).single();
+  // pequena tentativa extra caso o trigger ainda não tenha terminado
+  if(!perfil){
+    await new Promise(r => setTimeout(r, 700));
+    ({ data: perfil } = await sb.from('profiles').select('*').eq('id', userId).single());
+  }
+  perfilAtual = perfil;
+
+  if(!perfilAtual){
+    $('#tela-carregando').style.display = 'none';
+    $('#tela-login').style.display = 'flex';
+    return;
+  }
+
+  $('#nome-usuario').textContent = perfilAtual.nome;
+  $('#papel-usuario').textContent = perfilAtual.role === 'professora' ? 'Professora' : 'Aluno(a)';
+  $('#avatar-inicial').textContent = perfilAtual.nome.charAt(0).toUpperCase();
+  $('#area-professora').style.display = perfilAtual.role === 'professora' ? 'block' : 'none';
+
+  await carregarDadosBase();
+  atualizarPontoAviso();
+
+  $('#tela-carregando').style.display = 'none';
+  $('#app').style.display = 'block';
+  irParaView('inicio', { isInitial: true });
+}
+
+async function carregarDadosBase(){
+  const [materias, exercicios, aulas, avisos, duvidas, progresso] = await Promise.all([
+    sb.from('materias').select('*').order('ordem'),
+    sb.from('exercicios').select('*').order('ordem'),
+    sb.from('aulas').select('*').order('ordem'),
+    sb.from('avisos').select('*').order('fixado', { ascending:false }).order('criado_em', { ascending:false }),
+    sb.from('duvidas').select('*, respostas_duvidas(*, profiles(nome, role))').order('criado_em', { ascending:false }),
+    sb.from('progresso_alunos').select('*').eq('aluno_id', perfilAtual.id)
+  ]);
+  materiasCache = materias.data || [];
+  exerciciosCache = exercicios.data || [];
+  aulasCache = aulas.data || [];
+  avisosCache = avisos.data || [];
+  duvidasCache = duvidas.data || [];
+  progressoCache = progresso.data || [];
+}
+
+/* ============================================================
+   NAVEGAÇÃO
+   ============================================================ */
+$$('.nav-item[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => irParaView(btn.dataset.view));
+});
+
+function irParaView(view, opcoes){
+  opcoes = opcoes || {};
+  viewAtual = view;
+  $$('.nav-item[data-view]').forEach(b => b.classList.toggle('ativo', b.dataset.view === view));
+  fecharMenuMobile();
+  if(view === 'inicio'){
+    renderInicio();
+    if(!opcoes.isInitial) marcarAvisosVistos();
+  }
+  else if(view === 'exercicios') renderExercicios();
+  else if(view === 'revisao') renderRevisao();
+  else if(view === 'aulas') renderAulas();
+  else if(view === 'progresso') renderProgresso();
+  else if(view === 'duvidas') renderDuvidas();
+  else if(view === 'gerenciar') renderGerenciar();
+}
+
+function maisRecenteAviso(){
+  if(!avisosCache.length) return null;
+  return avisosCache.reduce((max, a) => new Date(a.criado_em) > new Date(max) ? a.criado_em : max, avisosCache[0].criado_em);
+}
+function atualizarPontoAviso(){
+  const recente = maisRecenteAviso();
+  const chave = `ultimoAvisoVisto_${perfilAtual.id}`;
+  const visto = localStorage.getItem(chave);
+  const temNovo = recente && (!visto || new Date(recente) > new Date(visto));
+  $('#ponto-aviso').style.display = temNovo ? 'inline-block' : 'none';
+}
+function marcarAvisosVistos(){
+  const recente = maisRecenteAviso();
+  if(!recente) return;
+  localStorage.setItem(`ultimoAvisoVisto_${perfilAtual.id}`, recente);
+  $('#ponto-aviso').style.display = 'none';
+}
+
+$('#btn-abrir-menu').addEventListener('click', () => {
+  $('#sidebar').classList.add('aberta');
+  $('#fundo-escurecido').classList.add('ativo');
+});
+$('#fundo-escurecido').addEventListener('click', fecharMenuMobile);
+function fecharMenuMobile(){
+  $('#sidebar').classList.remove('aberta');
+  $('#fundo-escurecido').classList.remove('ativo');
+}
+
+/* ============================================================
+   VIEW: INÍCIO
+   ============================================================ */
+function calcularSequenciaEstudo(){
+  const dias = new Set(
+    progressoCache
+      .filter(p => p.concluido && p.atualizado_em)
+      .map(p => new Date(p.atualizado_em).toDateString())
+  );
+  if(!dias.size) return 0;
+  let sequencia = 0;
+  let cursor = new Date();
+  while(true){
+    if(dias.has(cursor.toDateString())){
+      sequencia++;
+      cursor.setDate(cursor.getDate() - 1);
+    } else if(sequencia === 0 && dias.has(new Date(cursor.getTime() - 86400000).toDateString())){
+      cursor.setDate(cursor.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return sequencia;
+}
+
+function renderInicio(){
+  const totalExercicios = exerciciosCache.length;
+  const feitos = progressoCache.filter(p => p.concluido).length;
+  const pct = totalExercicios ? Math.round((feitos/totalExercicios)*100) : 0;
+  const sequencia = calcularSequenciaEstudo();
+
+  const avisosHtml = avisosCache.length ? avisosCache.slice(0,4).map(a => `
+    <div class="mural-item ${a.fixado ? 'fixado':''}">
+      <h4>${escapeHtml(a.titulo)}</h4>
+      <p>${escapeHtml(a.mensagem)}</p>
+      <span class="data">${formatarData(a.criado_em)}</span>
+    </div>
+  `).join('') : `<div class="vazio"><p>Nenhum aviso por aqui ainda.</p></div>`;
+
+  $('#conteudo').innerHTML = `
+    <div class="cabecalho-pagina">
+      <h1>Oi, ${escapeHtml(perfilAtual.nome.split(' ')[0])}!</h1>
+      <p>Aqui está o que está rolando no seu curso de matemática.</p>
+    </div>
+
+    <div class="barra-progresso-geral">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <h3 style="font-size:15px; color:var(--azul);">Seu progresso geral</h3>
+        <span style="font-size:13.5px; color:var(--ink-suave);">${feitos} de ${totalExercicios} exercícios</span>
+      </div>
+      <div class="trilho"><div class="preenchido" style="width:${pct}%;"></div></div>
+      <span style="font-size:13px; color: var(--ink-suave);">${pct}% concluído</span>
+      ${sequencia > 0 ? `<div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--borda); display:flex; align-items:center; gap:8px;">
+        <span style="font-size:18px;">🔥</span>
+        <span style="font-size:13.5px; color:var(--ink);"><strong>${sequencia}</strong> dia${sequencia===1?'':'s'} seguido${sequencia===1?'':'s'} resolvendo exercícios</span>
+      </div>` : ''}
+    </div>
+
+    <h3 style="font-size:15px; color:var(--azul); margin-bottom:12px;">Avisos da Drika</h3>
+    ${avisosHtml}
+  `;
+}
+
+/* ============================================================
+   VIEW: EXERCÍCIOS
+   ============================================================ */
+function nivelLabel(nivel){
+  return nivel === 'basico' ? 'Básico' : nivel === 'intermediario' ? 'Intermediário' : 'Avançado';
+}
+
+function renderExercicios(){
+  if(!materiaSelecionada && materiasCache.length){
+    materiaSelecionada = materiasCache[0].id;
+  }
+
+  const abas = materiasCache.map(m => `
+    <button class="aba-materia ${m.id === materiaSelecionada ? 'ativa' : ''}" style="--cor-materia:${m.cor}" data-materia="${m.id}">${escapeHtml(m.nome)}</button>
+  `).join('');
+
+  $('#conteudo').innerHTML = `
+    <div class="cabecalho-pagina">
+      <h1>Exercícios</h1>
+      <p>Escolha a matéria e resolva no seu ritmo.</p>
+    </div>
+    ${materiasCache.length ? `
+      <div class="campo" style="max-width:320px;">
+        <input type="text" id="busca-exercicios" placeholder="Buscar por palavra-chave..." value="${escapeHtml(termoBusca)}">
+      </div>
+      <div class="abas-materias" style="margin-top:14px;">${abas}</div>
+      <div class="painel-ficha"><div class="lista-ficha" id="lista-ficha-container">${construirListaFiltrada()}</div></div>
+    ` : '<div class="painel-ficha-vazio"><div class="vazio"><p>Ainda não há matérias cadastradas.</p></div></div>'}
+  `;
+
+  $$('.aba-materia').forEach(a => a.addEventListener('click', () => {
+    materiaSelecionada = a.dataset.materia;
+    renderExercicios();
+  }));
+
+  const buscaInput = $('#busca-exercicios');
+  if(buscaInput){
+    buscaInput.addEventListener('input', () => {
+      termoBusca = buscaInput.value;
+      $('#lista-ficha-container').innerHTML = construirListaFiltrada();
+      attachListaHandlers();
+    });
+  }
+
+  attachListaHandlers();
+}
+
+function construirListaFiltrada(){
+  const termo = termoBusca.trim().toLowerCase();
+  const lista = exerciciosCache
+    .filter(e => e.materia_id === materiaSelecionada)
+    .filter(e => !termo || e.titulo.toLowerCase().includes(termo) || e.enunciado.toLowerCase().includes(termo))
+    .sort((a,b) => a.ordem - b.ordem);
+  if(!lista.length) return `<div class="vazio"><p>${termo ? 'Nenhum exercício encontrado para essa busca.' : 'Ainda não há exercícios nesta matéria.'}</p></div>`;
+  return lista.map((ex, idx) => construirLinhaExercicio(ex, String(idx + 1).padStart(2, '0'))).join('');
+}
+
+function construirLinhaExercicio(ex, numero){
+  const prog = progressoCache.find(p => p.exercicio_id === ex.id);
+  const feito = prog && prog.concluido;
+  const temFoto = prog && prog.foto_resolucao;
+  return `
+    <div class="linha-exercicio" data-id="${ex.id}">
+      <div class="linha-exercicio-topo ${feito ? 'feito' : ''}" data-toggle="${ex.id}">
+        <span class="numero-exercicio">${numero}</span>
+        <button class="caixa-check ${feito ? 'feito' : ''}" data-check="${ex.id}" aria-label="Marcar exercício ${numero} como concluído"></button>
+        <div class="texto-linha">
+          <span class="texto-exercicio">${escapeHtml(ex.titulo)}</span>
+          <div class="rodape-linha"><span class="tag-nivel tag-${ex.nivel}">${nivelLabel(ex.nivel)}</span></div>
+        </div>
+      </div>
+      <div class="corpo-exercicio" id="corpo-${ex.id}">
+        <div class="enunciado">${escapeHtml(ex.enunciado)}</div>
+        <button class="btn-revelar" data-vergabarito="${ex.id}">Ver resposta</button>
+        <div class="caixa-gabarito" id="gabarito-${ex.id}" style="display:none; margin-top:10px;">
+          <span class="rotulo-resposta">Resposta</span>${escapeHtml(ex.gabarito)}
+          ${ex.explicacao ? `<br><br><span class="rotulo-resposta">Como chegar lá</span>${escapeHtml(ex.explicacao)}` : ''}
+        </div>
+        <div style="margin-top:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <label class="btn-revelar" style="display:inline-block; margin:0;">
+            Enviar foto da resolução
+            <input type="file" accept="image/*" data-foto="${ex.id}" style="display:none;">
+          </label>
+          ${temFoto ? `<button class="btn-texto" data-verfoto="${ex.id}">Ver foto enviada</button>` : ''}
+        </div>
+        <div id="foto-status-${ex.id}" style="font-size:12.5px; color:var(--ink-suave); margin-top:6px;"></div>
+      </div>
+    </div>
+  `;
+}
+
+function attachListaHandlers(){
+  $$('[data-toggle]').forEach(el => el.addEventListener('click', (e) => {
+    if(e.target.closest('[data-check]')) return;
+    const id = el.dataset.toggle;
+    $(`#corpo-${id}`).classList.toggle('aberto');
+  }));
+
+  $$('[data-check]').forEach(el => el.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const id = el.dataset.check;
+    const existente = progressoCache.find(p => p.exercicio_id === id);
+    const novoValor = !(existente && existente.concluido);
+    await sb.from('progresso_alunos').upsert({
+      aluno_id: perfilAtual.id, exercicio_id: id, concluido: novoValor, atualizado_em: new Date().toISOString()
+    }, { onConflict: 'aluno_id,exercicio_id' });
+    if(existente) existente.concluido = novoValor;
+    else progressoCache.push({ aluno_id: perfilAtual.id, exercicio_id: id, concluido: novoValor });
+    if(viewAtual === 'revisao') renderRevisao(); else renderExercicios();
+  }));
+
+  $$('[data-vergabarito]').forEach(el => el.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const id = el.dataset.vergabarito;
+    $(`#gabarito-${id}`).style.display = 'block';
+    el.style.display = 'none';
+    const existente = progressoCache.find(p => p.exercicio_id === id);
+    await sb.from('progresso_alunos').upsert({
+      aluno_id: perfilAtual.id, exercicio_id: id, viu_gabarito: true,
+      concluido: existente ? existente.concluido : false, atualizado_em: new Date().toISOString()
+    }, { onConflict: 'aluno_id,exercicio_id' });
+    if(existente) existente.viu_gabarito = true;
+    else progressoCache.push({ aluno_id: perfilAtual.id, exercicio_id: id, viu_gabarito: true, concluido: false });
+  }));
+
+  $$('[data-foto]').forEach(el => el.addEventListener('change', async (e) => {
+    e.stopPropagation();
+    const id = el.dataset.foto;
+    const file = el.files[0];
+    if(!file) return;
+    const status = $(`#foto-status-${id}`);
+    if(status) status.textContent = 'Enviando...';
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const caminho = `${perfilAtual.id}/${id}-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('resolucoes').upload(caminho, file);
+    if(error){ if(status) status.textContent = 'Não foi possível enviar. Tente de novo.'; return; }
+    await sb.from('progresso_alunos').upsert({
+      aluno_id: perfilAtual.id, exercicio_id: id, foto_resolucao: caminho, atualizado_em: new Date().toISOString()
+    }, { onConflict: 'aluno_id,exercicio_id' });
+    const existente = progressoCache.find(p => p.exercicio_id === id);
+    if(existente) existente.foto_resolucao = caminho;
+    else progressoCache.push({ aluno_id: perfilAtual.id, exercicio_id: id, foto_resolucao: caminho });
+    if(status) status.textContent = 'Foto enviada.';
+  }));
+
+  $$('[data-verfoto]').forEach(el => el.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const id = el.dataset.verfoto;
+    const prog = progressoCache.find(p => p.exercicio_id === id);
+    if(!prog || !prog.foto_resolucao) return;
+    const { data, error } = await sb.storage.from('resolucoes').createSignedUrl(prog.foto_resolucao, 120);
+    if(!error && data) window.open(data.signedUrl, '_blank');
+  }));
+}
+
+/* ============================================================
+   VIEW: REVISÃO
+   ============================================================ */
+function renderRevisao(){
+  if(perfilAtual.role === 'professora'){
+    $('#conteudo').innerHTML = `
+      <div class="cabecalho-pagina">
+        <h1>Revisão</h1>
+        <p>Este espaço é a lista de pendências de cada aluno. Use o painel "Gerenciar conteúdo" para acompanhar a turma.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const pendentes = exerciciosCache.filter(ex => {
+    const prog = progressoCache.find(p => p.exercicio_id === ex.id);
+    return !(prog && prog.concluido);
+  });
+
+  const grupos = materiasCache
+    .map(m => ({ materia: m, itens: pendentes.filter(ex => ex.materia_id === m.id).sort((a,b) => a.ordem - b.ordem) }))
+    .filter(g => g.itens.length);
+
+  const blocos = grupos.map(g => `
+    <h3 style="font-size:14px; color:${g.materia.cor}; margin: 20px 0 8px;">${escapeHtml(g.materia.nome)}</h3>
+    <div class="painel-ficha"><div class="lista-ficha">
+      ${g.itens.map((ex, idx) => construirLinhaExercicio(ex, String(idx + 1).padStart(2, '0'))).join('')}
+    </div></div>
+  `).join('');
+
+  $('#conteudo').innerHTML = `
+    <div class="cabecalho-pagina">
+      <h1>Revisão</h1>
+      <p>Tudo o que você ainda não marcou como concluído, juntado num só lugar.</p>
+    </div>
+    ${grupos.length ? blocos : '<div class="painel-ficha-vazio"><div class="vazio"><p>Você concluiu todos os exercícios disponíveis. Parabéns!</p></div></div>'}
+  `;
+
+  attachListaHandlers();
+}
+
+/* ============================================================
+   VIEW: AULAS E MATERIAIS
+   ============================================================ */
+function renderAulas(){
+  const cards = aulasCache.map(a => {
+    const materia = materiasCache.find(m => m.id === a.materia_id);
+    return `
+      <div class="cartao-aula">
+        <div class="cartao-aula-topo">
+          ${a.tipo === 'video'
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>'}
+        </div>
+        <div class="cartao-aula-corpo">
+          <h4>${escapeHtml(a.titulo)}</h4>
+          <p>${escapeHtml(a.descricao || (materia ? materia.nome : ''))}</p>
+          <a class="link-aula" href="${escapeHtml(a.url)}" target="_blank" rel="noopener">${a.tipo === 'video' ? 'Assistir aula →' : 'Abrir PDF →'}</a>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  $('#conteudo').innerHTML = `
+    <div class="cabecalho-pagina">
+      <h1>Aulas e materiais</h1>
+      <p>Vídeo-aulas e PDFs de apoio.</p>
+    </div>
+    <div class="grade-aulas">${cards || '<div class="vazio"><p>Nenhum material publicado ainda.</p></div>'}</div>
+  `;
+}
+
+/* ============================================================
+   VIEW: MEU PROGRESSO
+   ============================================================ */
+function renderProgresso(){
+  const linhas = materiasCache.map(m => {
+    const exs = exerciciosCache.filter(e => e.materia_id === m.id);
+    const feitos = exs.filter(e => progressoCache.some(p => p.exercicio_id === e.id && p.concluido)).length;
+    const pct = exs.length ? Math.round((feitos/exs.length)*100) : 0;
+    return `
+      <div class="card" style="margin-bottom:12px;">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <h4 style="font-size:14.5px; color:var(--azul);">${escapeHtml(m.nome)}</h4>
+          <span style="font-size:13px; color:var(--ink-suave);">${feitos}/${exs.length}</span>
+        </div>
+        <div class="trilho"><div class="preenchido" style="width:${pct}%; background:${m.cor};"></div></div>
+      </div>
+    `;
+  }).join('');
+
+  const totalExercicios = exerciciosCache.length;
+  const feitos = progressoCache.filter(p => p.concluido).length;
+  const pct = totalExercicios ? Math.round((feitos/totalExercicios)*100) : 0;
+
+  $('#conteudo').innerHTML = `
+    <div class="cabecalho-pagina">
+      <h1>Meu progresso</h1>
+      <p>Acompanhe sua evolução por matéria.</p>
+    </div>
+    <div class="barra-progresso-geral">
+      <h3 style="font-size:15px; color:var(--azul); margin-bottom:8px;">Total geral</h3>
+      <div class="trilho"><div class="preenchido" style="width:${pct}%;"></div></div>
+      <span style="font-size:13px; color:var(--ink-suave);">${feitos} de ${totalExercicios} exercícios concluídos (${pct}%)</span>
+    </div>
+    ${linhas || '<div class="vazio"><p>Ainda não há matérias para acompanhar.</p></div>'}
+  `;
+}
+
+/* ============================================================
+   VIEW: DÚVIDAS
+   ============================================================ */
+function renderDuvidas(){
+  const lista = duvidasCache.map(d => {
+    const respostas = (d.respostas_duvidas || []).sort((a,b) => new Date(a.criado_em) - new Date(b.criado_em));
+    const respostasHtml = respostas.map(r => `
+      <div class="resposta-item">
+        <span class="autor-resposta">${escapeHtml(r.profiles ? r.profiles.nome : 'Aluno')} ${r.profiles && r.profiles.role === 'professora' ? '— Professora' : ''}</span>
+        ${escapeHtml(r.mensagem)}
+      </div>
+    `).join('');
+    return `
+      <div class="duvida-item">
+        <div class="duvida-cabecalho">
+          <h4>${escapeHtml(d.titulo)}</h4>
+          ${d.resolvido ? '<span class="tag-resolvido">Respondida</span>' : ''}
+        </div>
+        <span class="duvida-autor">${formatarData(d.criado_em)}</span>
+        <p class="duvida-mensagem" style="margin-top:8px;">${escapeHtml(d.mensagem)}</p>
+        ${respostasHtml}
+        <form class="form-resposta" data-responder="${d.id}">
+          <input type="text" placeholder="Escreva uma resposta..." required>
+          <button class="btn btn-secundario" type="submit">Enviar</button>
+        </form>
+      </div>
+    `;
+  }).join('');
+
+  $('#conteudo').innerHTML = `
+    <div class="cabecalho-pagina">
+      <h1>Mural de dúvidas</h1>
+      <p>Pergunte à Drika ou ajude outros colegas.</p>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="font-size:15px; color:var(--azul); margin-bottom:12px;">Nova dúvida</h3>
+      <div class="campo"><input type="text" id="nova-duvida-titulo" placeholder="Título curto (ex: Dúvida em equação do 2º grau)"></div>
+      <div class="campo"><textarea id="nova-duvida-mensagem" rows="3" placeholder="Descreva sua dúvida..."></textarea></div>
+      <button class="btn btn-primario" id="btn-postar-duvida">Postar dúvida</button>
+    </div>
+    ${lista || '<div class="vazio"><p>Nenhuma dúvida postada ainda. Seja a primeira pessoa a perguntar!</p></div>'}
+  `;
+
+  $('#btn-postar-duvida').addEventListener('click', async () => {
+    const titulo = $('#nova-duvida-titulo').value.trim();
+    const mensagem = $('#nova-duvida-mensagem').value.trim();
+    if(!titulo || !mensagem) return;
+    const { data, error } = await sb.from('duvidas').insert({ aluno_id: perfilAtual.id, titulo, mensagem }).select('*, respostas_duvidas(*, profiles(nome, role))').single();
+    if(!error){
+      duvidasCache.unshift(data);
+      renderDuvidas();
+    }
+  });
+
+  $$('[data-responder]').forEach(form => form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const duvidaId = form.dataset.responder;
+    const input = form.querySelector('input');
+    const mensagem = input.value.trim();
+    if(!mensagem) return;
+    const { error } = await sb.from('respostas_duvidas').insert({ duvida_id: duvidaId, autor_id: perfilAtual.id, mensagem });
+    if(!error){
+      if(perfilAtual.role === 'professora'){
+        await sb.from('duvidas').update({ resolvido: true }).eq('id', duvidaId);
+      }
+      const { data } = await sb.from('duvidas').select('*, respostas_duvidas(*, profiles(nome, role))').order('criado_em', { ascending:false });
+      duvidasCache = data || duvidasCache;
+      renderDuvidas();
+    }
+  }));
+}
+
+/* ============================================================
+   VIEW: GERENCIAR (SOMENTE PROFESSORA)
+   ============================================================ */
+function renderGerenciar(){
+  if(perfilAtual.role !== 'professora'){ irParaView('inicio'); return; }
+
+  $('#conteudo').innerHTML = `
+    <div class="cabecalho-pagina">
+      <h1>Gerenciar conteúdo</h1>
+      <p>Adicione exercícios, aulas e avisos para seus alunos.</p>
+    </div>
+    <div class="painel-professora">
+      <h3>Ações rápidas</h3>
+      <p>Tudo o que você publicar aqui aparece na hora para os alunos.</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-amarelo" id="btn-novo-exercicio">+ Exercício</button>
+        <button class="btn btn-amarelo" id="btn-nova-aula">+ Aula / material</button>
+        <button class="btn btn-amarelo" id="btn-novo-aviso">+ Aviso</button>
+        <button class="btn btn-amarelo" id="btn-nova-materia">+ Matéria</button>
+        <button class="btn btn-secundario" id="btn-ver-fotos" style="background:#fff;">Ver fotos enviadas</button>
+      </div>
+    </div>
+
+    <h3 style="font-size:15px; color:var(--azul); margin-bottom:12px;">Exercícios cadastrados</h3>
+    <div class="painel-ficha" style="margin-bottom:26px;">
+      <div class="lista-ficha">
+      ${exerciciosCache.map((ex, idx) => {
+        const m = materiasCache.find(mm => mm.id === ex.materia_id);
+        return `<div class="linha-exercicio"><div class="linha-exercicio-topo"><span class="numero-exercicio">${String(idx+1).padStart(2,'0')}</span><div class="texto-linha"><span class="texto-exercicio">${escapeHtml(ex.titulo)}</span><div class="rodape-linha"><span class="tag-nivel tag-${ex.nivel}">${nivelLabel(ex.nivel)}</span><span style="font-size:12px; color:var(--ink-suave);">${m ? escapeHtml(m.nome) : ''}</span></div></div></div></div>`;
+      }).join('') || '<div class="vazio"><p>Nenhum exercício ainda. Comece adicionando um.</p></div>'}
+      </div>
+    </div>
+  `;
+
+  $('#btn-novo-exercicio').addEventListener('click', abrirModalExercicio);
+  $('#btn-nova-aula').addEventListener('click', abrirModalAula);
+  $('#btn-novo-aviso').addEventListener('click', abrirModalAviso);
+  $('#btn-nova-materia').addEventListener('click', abrirModalMateria);
+  $('#btn-ver-fotos').addEventListener('click', abrirModalFotos);
+}
+
+async function abrirModalFotos(){
+  abrirModal(`<h3>Fotos de resolução enviadas</h3><p style="font-size:13.5px; color:var(--ink-suave);">Carregando...</p>`);
+  const { data, error } = await sb
+    .from('progresso_alunos')
+    .select('foto_resolucao, atualizado_em, profiles(nome), exercicios(titulo)')
+    .not('foto_resolucao', 'is', null)
+    .order('atualizado_em', { ascending: false });
+
+  if(error || !data || !data.length){
+    $('#modal-corpo').innerHTML = `<h3>Fotos de resolução enviadas</h3><div class="vazio"><p>Nenhuma foto enviada ainda.</p></div><div class="modal-acoes"><button class="btn btn-secundario btn-full" id="f-fechar">Fechar</button></div>`;
+    $('#f-fechar').addEventListener('click', fecharModal);
+    return;
+  }
+
+  const linhas = data.map((item, idx) => `
+    <div class="linha-exercicio">
+      <div class="linha-exercicio-topo" style="cursor:default;">
+        <div class="texto-linha">
+          <span class="texto-exercicio">${escapeHtml(item.profiles ? item.profiles.nome : 'Aluno')} — ${escapeHtml(item.exercicios ? item.exercicios.titulo : '')}</span>
+          <div class="rodape-linha"><span style="font-size:12px; color:var(--ink-suave);">${formatarData(item.atualizado_em)}</span></div>
+        </div>
+        <button class="btn-texto" data-abrirfoto="${item.foto_resolucao}">Ver foto</button>
+      </div>
+    </div>
+  `).join('');
+
+  $('#modal-corpo').innerHTML = `
+    <h3>Fotos de resolução enviadas</h3>
+    <div class="lista-ficha" style="max-height:50vh; overflow-y:auto;">${linhas}</div>
+    <div class="modal-acoes"><button class="btn btn-secundario btn-full" id="f-fechar">Fechar</button></div>
+  `;
+  $('#f-fechar').addEventListener('click', fecharModal);
+  $$('[data-abrirfoto]').forEach(btn => btn.addEventListener('click', async () => {
+    const caminho = btn.dataset.abrirfoto;
+    const { data: assinada } = await sb.storage.from('resolucoes').createSignedUrl(caminho, 120);
+    if(assinada) window.open(assinada.signedUrl, '_blank');
+  }));
+}
+
+function abrirModal(html){
+  $('#modal-corpo').innerHTML = html;
+  $('#modal-fundo').classList.add('aberto');
+}
+function fecharModal(){ $('#modal-fundo').classList.remove('aberto'); }
+$('#modal-fundo').addEventListener('click', (e) => { if(e.target.id === 'modal-fundo') fecharModal(); });
+
+function abrirModalMateria(){
+  abrirModal(`
+    <h3>Nova matéria</h3>
+    <div class="campo"><label>Nome</label><input type="text" id="m-nome" placeholder="Ex: Trigonometria"></div>
+    <div class="campo"><label>Cor</label>
+      <select id="m-cor">
+        <option value="#3A7D44">Verde</option>
+        <option value="#1B2E4A">Azul</option>
+        <option value="#F0B429">Amarelo</option>
+      </select>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario btn-full" id="m-cancelar">Cancelar</button>
+      <button class="btn btn-primario btn-full" id="m-salvar">Salvar</button>
+    </div>
+  `);
+  $('#m-cancelar').addEventListener('click', fecharModal);
+  $('#m-salvar').addEventListener('click', async () => {
+    const nome = $('#m-nome').value.trim();
+    if(!nome) return;
+    const { data } = await sb.from('materias').insert({ nome, cor: $('#m-cor').value, ordem: materiasCache.length + 1 }).select().single();
+    if(data) materiasCache.push(data);
+    fecharModal();
+    renderGerenciar();
+  });
+}
+
+function abrirModalExercicio(){
+  const opcoesMateria = materiasCache.map(m => `<option value="${m.id}">${escapeHtml(m.nome)}</option>`).join('');
+  abrirModal(`
+    <h3>Novo exercício</h3>
+    <div class="campo"><label>Matéria</label><select id="e-materia">${opcoesMateria || '<option value="">Cadastre uma matéria primeiro</option>'}</select></div>
+    <div class="campo"><label>Título</label><input type="text" id="e-titulo" placeholder="Ex: Equação do 2º grau — exercício 1"></div>
+    <div class="campo"><label>Nível</label>
+      <select id="e-nivel"><option value="basico">Básico</option><option value="intermediario">Intermediário</option><option value="avancado">Avançado</option></select>
+    </div>
+    <div class="campo"><label>Enunciado</label><textarea id="e-enunciado" rows="4" placeholder="Escreva o exercício"></textarea></div>
+    <div class="campo"><label>Gabarito</label><textarea id="e-gabarito" rows="2" placeholder="Resposta correta"></textarea></div>
+    <div class="campo"><label>Explicação (opcional)</label><textarea id="e-explicacao" rows="2" placeholder="Como chegar na resposta"></textarea></div>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario btn-full" id="e-cancelar">Cancelar</button>
+      <button class="btn btn-primario btn-full" id="e-salvar">Salvar</button>
+    </div>
+  `);
+  $('#e-cancelar').addEventListener('click', fecharModal);
+  $('#e-salvar').addEventListener('click', async () => {
+    const materia_id = $('#e-materia').value;
+    const titulo = $('#e-titulo').value.trim();
+    const enunciado = $('#e-enunciado').value.trim();
+    const gabarito = $('#e-gabarito').value.trim();
+    if(!materia_id || !titulo || !enunciado || !gabarito) return;
+    const { data } = await sb.from('exercicios').insert({
+      materia_id, titulo, enunciado, gabarito,
+      explicacao: $('#e-explicacao').value.trim() || null,
+      nivel: $('#e-nivel').value,
+      ordem: exerciciosCache.filter(e => e.materia_id === materia_id).length + 1
+    }).select().single();
+    if(data) exerciciosCache.push(data);
+    fecharModal();
+    renderGerenciar();
+  });
+}
+
+function abrirModalAula(){
+  const opcoesMateria = materiasCache.map(m => `<option value="${m.id}">${escapeHtml(m.nome)}</option>`).join('');
+  abrirModal(`
+    <h3>Nova aula / material</h3>
+    <div class="campo"><label>Matéria</label><select id="a-materia"><option value="">Geral</option>${opcoesMateria}</select></div>
+    <div class="campo"><label>Título</label><input type="text" id="a-titulo" placeholder="Ex: Aula 1 — Frações"></div>
+    <div class="campo"><label>Tipo</label><select id="a-tipo"><option value="video">Vídeo</option><option value="pdf">PDF</option></select></div>
+    <div class="campo"><label>Link</label><input type="text" id="a-url" placeholder="https://..."></div>
+    <div class="campo"><label>Descrição (opcional)</label><input type="text" id="a-descricao" placeholder="Resumo curto"></div>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario btn-full" id="a-cancelar">Cancelar</button>
+      <button class="btn btn-primario btn-full" id="a-salvar">Salvar</button>
+    </div>
+  `);
+  $('#a-cancelar').addEventListener('click', fecharModal);
+  $('#a-salvar').addEventListener('click', async () => {
+    const titulo = $('#a-titulo').value.trim();
+    const url = $('#a-url').value.trim();
+    if(!titulo || !url) return;
+    const { data } = await sb.from('aulas').insert({
+      materia_id: $('#a-materia').value || null,
+      titulo, tipo: $('#a-tipo').value, url,
+      descricao: $('#a-descricao').value.trim() || null,
+      ordem: aulasCache.length + 1
+    }).select().single();
+    if(data) aulasCache.push(data);
+    fecharModal();
+    renderGerenciar();
+  });
+}
+
+function abrirModalAviso(){
+  abrirModal(`
+    <h3>Novo aviso</h3>
+    <div class="campo"><label>Título</label><input type="text" id="v-titulo" placeholder="Ex: Prova na próxima semana"></div>
+    <div class="campo"><label>Mensagem</label><textarea id="v-mensagem" rows="3" placeholder="Escreva o aviso"></textarea></div>
+    <div class="campo" style="display:flex; align-items:center; gap:8px;">
+      <input type="checkbox" id="v-fixado" style="width:auto;"> <label for="v-fixado" style="margin:0;">Fixar no topo</label>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario btn-full" id="v-cancelar">Cancelar</button>
+      <button class="btn btn-primario btn-full" id="v-salvar">Publicar</button>
+    </div>
+  `);
+  $('#v-cancelar').addEventListener('click', fecharModal);
+  $('#v-salvar').addEventListener('click', async () => {
+    const titulo = $('#v-titulo').value.trim();
+    const mensagem = $('#v-mensagem').value.trim();
+    if(!titulo || !mensagem) return;
+    const { data } = await sb.from('avisos').insert({ titulo, mensagem, fixado: $('#v-fixado').checked }).select().single();
+    if(data) avisosCache.unshift(data);
+    fecharModal();
+    renderGerenciar();
+  });
+}
+</script>
+</body>
+</html>
