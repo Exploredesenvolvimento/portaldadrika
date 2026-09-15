@@ -304,6 +304,8 @@
   .tag-dominio{ background:var(--azul-claro); color:var(--azul); }
   .corpo-exercicio{ display:none; margin: 12px 0 0 36px; }
   .corpo-exercicio.aberto{ display:block; }
+  .figura-geometrica{ background: var(--card); border:1px solid var(--borda); border-radius:8px; padding:14px; margin-bottom:16px; max-width:300px; }
+  .figura-geometrica svg{ width:100%; height:auto; display:block; }
   .enunciado{ font-size:15.5px; line-height:1.75; white-space:pre-wrap; margin-bottom:12px; color: var(--ink); }
   .btn-revelar{
     background:none; border:1px dashed var(--ink-suave); color: var(--ink-suave);
@@ -383,6 +385,16 @@
   .modal{ background:var(--card); border-radius:14px; padding:26px; width:100%; max-width:480px; max-height:88vh; overflow-y:auto; }
   .modal h3{ font-size:18px; color:var(--azul); margin-bottom:18px; }
   .modal-acoes{ display:flex; gap:10px; margin-top: 20px; }
+
+  .grade-calculadora{ display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; }
+  .grade-calculadora button{
+    padding:16px 0; border-radius:8px; border:1.5px solid var(--borda); background: var(--card);
+    font-size:17px; font-weight:600; color: var(--ink); font-family: var(--font-numero);
+  }
+  .grade-calculadora button:hover{ background: var(--bg); }
+  .grade-calculadora button.tecla-op{ background: var(--verde); color:#fff; border-color: var(--verde); }
+  .grade-calculadora button.tecla-op:hover{ background: var(--verde-escuro); }
+  .grade-calculadora button.tecla-zero{ grid-column: span 2; }
 
   .pontos-tour{ display:flex; justify-content:center; gap:6px; margin: 18px 0; }
   .pontos-tour span{ width:7px; height:7px; border-radius:50%; background: var(--borda); }
@@ -650,6 +662,7 @@ let viewAtual = 'inicio';
 let materiaSelecionada = null;
 let indiceAtual = 0;
 let duvidasAbertasNaQuestao = false;
+let rascunhoAbertoNaQuestao = false;
 let termoBusca = '';
 
 const $ = (sel, ctx=document) => ctx.querySelector(sel);
@@ -665,6 +678,194 @@ function escapeHtml(str){
   if(str===null || str===undefined) return '';
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
+
+const CAMPOS_FIGURA = {
+  retangulo: [{ chave: 'base', rotulo: 'Base', placeholder: 'Ex: 8 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 5 cm' }],
+  quadrado: [{ chave: 'lado', rotulo: 'Lado', placeholder: 'Ex: 6 cm' }],
+  triangulo: [{ chave: 'base', rotulo: 'Base', placeholder: 'Ex: 10 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 7 cm' }],
+  circulo: [{ chave: 'raio', rotulo: 'Raio', placeholder: 'Ex: 4 cm' }],
+  cubo: [{ chave: 'aresta', rotulo: 'Aresta', placeholder: 'Ex: 4 cm' }],
+  paralelepipedo: [{ chave: 'comprimento', rotulo: 'Comprimento', placeholder: 'Ex: 5 cm' }, { chave: 'largura', rotulo: 'Largura', placeholder: 'Ex: 3 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 2 cm' }],
+  cilindro: [{ chave: 'raio', rotulo: 'Raio', placeholder: 'Ex: 2 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 10 cm' }],
+  funcao_linear: [{ chave: 'a', rotulo: 'Coeficiente a (inclinação)', placeholder: 'Ex: 2' }, { chave: 'b', rotulo: 'Coeficiente b (corte no eixo y)', placeholder: 'Ex: -3' }],
+  funcao_quadratica: [{ chave: 'a', rotulo: 'Coeficiente a', placeholder: 'Ex: 1' }, { chave: 'b', rotulo: 'Coeficiente b', placeholder: 'Ex: -4' }, { chave: 'c', rotulo: 'Coeficiente c', placeholder: 'Ex: 3' }],
+  grafico_barras: [{ chave: 'dados', rotulo: 'Dados (uma categoria por linha: Categoria: valor)', placeholder: 'Futebol: 20\nVôlei: 15\nBasquete: 10\nOutros: 5', tipo: 'textarea' }],
+  grafico_pizza: [{ chave: 'dados', rotulo: 'Dados (uma categoria por linha: Categoria: valor)', placeholder: 'Futebol: 20\nVôlei: 15\nBasquete: 10\nOutros: 5', tipo: 'textarea' }]
+};
+const NOMES_FIGURA = {
+  retangulo: 'Retângulo', quadrado: 'Quadrado', triangulo: 'Triângulo', circulo: 'Círculo', cubo: 'Cubo',
+  paralelepipedo: 'Paralelepípedo', cilindro: 'Cilindro',
+  funcao_linear: 'Gráfico de função (1º grau)', funcao_quadratica: 'Gráfico de função (2º grau)',
+  grafico_barras: 'Gráfico de barras', grafico_pizza: 'Gráfico de pizza'
+};
+
+function parseDadosGrafico(texto){
+  return (texto || '').split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const partes = l.split(':');
+    const label = (partes[0] || '').trim();
+    const valor = parseFloat((partes[1] || '').trim()) || 0;
+    return { label, valor };
+  }).filter(d => d.label);
+}
+
+const CORES_GRAFICO = ['#2C5F35', '#E8791E', '#1B2E4A', '#8A5F0B', '#7A7259', '#B3492E'];
+
+function construirGraficoFuncao(figura){
+  const quadratica = figura.tipo === 'funcao_quadratica';
+  const a = parseFloat(figura.a);
+  const aValido = !isNaN(a) ? a : (quadratica ? 1 : 1);
+  const b = parseFloat(figura.b) || 0;
+  const c = quadratica ? (parseFloat(figura.c) || 0) : 0;
+
+  const pontos = [];
+  for(let x = -7; x <= 7; x += 0.5){
+    const y = quadratica ? (aValido*x*x + b*x + c) : (aValido*x + b);
+    pontos.push({ x, y });
+  }
+  const ys = pontos.map(p => p.y);
+  let yMin = Math.min(0, ...ys), yMax = Math.max(0, ...ys);
+  if(yMin === yMax){ yMin -= 5; yMax += 5; }
+  const margem = (yMax - yMin) * 0.15;
+  yMin -= margem; yMax += margem;
+
+  const W = 290, H = 210, padL = 32, padR = 16, padT = 26, padB = 26;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xMin = -7, xMax = 7;
+  const px = (x) => padL + ((x - xMin) / (xMax - xMin)) * plotW;
+  const py = (y) => padT + plotH - ((y - yMin) / (yMax - yMin)) * plotH;
+  const corTexto = '#1B2E4A', corEixo = '#7A7259', cor = '#2C5F35';
+
+  let grade = '';
+  for(let gx = -6; gx <= 6; gx += 2){ grade += `<line x1="${px(gx).toFixed(1)}" y1="${padT}" x2="${px(gx).toFixed(1)}" y2="${padT+plotH}" stroke="#E4DCC4" stroke-width="1"/>`; }
+
+  const eixoX = `<line x1="${padL}" y1="${py(0).toFixed(1)}" x2="${padL+plotW}" y2="${py(0).toFixed(1)}" stroke="${corEixo}" stroke-width="1.5"/>`;
+  const eixoY = `<line x1="${px(0).toFixed(1)}" y1="${padT}" x2="${px(0).toFixed(1)}" y2="${padT+plotH}" stroke="${corEixo}" stroke-width="1.5"/>`;
+  const caminho = pontos.map((p, i) => `${i===0?'M':'L'} ${px(p.x).toFixed(1)} ${py(p.y).toFixed(1)}`).join(' ');
+  const curva = `<path d="${caminho}" fill="none" stroke="${cor}" stroke-width="2.5"/>`;
+
+  let marcador = '';
+  if(quadratica && aValido !== 0){
+    const xv = -b/(2*aValido), yv = aValido*xv*xv + b*xv + c;
+    if(xv >= xMin && xv <= xMax){
+      marcador = `<circle cx="${px(xv).toFixed(1)}" cy="${py(yv).toFixed(1)}" r="4" fill="#E8791E"/>
+        <text x="${px(xv).toFixed(1)}" y="${(py(yv)-10).toFixed(1)}" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="11" font-weight="600" fill="${corTexto}">V(${xv.toFixed(1)}, ${yv.toFixed(1)})</text>`;
+    }
+  } else if(!quadratica){
+    marcador = `<circle cx="${px(0).toFixed(1)}" cy="${py(b).toFixed(1)}" r="3.5" fill="#E8791E"/>`;
+  }
+
+  const formula = quadratica
+    ? `f(x) = ${aValido}x² ${b>=0?'+ ':''}${b}x ${c>=0?'+ ':''}${c}`
+    : `f(x) = ${aValido}x ${b>=0?'+ ':''}${b}`;
+
+  return `<div class="figura-geometrica"><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    ${grade}${eixoX}${eixoY}${curva}${marcador}
+    <text x="${W/2}" y="16" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="12" font-weight="600" fill="${corTexto}">${escapeHtml(formula)}</text>
+  </svg></div>`;
+}
+
+function construirGraficoBarras(dados){
+  if(!dados.length) return '';
+  const W = 290, H = 220, padL = 28, padR = 16, padT = 26, padB = 42;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const maxVal = Math.max(...dados.map(d => d.valor), 1);
+  const espaco = plotW / dados.length;
+  const largura = espaco * 0.6;
+
+  let barras = '';
+  dados.forEach((d, i) => {
+    const alturaBarra = (d.valor / maxVal) * plotH;
+    const x = padL + i*espaco + (espaco-largura)/2;
+    const y = padT + plotH - alturaBarra;
+    barras += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${largura.toFixed(1)}" height="${alturaBarra.toFixed(1)}" fill="${CORES_GRAFICO[i % CORES_GRAFICO.length]}" rx="3"/>
+      <text x="${(x+largura/2).toFixed(1)}" y="${(y-6).toFixed(1)}" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="11" font-weight="600" fill="#1B2E4A">${escapeHtml(String(d.valor))}</text>
+      <text x="${(x+largura/2).toFixed(1)}" y="${padT+plotH+16}" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#7A7259">${escapeHtml(d.label)}</text>`;
+  });
+  const eixoX = `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#7A7259" stroke-width="1.5"/>`;
+  return `<div class="figura-geometrica"><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${eixoX}${barras}</svg></div>`;
+}
+
+function construirGraficoPizza(dados){
+  if(!dados.length) return '';
+  const total = dados.reduce((s, d) => s + d.valor, 0) || 1;
+  const cx = 95, cy = 95, raio = 78;
+  let anguloAtual = -90, fatias = '';
+  dados.forEach((d, i) => {
+    const angulo = (d.valor / total) * 360;
+    const inicioRad = anguloAtual * Math.PI / 180, fimRad = (anguloAtual + angulo) * Math.PI / 180;
+    const x1 = cx + raio*Math.cos(inicioRad), y1 = cy + raio*Math.sin(inicioRad);
+    const x2 = cx + raio*Math.cos(fimRad), y2 = cy + raio*Math.sin(fimRad);
+    const largeArc = angulo > 180 ? 1 : 0;
+    fatias += `<path d="M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${raio} ${raio} 0 ${largeArc} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z" fill="${CORES_GRAFICO[i % CORES_GRAFICO.length]}" stroke="#FBF6EC" stroke-width="1.5"/>`;
+    anguloAtual += angulo;
+  });
+  const legenda = dados.map((d, i) => `<span style="display:inline-flex; align-items:center; gap:5px; margin-right:12px; margin-bottom:4px;"><span style="width:9px; height:9px; border-radius:2px; background:${CORES_GRAFICO[i % CORES_GRAFICO.length]}; display:inline-block;"></span><span style="font-size:11.5px; color:#1B2E4A;">${escapeHtml(d.label)} (${escapeHtml(String(d.valor))})</span></span>`).join('');
+  return `<div class="figura-geometrica"><svg viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg">${fatias}</svg><div style="margin-top:8px; display:flex; flex-wrap:wrap;">${legenda}</div></div>`;
+}
+
+function construirFiguraSvg(figura){
+  if(!figura || !figura.tipo) return '';
+  if(figura.tipo === 'funcao_linear' || figura.tipo === 'funcao_quadratica') return construirGraficoFuncao(figura);
+  if(figura.tipo === 'grafico_barras') return construirGraficoBarras(parseDadosGrafico(figura.dados));
+  if(figura.tipo === 'grafico_pizza') return construirGraficoPizza(parseDadosGrafico(figura.dados));
+  const cor = '#2C5F35', corClara = '#E3EBD9', corTexto = '#1B2E4A';
+  const fonte = `font-family="Space Grotesk, sans-serif" font-size="13" font-weight="600"`;
+  const W = 280, H = 190;
+  const r = (v) => escapeHtml(v || '');
+  let conteudo = '';
+
+  if(figura.tipo === 'retangulo'){
+    const rw = 160, rh = 90, x = (W-rw)/2, y = (H-rh)/2 - 8;
+    conteudo = `<rect x="${x}" y="${y}" width="${rw}" height="${rh}" fill="${corClara}" stroke="${cor}" stroke-width="2.5"/>
+      <text x="${x+rw/2}" y="${y+rh+22}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.base)}</text>
+      <text x="${x-16}" y="${y+rh/2}" text-anchor="middle" ${fonte} fill="${corTexto}" transform="rotate(-90 ${x-16} ${y+rh/2})">${r(figura.altura)}</text>`;
+  } else if(figura.tipo === 'quadrado'){
+    const s = 120, x=(W-s)/2, y=(H-s)/2 - 8;
+    conteudo = `<rect x="${x}" y="${y}" width="${s}" height="${s}" fill="${corClara}" stroke="${cor}" stroke-width="2.5"/>
+      <text x="${x+s/2}" y="${y+s+22}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.lado)}</text>
+      <text x="${x-16}" y="${y+s/2}" text-anchor="middle" ${fonte} fill="${corTexto}" transform="rotate(-90 ${x-16} ${y+s/2})">${r(figura.lado)}</text>`;
+  } else if(figura.tipo === 'triangulo'){
+    const bw=160, bh=105, x=(W-bw)/2, yBase=(H+bh)/2 - 8, apiceX = x + bw*0.35;
+    conteudo = `<polygon points="${x},${yBase} ${x+bw},${yBase} ${apiceX},${yBase-bh}" fill="${corClara}" stroke="${cor}" stroke-width="2.5"/>
+      <line x1="${apiceX}" y1="${yBase-bh}" x2="${apiceX}" y2="${yBase}" stroke="${cor}" stroke-width="1.3" stroke-dasharray="4,3"/>
+      <text x="${x+bw/2}" y="${yBase+22}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.base)}</text>
+      <text x="${apiceX+16}" y="${yBase-bh/2}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.altura)}</text>`;
+  } else if(figura.tipo === 'circulo'){
+    const raio=72, cx=W/2, cy=H/2 - 4;
+    conteudo = `<circle cx="${cx}" cy="${cy}" r="${raio}" fill="${corClara}" stroke="${cor}" stroke-width="2.5"/>
+      <line x1="${cx}" y1="${cy}" x2="${cx+raio}" y2="${cy}" stroke="${cor}" stroke-width="1.5"/>
+      <circle cx="${cx}" cy="${cy}" r="2.5" fill="${cor}"/>
+      <text x="${cx+raio/2}" y="${cy-8}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.raio)}</text>`;
+  } else if(figura.tipo === 'cubo'){
+    const s=85, x=95, y=62, dx=34, dy=-22;
+    conteudo = `<polygon points="${x},${y} ${x+s},${y} ${x+s},${y+s} ${x},${y+s}" fill="${corClara}" stroke="${cor}" stroke-width="2"/>
+      <polygon points="${x},${y} ${x+dx},${y+dy} ${x+s+dx},${y+dy} ${x+s},${y}" fill="#F0E0C0" stroke="${cor}" stroke-width="2"/>
+      <polygon points="${x+s},${y} ${x+s+dx},${y+dy} ${x+s+dx},${y+s+dy} ${x+s},${y+s}" fill="#D9C9A3" stroke="${cor}" stroke-width="2"/>
+      <text x="${x+s/2}" y="${y+s+22}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.aresta)}</text>`;
+  } else if(figura.tipo === 'paralelepipedo'){
+    const w=110, h=65, x=78, y=95, dx=32, dy=-20;
+    conteudo = `<polygon points="${x},${y} ${x+w},${y} ${x+w},${y+h} ${x},${y+h}" fill="${corClara}" stroke="${cor}" stroke-width="2"/>
+      <polygon points="${x},${y} ${x+dx},${y+dy} ${x+w+dx},${y+dy} ${x+w},${y}" fill="#F0E0C0" stroke="${cor}" stroke-width="2"/>
+      <polygon points="${x+w},${y} ${x+w+dx},${y+dy} ${x+w+dx},${y+h+dy} ${x+w},${y+h}" fill="#D9C9A3" stroke="${cor}" stroke-width="2"/>
+      <text x="${x+w/2}" y="${y+h+22}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.comprimento)}</text>
+      <text x="${x-18}" y="${y+h/2}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.altura)}</text>
+      <text x="${x+w+dx/2+16}" y="${y+dy/2-4}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.largura)}</text>`;
+  } else if(figura.tipo === 'cilindro'){
+    const rx=52, ry=15, cx=W/2, yTop=48, h=100;
+    conteudo = `<path d="M ${cx-rx} ${yTop+h} A ${rx} ${ry} 0 0 0 ${cx+rx} ${yTop+h}" fill="${corClara}" stroke="${cor}" stroke-width="2" stroke-dasharray="3,3"/>
+      <line x1="${cx-rx}" y1="${yTop}" x2="${cx-rx}" y2="${yTop+h}" stroke="${cor}" stroke-width="2"/>
+      <line x1="${cx+rx}" y1="${yTop}" x2="${cx+rx}" y2="${yTop+h}" stroke="${cor}" stroke-width="2"/>
+      <ellipse cx="${cx}" cy="${yTop}" rx="${rx}" ry="${ry}" fill="${corClara}" stroke="${cor}" stroke-width="2"/>
+      <line x1="${cx}" y1="${yTop}" x2="${cx+rx}" y2="${yTop}" stroke="${cor}" stroke-width="1.3"/>
+      <text x="${cx+rx/2}" y="${yTop-8}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.raio)}</text>
+      <text x="${cx+rx+22}" y="${yTop+h/2}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.altura)}</text>`;
+  } else {
+    return '';
+  }
+
+  return `<div class="figura-geometrica"><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${conteudo}</svg></div>`;
+}
+
 function formatarData(iso){
   const d = new Date(iso);
   return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
@@ -850,6 +1051,65 @@ function renderPassoBoasVindas(){
       renderPassoBoasVindas();
     }
   });
+}
+
+let calcState = { display: '0', anterior: null, operador: null, aguardandoNovo: false };
+
+function abrirModalCalculadora(){
+  calcState = { display: '0', anterior: null, operador: null, aguardandoNovo: false };
+  renderCalculadora();
+}
+
+function renderCalculadora(){
+  const teclas = ['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','='];
+  abrirModal(`
+    <h3>Calculadora</h3>
+    <div style="background:var(--bg); border-radius:8px; padding:16px; text-align:right; font-family:var(--font-numero); font-size:28px; margin-bottom:14px; color:var(--ink); overflow-x:auto; white-space:nowrap;">${escapeHtml(calcState.display)}</div>
+    <div class="grade-calculadora">
+      ${teclas.map(t => `<button data-calc="${t === '0' || t === '.' ? t : escapeHtml(t)}" class="${['÷','×','−','+','='].includes(t) ? 'tecla-op' : ''} ${t==='0'?'tecla-zero':''}">${t}</button>`).join('')}
+    </div>
+    <div class="modal-acoes"><button class="btn btn-secundario btn-full" id="calc-fechar">Fechar</button></div>
+  `);
+  $('#calc-fechar').addEventListener('click', fecharModal);
+  $$('[data-calc]').forEach(b => b.addEventListener('click', () => calcPressionar(b.dataset.calc)));
+}
+
+function calcPressionar(tecla){
+  if(tecla >= '0' && tecla <= '9'){
+    if(calcState.aguardandoNovo || calcState.display === '0'){ calcState.display = tecla; calcState.aguardandoNovo = false; }
+    else calcState.display += tecla;
+  } else if(tecla === '.'){
+    if(calcState.aguardandoNovo){ calcState.display = '0.'; calcState.aguardandoNovo = false; }
+    else if(!calcState.display.includes('.')) calcState.display += '.';
+  } else if(tecla === 'C'){
+    calcState = { display: '0', anterior: null, operador: null, aguardandoNovo: false };
+  } else if(tecla === '⌫'){
+    calcState.display = calcState.display.length > 1 ? calcState.display.slice(0, -1) : '0';
+  } else if(tecla === '%'){
+    calcState.display = String(parseFloat(calcState.display) / 100);
+  } else if(['+','−','×','÷'].includes(tecla)){
+    if(calcState.anterior !== null && !calcState.aguardandoNovo) calcCalcular();
+    calcState.anterior = parseFloat(calcState.display);
+    calcState.operador = tecla;
+    calcState.aguardandoNovo = true;
+  } else if(tecla === '='){
+    calcCalcular();
+    calcState.operador = null;
+  }
+  renderCalculadora();
+}
+
+function calcCalcular(){
+  if(calcState.operador === null || calcState.anterior === null) return;
+  const atual = parseFloat(calcState.display);
+  let resultado;
+  if(calcState.operador === '+') resultado = calcState.anterior + atual;
+  else if(calcState.operador === '−') resultado = calcState.anterior - atual;
+  else if(calcState.operador === '×') resultado = calcState.anterior * atual;
+  else if(calcState.operador === '÷') resultado = atual !== 0 ? calcState.anterior / atual : 0;
+  calcState.display = String(Math.round(resultado * 100000) / 100000);
+  calcState.anterior = resultado;
+  calcState.aguardandoNovo = true;
 }
 
 function abrirModalPerfil(){
@@ -1378,6 +1638,7 @@ function renderSessaoExercicios(){
         <span class="numero-grande">Questão ${indiceAtual + 1} de ${lista.length}</span>
         ${badgeNivel(ex.nivel)}
       </div>
+      ${construirFiguraSvg(ex.figura)}
       <div class="enunciado" style="margin-bottom:18px;">${escapeHtml(ex.enunciado)}</div>
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
         <button class="btn-revelar" id="btn-vergabarito-atual">Ver resposta</button>
@@ -1394,8 +1655,19 @@ function renderSessaoExercicios(){
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <label class="btn-revelar" style="margin:0;">Enviar foto da resolução<input type="file" accept="image/*" id="input-foto-atual" style="display:none;"></label>
         ${temFoto ? `<button class="btn-texto" id="btn-verfoto-atual">Ver foto enviada</button>` : ''}
+        <button class="btn-texto" id="btn-abrir-calculadora">Calculadora</button>
       </div>
       <div id="status-foto-atual" style="font-size:12.5px; color:var(--ink-suave); margin-top:6px;"></div>
+
+      <div class="secao-comentarios">
+        <div class="cabecalho-duvidas ${rascunhoAbertoNaQuestao ? 'aberto' : ''}" id="toggle-rascunho">
+          <h4>Rascunho</h4>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="corpo-duvidas ${rascunhoAbertoNaQuestao ? 'aberto' : ''}" id="corpo-rascunho">
+          <textarea id="textarea-rascunho" rows="4" placeholder="Faça suas contas aqui, é só seu — fica salvo automaticamente." style="width:100%; font-family:var(--font-numero); font-size:13.5px; padding:10px; border-radius:8px; border:1.5px solid var(--borda); resize:vertical;"></textarea>
+        </div>
+      </div>
 
       <div class="secao-comentarios">
         <div class="cabecalho-duvidas ${duvidasAbertasNaQuestao ? 'aberto' : ''}" id="toggle-duvidas-questao">
@@ -1422,10 +1694,11 @@ function renderSessaoExercicios(){
   $$('.chip-questao').forEach(c => c.addEventListener('click', () => {
     indiceAtual = parseInt(c.dataset.ir, 10);
     duvidasAbertasNaQuestao = false;
+    rascunhoAbertoNaQuestao = false;
     renderSessaoExercicios();
   }));
-  $('#btn-questao-anterior').addEventListener('click', () => { if(indiceAtual > 0){ indiceAtual--; duvidasAbertasNaQuestao = false; renderSessaoExercicios(); } });
-  $('#btn-questao-proxima').addEventListener('click', () => { if(indiceAtual < lista.length - 1){ indiceAtual++; duvidasAbertasNaQuestao = false; renderSessaoExercicios(); } });
+  $('#btn-questao-anterior').addEventListener('click', () => { if(indiceAtual > 0){ indiceAtual--; duvidasAbertasNaQuestao = false; rascunhoAbertoNaQuestao = false; renderSessaoExercicios(); } });
+  $('#btn-questao-proxima').addEventListener('click', () => { if(indiceAtual < lista.length - 1){ indiceAtual++; duvidasAbertasNaQuestao = false; rascunhoAbertoNaQuestao = false; renderSessaoExercicios(); } });
 
   $('#btn-vergabarito-atual').addEventListener('click', async () => {
     $('#gabarito-atual').style.display = 'block';
@@ -1496,6 +1769,20 @@ function renderSessaoExercicios(){
     $('#corpo-duvidas-questao').classList.toggle('aberto', duvidasAbertasNaQuestao);
   });
 
+  $('#toggle-rascunho').addEventListener('click', () => {
+    rascunhoAbertoNaQuestao = !rascunhoAbertoNaQuestao;
+    $('#toggle-rascunho').classList.toggle('aberto', rascunhoAbertoNaQuestao);
+    $('#corpo-rascunho').classList.toggle('aberto', rascunhoAbertoNaQuestao);
+  });
+  const chaveRascunho = `rascunho_${ex.id}_${perfilAtual.id}`;
+  const textareaRascunho = $('#textarea-rascunho');
+  textareaRascunho.value = localStorage.getItem(chaveRascunho) || '';
+  textareaRascunho.addEventListener('input', () => {
+    localStorage.setItem(chaveRascunho, textareaRascunho.value);
+  });
+
+  $('#btn-abrir-calculadora').addEventListener('click', abrirModalCalculadora);
+
   $('#btn-comentar-atual').addEventListener('click', async () => {
     const input = $('#input-comentario-atual');
     const mensagem = input.value.trim();
@@ -1525,6 +1812,7 @@ function construirLinhaExercicio(ex, numero){
         </div>
       </div>
       <div class="corpo-exercicio" id="corpo-${ex.id}">
+        ${construirFiguraSvg(ex.figura)}
         <div class="enunciado">${escapeHtml(ex.enunciado)}</div>
         <button class="btn-revelar" data-vergabarito="${ex.id}">Ver resposta</button>
         <div class="caixa-gabarito" id="gabarito-${ex.id}" style="display:none; margin-top:10px;">
@@ -1781,6 +2069,7 @@ function renderExecucaoSimulado(){
         <span class="numero-grande">Sem consulta ao gabarito durante o simulado</span>
         ${badgeNivel(ex.nivel)}
       </div>
+      ${construirFiguraSvg(ex.figura)}
       <div class="enunciado">${escapeHtml(ex.enunciado)}</div>
       <div class="navegacao-questao">
         <button class="btn btn-secundario" id="btn-sim-anterior" ${simulado.indice === 0 ? 'disabled' : ''}>← Anterior</button>
@@ -1789,7 +2078,8 @@ function renderExecucaoSimulado(){
           : '<button class="btn btn-secundario" id="btn-sim-proxima">Próxima →</button>'}
       </div>
     </div>
-    <div style="text-align:center; margin-top:16px;">
+    <div style="text-align:center; margin-top:16px; display:flex; justify-content:center; gap:16px;">
+      <button class="btn-texto" id="btn-sim-calculadora">Calculadora</button>
       <button class="btn-texto" id="btn-sim-abandonar">Abandonar simulado</button>
     </div>
   `;
@@ -1800,6 +2090,7 @@ function renderExecucaoSimulado(){
   if(btnProxima) btnProxima.addEventListener('click', () => { simulado.indice++; renderSimulado(); });
   const btnFinalizar = $('#btn-sim-finalizar');
   if(btnFinalizar) btnFinalizar.addEventListener('click', finalizarExecucaoSimulado);
+  $('#btn-sim-calculadora').addEventListener('click', abrirModalCalculadora);
   $('#btn-sim-abandonar').addEventListener('click', () => {
     if(simulado.intervalId) clearInterval(simulado.intervalId);
     simulado = null;
@@ -1821,6 +2112,7 @@ function renderCorrecaoSimulado(){
     return `
       <div class="cartao-correcao">
         <span class="numero-grande">Questão ${idx + 1}</span>
+        ${construirFiguraSvg(ex.figura)}
         <div class="enunciado" style="margin:8px 0 12px;">${escapeHtml(ex.enunciado)}</div>
         <div class="caixa-gabarito">
           <span class="rotulo-resposta">Resposta</span>${escapeHtml(ex.gabarito)}
@@ -2800,7 +3092,7 @@ async function duplicarExercicio(id){
   const { data } = await sb.from('exercicios').insert({
     materia_id: original.materia_id, titulo: original.titulo + ' (cópia)',
     enunciado: original.enunciado, gabarito: original.gabarito, explicacao: original.explicacao,
-    nivel: original.nivel, ordem: maxOrdem + 1
+    nivel: original.nivel, ordem: maxOrdem + 1, figura: original.figura || null
   }).select().single();
   if(data) exerciciosCache.push(data);
   renderGerenciarExercicios();
@@ -3734,55 +4026,109 @@ function abrirModalMateria(registro){
 
 function abrirModalExercicio(registro){
   const editando = !!registro;
-  const opcoesMateria = materiasCache.map(m => `<option value="${m.id}" ${registro && registro.materia_id === m.id ? 'selected' : ''}>${escapeHtml(m.nome)}</option>`).join('');
-  abrirModal(`
-    <h3>${editando ? 'Editar exercício' : 'Novo exercício'}</h3>
-    <p style="font-size:12.5px; color:var(--ink-suave); background:var(--bg); padding:10px 12px; border-radius:8px; margin-bottom:16px;">
-      Dica: escreva fórmulas entre cifrões pra elas aparecerem formatadas — <span style="font-family:var(--font-numero);">$x^2$</span> vira expoente, <span style="font-family:var(--font-numero);">$\\frac{3}{4}$</span> vira fração, <span style="font-family:var(--font-numero);">$\\sqrt{16}$</span> vira raiz.
-    </p>
-    <div class="campo"><label>Matéria</label><select id="e-materia">${opcoesMateria || '<option value="">Cadastre uma matéria primeiro</option>'}</select></div>
-    <div class="campo"><label>Título</label><input type="text" id="e-titulo" value="${registro ? escapeHtml(registro.titulo) : ''}" placeholder="Ex: Equação do 2º grau — exercício 1"></div>
-    <div class="campo"><label>Nível</label>
-      <select id="e-nivel">
-        <option value="aprendizado" ${registro && registro.nivel === 'aprendizado' ? 'selected' : ''}>Aprendizado</option>
-        <option value="pratica" ${registro && registro.nivel === 'pratica' ? 'selected' : ''}>Prática</option>
-        <option value="dominio" ${registro && registro.nivel === 'dominio' ? 'selected' : ''}>Domínio</option>
-      </select>
-    </div>
-    <div class="campo"><label>Enunciado</label><textarea id="e-enunciado" rows="4" placeholder="Escreva o exercício">${registro ? escapeHtml(registro.enunciado) : ''}</textarea></div>
-    <div class="campo"><label>Gabarito</label><textarea id="e-gabarito" rows="2" placeholder="Resposta correta">${registro ? escapeHtml(registro.gabarito) : ''}</textarea></div>
-    <div class="campo"><label>Explicação (opcional)</label><textarea id="e-explicacao" rows="2" placeholder="Como chegar na resposta">${registro && registro.explicacao ? escapeHtml(registro.explicacao) : ''}</textarea></div>
-    <div class="modal-acoes">
-      <button class="btn btn-secundario btn-full" id="e-cancelar">Cancelar</button>
-      <button class="btn btn-primario btn-full" id="e-salvar">${editando ? 'Salvar alterações' : 'Salvar'}</button>
-    </div>
-  `);
-  $('#e-cancelar').addEventListener('click', fecharModal);
-  $('#e-salvar').addEventListener('click', async () => {
-    const materia_id = $('#e-materia').value;
-    const titulo = $('#e-titulo').value.trim();
-    const enunciado = $('#e-enunciado').value.trim();
-    const gabarito = $('#e-gabarito').value.trim();
-    if(!materia_id || !titulo || !enunciado || !gabarito) return;
-    const payload = {
-      materia_id, titulo, enunciado, gabarito,
-      explicacao: $('#e-explicacao').value.trim() || null,
-      nivel: $('#e-nivel').value
-    };
-    if(editando){
-      const { data } = await sb.from('exercicios').update(payload).eq('id', registro.id).select().single();
-      if(data){
-        const idx = exerciciosCache.findIndex(e => e.id === registro.id);
-        if(idx > -1) exerciciosCache[idx] = data;
+  let valoresAtuais = {
+    materia_id: registro ? registro.materia_id : (materiasCache[0] ? materiasCache[0].id : ''),
+    titulo: registro ? registro.titulo : '',
+    nivel: registro ? registro.nivel : 'aprendizado',
+    enunciado: registro ? registro.enunciado : '',
+    gabarito: registro ? registro.gabarito : '',
+    explicacao: registro && registro.explicacao ? registro.explicacao : ''
+  };
+  let figuraEdicao = registro && registro.figura ? { ...registro.figura } : { tipo: '' };
+
+  function capturarValores(){
+    valoresAtuais.materia_id = $('#e-materia').value;
+    valoresAtuais.titulo = $('#e-titulo').value;
+    valoresAtuais.nivel = $('#e-nivel').value;
+    valoresAtuais.enunciado = $('#e-enunciado').value;
+    valoresAtuais.gabarito = $('#e-gabarito').value;
+    valoresAtuais.explicacao = $('#e-explicacao').value;
+  }
+
+  function montarHtml(){
+    const opcoesMateria = materiasCache.map(m => `<option value="${m.id}" ${valoresAtuais.materia_id === m.id ? 'selected' : ''}>${escapeHtml(m.nome)}</option>`).join('');
+    const opcoesTipoFigura = ['', ...Object.keys(NOMES_FIGURA)].map(t => `<option value="${t}" ${figuraEdicao.tipo === t ? 'selected' : ''}>${t === '' ? 'Nenhuma' : NOMES_FIGURA[t]}</option>`).join('');
+    const camposFigura = figuraEdicao.tipo && CAMPOS_FIGURA[figuraEdicao.tipo]
+      ? `<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">${CAMPOS_FIGURA[figuraEdicao.tipo].map(c => `
+          <div class="campo" style="flex:1; min-width:110px; margin-bottom:0;"><label>${c.rotulo}</label>${
+            c.tipo === 'textarea'
+              ? `<textarea data-figura-campo="${c.chave}" rows="4" placeholder="${escapeHtml(c.placeholder)}">${escapeHtml(figuraEdicao[c.chave] || '')}</textarea>`
+              : `<input type="text" data-figura-campo="${c.chave}" value="${escapeHtml(figuraEdicao[c.chave] || '')}" placeholder="${c.placeholder}">`
+          }</div>
+        `).join('')}</div>`
+      : '';
+    const preview = figuraEdicao.tipo ? `<div id="e-figura-preview">${construirFiguraSvg(figuraEdicao)}</div>` : '<div id="e-figura-preview"></div>';
+
+    return `
+      <h3>${editando ? 'Editar exercício' : 'Novo exercício'}</h3>
+      <p style="font-size:12.5px; color:var(--ink-suave); background:var(--bg); padding:10px 12px; border-radius:8px; margin-bottom:16px;">
+        Dica: escreva fórmulas entre cifrões pra elas aparecerem formatadas — <span style="font-family:var(--font-numero);">$x^2$</span> vira expoente, <span style="font-family:var(--font-numero);">$\\frac{3}{4}$</span> vira fração, <span style="font-family:var(--font-numero);">$\\sqrt{16}$</span> vira raiz.
+      </p>
+      <div class="campo"><label>Matéria</label><select id="e-materia">${opcoesMateria || '<option value="">Cadastre uma matéria primeiro</option>'}</select></div>
+      <div class="campo"><label>Título</label><input type="text" id="e-titulo" value="${escapeHtml(valoresAtuais.titulo)}" placeholder="Ex: Equação do 2º grau — exercício 1"></div>
+      <div class="campo"><label>Nível</label>
+        <select id="e-nivel">
+          <option value="aprendizado" ${valoresAtuais.nivel === 'aprendizado' ? 'selected' : ''}>Aprendizado</option>
+          <option value="pratica" ${valoresAtuais.nivel === 'pratica' ? 'selected' : ''}>Prática</option>
+          <option value="dominio" ${valoresAtuais.nivel === 'dominio' ? 'selected' : ''}>Domínio</option>
+        </select>
+      </div>
+      <div class="campo"><label>Figura geométrica (opcional)</label><select id="e-figura-tipo">${opcoesTipoFigura}</select></div>
+      ${camposFigura}
+      ${preview}
+      <div class="campo"><label>Enunciado</label><textarea id="e-enunciado" rows="4" placeholder="Escreva o exercício">${escapeHtml(valoresAtuais.enunciado)}</textarea></div>
+      <div class="campo"><label>Gabarito</label><textarea id="e-gabarito" rows="2" placeholder="Resposta correta">${escapeHtml(valoresAtuais.gabarito)}</textarea></div>
+      <div class="campo"><label>Explicação (opcional)</label><textarea id="e-explicacao" rows="2" placeholder="Como chegar na resposta">${escapeHtml(valoresAtuais.explicacao)}</textarea></div>
+      <div class="modal-acoes">
+        <button class="btn btn-secundario btn-full" id="e-cancelar">Cancelar</button>
+        <button class="btn btn-primario btn-full" id="e-salvar">${editando ? 'Salvar alterações' : 'Salvar'}</button>
+      </div>
+    `;
+  }
+
+  function ligarEventos(){
+    $('#e-cancelar').addEventListener('click', fecharModal);
+    $('#e-figura-tipo').addEventListener('change', (e) => {
+      capturarValores();
+      figuraEdicao = e.target.value ? { tipo: e.target.value } : { tipo: '' };
+      $('#modal-corpo').innerHTML = montarHtml();
+      ligarEventos();
+    });
+    $$('[data-figura-campo]').forEach(input => input.addEventListener('input', () => {
+      figuraEdicao[input.dataset.figuraCampo] = input.value;
+      const preview = $('#e-figura-preview');
+      if(preview) preview.innerHTML = construirFiguraSvg(figuraEdicao);
+    }));
+    $('#e-salvar').addEventListener('click', async () => {
+      const materia_id = $('#e-materia').value;
+      const titulo = $('#e-titulo').value.trim();
+      const enunciado = $('#e-enunciado').value.trim();
+      const gabarito = $('#e-gabarito').value.trim();
+      if(!materia_id || !titulo || !enunciado || !gabarito) return;
+      const payload = {
+        materia_id, titulo, enunciado, gabarito,
+        explicacao: $('#e-explicacao').value.trim() || null,
+        nivel: $('#e-nivel').value,
+        figura: figuraEdicao.tipo ? figuraEdicao : null
+      };
+      if(editando){
+        const { data } = await sb.from('exercicios').update(payload).eq('id', registro.id).select().single();
+        if(data){
+          const idx = exerciciosCache.findIndex(e => e.id === registro.id);
+          if(idx > -1) exerciciosCache[idx] = data;
+        }
+      } else {
+        payload.ordem = exerciciosCache.filter(e => e.materia_id === materia_id).length + 1;
+        const { data } = await sb.from('exercicios').insert(payload).select().single();
+        if(data) exerciciosCache.push(data);
       }
-    } else {
-      payload.ordem = exerciciosCache.filter(e => e.materia_id === materia_id).length + 1;
-      const { data } = await sb.from('exercicios').insert(payload).select().single();
-      if(data) exerciciosCache.push(data);
-    }
-    fecharModal();
-    renderGerenciar();
-  });
+      fecharModal();
+      renderGerenciar();
+    });
+  }
+
+  abrirModal(montarHtml());
+  ligarEventos();
 }
 
 function abrirModalAula(registro){
