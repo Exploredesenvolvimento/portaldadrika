@@ -10,6 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
+  if(localStorage.getItem('temaPreferido') === 'escuro'){
+    document.documentElement.setAttribute('data-tema', 'escuro');
+  }
   window.MathJax = {
     tex: {
       inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -34,10 +37,27 @@
     --ink-suave: #7A7259;
     --borda: #DED0A0;
     --erro: #B3492E;
+    --azul-bloco: #1B2E4A;
+    --verde-hover: #1F4527;
     --radius: 8px;
     --font-display: 'Space Grotesk', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-numero: 'Space Grotesk', monospace;
+  }
+  :root[data-tema="escuro"]{
+    --verde: #4C9459;
+    --verde-escuro: #8FCB99;
+    --verde-claro: #24362A;
+    --azul: #8FB4E3;
+    --azul-claro: #1E2A3D;
+    --amarelo: #F0A050;
+    --amarelo-claro: #3D2E1A;
+    --bg: #1C1A15;
+    --card: #29261F;
+    --ink: #EDE6D6;
+    --ink-suave: #A69B84;
+    --borda: #423C30;
+    --erro: #E0705A;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -68,7 +88,7 @@
     transition: transform .08s ease, box-shadow .15s ease;
   }
   .btn-primario{ background: var(--verde); color: #fff; }
-  .btn-primario:hover{ background: var(--verde-escuro); }
+  .btn-primario:hover{ background: var(--verde-hover); }
   .btn-secundario{ background: transparent; color: var(--azul); border: 1.5px solid var(--borda); }
   .btn-secundario:hover{ border-color: var(--azul); }
   .btn-amarelo{ background: var(--amarelo); color: var(--azul); }
@@ -212,7 +232,7 @@
   .lista-materias-check label{ display:flex; align-items:center; gap:9px; font-size:14px; color:var(--ink); }
   .lista-materias-check input{ width:auto; }
 
-  .barra-simulado{ display:flex; align-items:center; justify-content:space-between; background: var(--azul); color:#fff; border-radius:8px; padding:14px 20px; margin-bottom:16px; }
+  .barra-simulado{ display:flex; align-items:center; justify-content:space-between; background: var(--azul-bloco); color:#fff; border-radius:8px; padding:14px 20px; margin-bottom:16px; }
   .barra-simulado .cronometro{ font-family: var(--font-numero); font-size:18px; font-weight:600; }
   .barra-simulado .progresso-simulado{ font-size:13px; color: rgba(255,255,255,.75); }
 
@@ -226,7 +246,7 @@
   .cartao-resultado-simulado{ background: var(--verde); color:#fff; border-radius: var(--radius); padding:28px; text-align:center; max-width:400px; margin: 0 auto; }
   .cartao-resultado-simulado .nota-grande{ font-family: var(--font-display); font-size:44px; margin:10px 0 6px; }
 
-  .barra-lote{ background: var(--azul); color:#fff; border-radius:8px; padding:10px 16px; margin-bottom:14px; display:none; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; }
+  .barra-lote{ background: var(--azul-bloco); color:#fff; border-radius:8px; padding:10px 16px; margin-bottom:14px; display:none; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; }
   .barra-lote select{ padding:6px 10px; border-radius:6px; border:none; font-size:13px; font-family:var(--font-body); }
   .tag-tipo-aula{ font-size:11px; padding:2px 9px; border-radius:3px; font-weight:600; white-space:nowrap; }
   .tag-tipo-video{ background: var(--azul-claro); color: var(--azul); }
@@ -261,7 +281,7 @@
   .cartao-questao-cabecalho .numero-grande{ font-family: var(--font-numero); font-size:13.5px; color: var(--cor-materia, var(--ink-suave)); letter-spacing:.02em; font-weight:600; }
   .navegacao-questao{ display:flex; justify-content:space-between; align-items:center; margin-top:24px; padding-top:18px; border-top:1px solid var(--borda); }
   .btn-proxima-questao{ background: var(--verde); color:#fff; border:none; }
-  .btn-proxima-questao:hover{ background: var(--verde-escuro); }
+  .btn-proxima-questao:hover{ background: var(--verde-hover); }
   .btn-proxima-questao:disabled{ opacity:.4; }
 
   .lista-ficha{ display:flex; flex-direction:column; }
@@ -323,7 +343,7 @@
 
   .grade-aulas{ display:grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap:14px; }
   .cartao-aula{ background: var(--card); border:1px solid var(--borda); border-radius:12px; overflow:hidden; }
-  .cartao-aula-topo{ background: var(--azul); color:#fff; height:76px; display:flex; align-items:center; justify-content:center; }
+  .cartao-aula-topo{ background: var(--azul-bloco); color:#fff; height:76px; display:flex; align-items:center; justify-content:center; }
   .cartao-aula-topo svg{ width:26px; height:26px; opacity:.9; }
   .cartao-aula-corpo{ padding:14px 16px; }
   .cartao-aula-corpo h4{ font-size:14px; color:var(--azul); margin-bottom:4px; }
@@ -376,7 +396,7 @@
   .vazio svg{ width:40px; height:40px; opacity:.35; margin-bottom:12px; }
   .vazio p{ font-size:14px; }
 
-  .painel-professora{ background: var(--azul); color:#fff; border-radius:12px; padding:18px 20px; margin-bottom:22px; }
+  .painel-professora{ background: var(--azul-bloco); color:#fff; border-radius:12px; padding:18px 20px; margin-bottom:22px; }
   .painel-professora h3{ font-size:15px; margin-bottom:4px; }
   .painel-professora p{ font-size:13px; color: rgba(255,255,255,.7); margin-bottom:12px; }
 
@@ -393,7 +413,7 @@
   }
   .grade-calculadora button:hover{ background: var(--bg); }
   .grade-calculadora button.tecla-op{ background: var(--verde); color:#fff; border-color: var(--verde); }
-  .grade-calculadora button.tecla-op:hover{ background: var(--verde-escuro); }
+  .grade-calculadora button.tecla-op:hover{ background: var(--verde-hover); }
   .grade-calculadora button.tecla-zero{ grid-column: span 2; }
 
   .pontos-tour{ display:flex; justify-content:center; gap:6px; margin: 18px 0; }
@@ -431,7 +451,7 @@
 <body>
 
 <!-- ================= TELA DE LOGIN / CADASTRO ================= -->
-<div id="tela-login">
+<div id="tela-login" style="display:none;">
   <div class="painel-marca">
     <img class="coruja" id="logo-login" alt="Drika Moraes — Curso de Matemática Básica e Avançada" width="200" height="200">
     <h1>Área do Aluno</h1>
@@ -575,6 +595,10 @@
             <div class="nome" id="nome-usuario">—</div>
             <div class="papel" id="papel-usuario">—</div>
           </div>
+        </button>
+        <button class="nav-item" id="btn-alternar-tema" style="margin-top:4px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <span id="texto-alternar-tema">Modo escuro</span>
         </button>
         <button class="nav-item" id="btn-sair" style="margin-top:4px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
@@ -866,6 +890,21 @@ function construirFiguraSvg(figura){
   return `<div class="figura-geometrica"><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${conteudo}</svg></div>`;
 }
 
+function construirCabecalhoImpressaoPdf(titulo, subtitulo){
+  return `
+    <div class="cabecalho-impressao">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+        <img src="${LOGO_DRIKA_MORAES}" alt="Drika Moraes" width="200" height="200" style="width:60px; height:60px; border-radius:50%; flex-shrink:0;">
+        <div>
+          <h1 style="font-size:18px; margin:0; color:var(--azul);">Drika Moraes — Matemática Básica e Avançada</h1>
+          <p style="font-size:13px; margin:2px 0 0; color:var(--ink-suave);">${escapeHtml(titulo)}${subtitulo ? ' — ' + escapeHtml(subtitulo) : ''}</p>
+        </div>
+      </div>
+      <p style="font-size:11.5px; font-style:italic; color:var(--ink-suave); border-top:1px dashed var(--borda); padding-top:10px; margin:0;">Você está acessando material exclusivo de alunos do curso. Este conteúdo não deve ser compartilhado ou redistribuído.</p>
+    </div>
+  `;
+}
+
 function formatarData(iso){
   const d = new Date(iso);
   return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
@@ -991,6 +1030,23 @@ $('#btn-sair').addEventListener('click', async () => {
 });
 $('#btn-sair-pendente').addEventListener('click', async () => {
   await sb.auth.signOut();
+});
+
+function atualizarTextoTema(){
+  const escuro = document.documentElement.getAttribute('data-tema') === 'escuro';
+  $('#texto-alternar-tema').textContent = escuro ? 'Modo claro' : 'Modo escuro';
+}
+atualizarTextoTema();
+$('#btn-alternar-tema').addEventListener('click', () => {
+  const escuroAtivo = document.documentElement.getAttribute('data-tema') === 'escuro';
+  if(escuroAtivo){
+    document.documentElement.removeAttribute('data-tema');
+    localStorage.setItem('temaPreferido', 'claro');
+  } else {
+    document.documentElement.setAttribute('data-tema', 'escuro');
+    localStorage.setItem('temaPreferido', 'escuro');
+  }
+  atualizarTextoTema();
 });
 
 $('#btn-editar-perfil').addEventListener('click', abrirModalPerfil);
@@ -1145,12 +1201,15 @@ function abrirModalPerfil(){
     if(!nome){ erroBox.textContent = 'O nome não pode ficar em branco.'; erroBox.style.display = 'block'; return; }
     if(senha && senha.length < 6){ erroBox.textContent = 'A nova senha precisa ter no mínimo 6 caracteres.'; erroBox.style.display = 'block'; return; }
 
+    const btn = $('#p-salvar');
+    btn.disabled = true; btn.textContent = 'Salvando...';
+
     const { error: erroPerfil } = await sb.from('profiles').update({ nome, ano_escolar: ano }).eq('id', perfilAtual.id);
-    if(erroPerfil){ erroBox.textContent = 'Não foi possível salvar. Tente novamente.'; erroBox.style.display = 'block'; return; }
+    if(erroPerfil){ erroBox.textContent = 'Não foi possível salvar. Tente novamente.'; erroBox.style.display = 'block'; btn.disabled = false; btn.textContent = 'Salvar'; return; }
 
     if(senha){
       const { error: erroSenha } = await sb.auth.updateUser({ password: senha });
-      if(erroSenha){ erroBox.textContent = 'Perfil salvo, mas a senha não pôde ser alterada.'; erroBox.style.display = 'block'; return; }
+      if(erroSenha){ erroBox.textContent = 'Perfil salvo, mas a senha não pôde ser alterada.'; erroBox.style.display = 'block'; btn.disabled = false; btn.textContent = 'Salvar'; return; }
     }
 
     perfilAtual.nome = nome;
@@ -1210,7 +1269,24 @@ async function carregarPerfilEIniciar(userId){
 
   $('#tela-carregando').style.display = 'none';
   $('#app').style.display = 'block';
-  irParaView('inicio', { isInitial: true });
+
+  let viewInicial = 'inicio';
+  try{
+    const salvo = JSON.parse(localStorage.getItem(`ultimaView_${perfilAtual.id}`) || 'null');
+    const viewsAluno = ['inicio','exercicios','revisao','simulado','aulas','progresso','duvidas'];
+    const viewsProfessora = viewsAluno.concat(['turma','calendario','gerenciar']);
+    const listaValida = perfilAtual.role === 'professora' ? viewsProfessora : viewsAluno;
+    if(salvo && listaValida.includes(salvo.view)){
+      viewInicial = salvo.view;
+      if(salvo.materiaSelecionada && materiasCache.some(m => m.id === salvo.materiaSelecionada)){
+        materiaSelecionada = salvo.materiaSelecionada;
+      }
+      if(salvo.materiaSelecionadaAulas && (salvo.materiaSelecionadaAulas === 'geral' || materiasCache.some(m => m.id === salvo.materiaSelecionadaAulas))){
+        materiaSelecionadaAulas = salvo.materiaSelecionadaAulas;
+      }
+    }
+  } catch(erro){ /* preferência antiga inválida, ignora */ }
+  irParaView(viewInicial, { isInitial: true });
 
   if(perfilAtual.role === 'aluno' && !perfilAtual.viu_boas_vindas){
     abrirBoasVindas();
@@ -1262,11 +1338,18 @@ $$('.nav-item[data-view]').forEach(btn => {
   btn.addEventListener('click', () => irParaView(btn.dataset.view));
 });
 
+function salvarUltimaView(){
+  if(perfilAtual){
+    localStorage.setItem(`ultimaView_${perfilAtual.id}`, JSON.stringify({ view: viewAtual, materiaSelecionada, materiaSelecionadaAulas }));
+  }
+}
+
 function irParaView(view, opcoes){
   opcoes = opcoes || {};
   viewAtual = view;
   $$('.nav-item[data-view]').forEach(b => b.classList.toggle('ativo', b.dataset.view === view));
   fecharMenuMobile();
+  salvarUltimaView();
   if(view === 'inicio'){
     renderInicio();
     if(!opcoes.isInitial) marcarAvisosVistos();
@@ -1426,7 +1509,7 @@ function construirCartaoProximaAula(){
   else if(proxima.diasAte === 1) quando = 'amanhã';
   else quando = `${nomesDias[proxima.horario.dia_semana]}, daqui a ${proxima.diasAte} dias`;
   return `
-    <div class="cartao-continuar" style="background:var(--azul);">
+    <div class="cartao-continuar" style="background:var(--azul-bloco);">
       <div>
         <h3>Próxima aula</h3>
         <p>${proxima.turma ? escapeHtml(proxima.turma.nome) + ' — ' : ''}${quando} às ${escapeHtml(proxima.horario.horario_inicio)}</p>
@@ -1553,6 +1636,7 @@ function renderExercicios(){
         <button data-status="todas" class="${filtroStatus === 'todas' ? 'ativo' : ''}">Todas</button>
         <button data-status="pendentes" class="${filtroStatus === 'pendentes' ? 'ativo' : ''}">Pendentes</button>
         <button data-status="concluidas" class="${filtroStatus === 'concluidas' ? 'ativo' : ''}">Concluídas</button>
+        <button class="btn-texto" id="btn-pdf-exercicios" style="margin-left:auto;">Baixar PDF</button>
       </div>
       <div id="sessao-exercicios-container"></div>
     ` : '<div class="painel-ficha-vazio"><div class="vazio"><p>Ainda não há matérias cadastradas.</p></div></div>'}
@@ -1561,14 +1645,18 @@ function renderExercicios(){
   $$('.aba-materia').forEach(a => a.addEventListener('click', () => {
     materiaSelecionada = a.dataset.materia;
     indiceAtual = 0;
+    salvarUltimaView();
     renderExercicios();
   }));
 
-  $$('.filtro-status button').forEach(b => b.addEventListener('click', () => {
+  $$('.filtro-status button[data-status]').forEach(b => b.addEventListener('click', () => {
     filtroStatus = b.dataset.status;
     indiceAtual = 0;
     renderExercicios();
   }));
+
+  const btnPdfExercicios = $('#btn-pdf-exercicios');
+  if(btnPdfExercicios) btnPdfExercicios.addEventListener('click', renderPdfExercicios);
 
   const buscaInput = $('#busca-exercicios');
   if(buscaInput){
@@ -2178,7 +2266,8 @@ function renderResultadoSimulado(){
       <div class="nota-grande">${simulado.acertos}/${simulado.questoes.length}</div>
       <p>${pct}% de acerto, em ${formatarTempo(simulado.tempoSegundos)}</p>
     </div>
-    <div style="text-align:center; margin-top:20px;">
+    <div style="text-align:center; margin-top:20px; display:flex; justify-content:center; gap:14px;">
+      <button class="btn btn-secundario" id="btn-pdf-simulado">Baixar PDF</button>
       <button class="btn btn-primario" id="btn-novo-simulado">Fazer outro simulado</button>
     </div>
   `;
@@ -2186,11 +2275,79 @@ function renderResultadoSimulado(){
     simulado = null;
     renderSimulado();
   });
+  $('#btn-pdf-simulado').addEventListener('click', renderPdfSimulado);
+}
+
+function renderPdfSimulado(){
+  const dadosSimulado = simulado;
+  const itensHtml = dadosSimulado.questoes.map((ex, idx) => {
+    const avaliacao = dadosSimulado.autoavaliacoes[ex.id];
+    return `
+      <div class="card" style="margin-bottom:14px; break-inside:avoid;">
+        <h4 style="font-size:14px; color:var(--azul); margin-bottom:8px;">${String(idx+1).padStart(2,'0')} — ${escapeHtml(ex.titulo)} <span class="tag-nivel tag-${ex.nivel}">${nivelLabel(ex.nivel)}</span> ${avaliacao ? `<span class="tag-nivel" style="background:${avaliacao==='certo'?'var(--verde-claro)':'#F3DCD4'}; color:${avaliacao==='certo'?'var(--verde-escuro)':'var(--erro)'};">${avaliacao==='certo'?'Acertou':'Errou'}</span>` : ''}</h4>
+        ${construirFiguraSvg(ex.figura)}
+        <div class="enunciado" style="margin-bottom:10px;">${escapeHtml(ex.enunciado)}</div>
+        <div class="caixa-gabarito">
+          <span class="rotulo-resposta">Resposta</span>${escapeHtml(ex.gabarito)}
+          ${ex.explicacao ? `<br><br><span class="rotulo-resposta">Como chegar lá</span>${escapeHtml(ex.explicacao)}` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const pct = Math.round((dadosSimulado.acertos / dadosSimulado.questoes.length) * 100);
+
+  $('#conteudo').innerHTML = `
+    ${construirCabecalhoImpressaoPdf('Resultado do simulado', `${dadosSimulado.acertos}/${dadosSimulado.questoes.length} acertos (${pct}%)`)}
+    <div class="cabecalho-pagina">
+      <button class="btn-texto" id="btn-voltar-pdf-simulado">← Voltar</button>
+      <h1 style="margin-top:8px;">Simulado — ${dadosSimulado.acertos}/${dadosSimulado.questoes.length} acertos</h1>
+      <p>Tempo: ${formatarTempo(dadosSimulado.tempoSegundos)}</p>
+    </div>
+    <button class="btn btn-secundario" id="btn-baixar-pdf-simulado" style="margin-bottom:20px;">Baixar PDF</button>
+    ${itensHtml}
+  `;
+  renderizarMath();
+
+  $('#btn-voltar-pdf-simulado').addEventListener('click', () => renderResultadoSimulado());
+  $('#btn-baixar-pdf-simulado').addEventListener('click', () => window.print());
 }
 
 /* ============================================================
    VIEW: REVISÃO
    ============================================================ */
+function renderPdfExercicios(){
+  const materia = materiasCache.find(m => m.id === materiaSelecionada);
+  const lista = exerciciosCache.filter(e => e.materia_id === materiaSelecionada).sort((a,b) => a.ordem - b.ordem);
+
+  const itensHtml = lista.map((ex, idx) => `
+    <div class="card" style="margin-bottom:14px; break-inside:avoid;">
+      <h4 style="font-size:14px; color:var(--azul); margin-bottom:8px;">${String(idx+1).padStart(2,'0')} — ${escapeHtml(ex.titulo)} <span class="tag-nivel tag-${ex.nivel}">${nivelLabel(ex.nivel)}</span></h4>
+      ${construirFiguraSvg(ex.figura)}
+      <div class="enunciado" style="margin-bottom:10px;">${escapeHtml(ex.enunciado)}</div>
+      <div class="caixa-gabarito">
+        <span class="rotulo-resposta">Resposta</span>${escapeHtml(ex.gabarito)}
+        ${ex.explicacao ? `<br><br><span class="rotulo-resposta">Como chegar lá</span>${escapeHtml(ex.explicacao)}` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  $('#conteudo').innerHTML = `
+    ${construirCabecalhoImpressaoPdf('Lista de exercícios', materia ? materia.nome : '')}
+    <div class="cabecalho-pagina">
+      <button class="btn-texto" id="btn-voltar-pdf-exercicios">← Voltar</button>
+      <h1 style="margin-top:8px;">${escapeHtml(materia ? materia.nome : 'Exercícios')}</h1>
+      <p>${lista.length} exercício${lista.length===1?'':'s'}, com gabarito e explicação.</p>
+    </div>
+    <button class="btn btn-secundario" id="btn-baixar-pdf-exercicios" style="margin-bottom:20px;">Baixar PDF</button>
+    ${itensHtml || '<div class="vazio"><p>Nenhum exercício nesta matéria.</p></div>'}
+  `;
+  renderizarMath();
+
+  $('#btn-voltar-pdf-exercicios').addEventListener('click', renderExercicios);
+  $('#btn-baixar-pdf-exercicios').addEventListener('click', () => window.print());
+}
+
 function renderRevisao(){
   if(perfilAtual.role === 'professora'){
     $('#conteudo').innerHTML = `
@@ -2264,6 +2421,7 @@ function renderAulas(){
 
   $$('[data-materia-aula]').forEach(a => a.addEventListener('click', () => {
     materiaSelecionadaAulas = a.dataset.materiaAula;
+    salvarUltimaView();
     renderAulas();
   }));
   $$('[data-tipo-aula]').forEach(b => b.addEventListener('click', () => {
@@ -2464,10 +2622,7 @@ function renderProgresso(){
   const pct = totalExercicios ? Math.round((feitos/totalExercicios)*100) : 0;
 
   $('#conteudo').innerHTML = `
-    <div class="cabecalho-impressao">
-      <h1>Relatório de progresso — ${escapeHtml(perfilAtual.nome)}</h1>
-      <p>${perfilAtual.ano_escolar ? escapeHtml(perfilAtual.ano_escolar) + ' — ' : ''}Drika Moraes, Matemática Básica e Avançada — gerado em ${formatarData(new Date().toISOString())}</p>
-    </div>
+    ${construirCabecalhoImpressaoPdf('Relatório de progresso — ' + perfilAtual.nome, perfilAtual.ano_escolar || '')}
     <div class="cabecalho-pagina">
       <h1>Meu progresso</h1>
       <p>Acompanhe sua evolução por matéria.</p>
@@ -2721,10 +2876,7 @@ function renderRelatorioAlunoView(alunoId){
   `).join('');
 
   $('#conteudo').innerHTML = `
-    <div class="cabecalho-impressao">
-      <h1>Relatório de progresso — ${escapeHtml(aluno.nome)}</h1>
-      <p>${aluno.ano_escolar ? escapeHtml(aluno.ano_escolar) + ' — ' : ''}Drika Moraes, Matemática Básica e Avançada — gerado em ${formatarData(new Date().toISOString())}</p>
-    </div>
+    ${construirCabecalhoImpressaoPdf('Relatório de progresso — ' + aluno.nome, aluno.ano_escolar || '')}
     <div class="cabecalho-pagina">
       <button class="btn-texto" id="btn-voltar-turma">← Voltar para Turma</button>
       <h1 style="margin-top:8px;">${escapeHtml(aluno.nome)}</h1>
@@ -2903,6 +3055,8 @@ function abrirModalTurma(registro){
     $('#tu-salvar').addEventListener('click', async () => {
       const nome = $('#tu-nome').value.trim();
       if(!nome) return;
+      const btn = $('#tu-salvar');
+      btn.disabled = true; btn.textContent = 'Salvando...';
       const payload = { nome, cor: $('#tu-cor').value, observacoes: $('#tu-obs').value.trim() || null };
       let turmaId;
       if(editando){
@@ -3147,6 +3301,8 @@ async function abrirModalVisibilidade(tabela, itemId, nomeItem){
   });
   $('#vis-cancelar').addEventListener('click', fecharModal);
   $('#vis-salvar').addEventListener('click', async () => {
+    const btn = $('#vis-salvar');
+    btn.disabled = true; btn.textContent = 'Salvando...';
     const restringirAtivo = $('#vis-restringir').checked;
     await sb.from('visibilidade_conteudo').delete().eq('tabela', tabela).eq('item_id', itemId);
     visibilidadeCache = visibilidadeCache.filter(v => !(v.tabela === tabela && v.item_id === itemId));
@@ -3800,6 +3956,8 @@ function abrirModalAluno(registro){
   $('#al-salvar').addEventListener('click', async () => {
     const nome = $('#al-nome').value.trim();
     if(!nome) return;
+    const btn = $('#al-salvar');
+    btn.disabled = true; btn.textContent = 'Salvando...';
     const payload = {
       nome,
       idade: $('#al-idade').value ? parseInt($('#al-idade').value, 10) : null,
@@ -4008,6 +4166,8 @@ function abrirModalMateria(registro){
   $('#m-salvar').addEventListener('click', async () => {
     const nome = $('#m-nome').value.trim();
     if(!nome) return;
+    const btn = $('#m-salvar');
+    btn.disabled = true; btn.textContent = 'Salvando...';
     const cor = $('#m-cor').value;
     if(editando){
       const { data } = await sb.from('materias').update({ nome, cor }).eq('id', registro.id).select().single();
@@ -4105,6 +4265,8 @@ function abrirModalExercicio(registro){
       const enunciado = $('#e-enunciado').value.trim();
       const gabarito = $('#e-gabarito').value.trim();
       if(!materia_id || !titulo || !enunciado || !gabarito) return;
+      const btn = $('#e-salvar');
+      btn.disabled = true; btn.textContent = 'Salvando...';
       const payload = {
         materia_id, titulo, enunciado, gabarito,
         explicacao: $('#e-explicacao').value.trim() || null,
@@ -4155,6 +4317,8 @@ function abrirModalAula(registro){
     const titulo = $('#a-titulo').value.trim();
     const url = $('#a-url').value.trim();
     if(!titulo || !url) return;
+    const btn = $('#a-salvar');
+    btn.disabled = true; btn.textContent = 'Salvando...';
     const payload = {
       materia_id: $('#a-materia').value || null,
       titulo, tipo: $('#a-tipo').value, url,
@@ -4196,6 +4360,8 @@ function abrirModalAviso(registro){
     const titulo = $('#v-titulo').value.trim();
     const mensagem = $('#v-mensagem').value.trim();
     if(!titulo || !mensagem) return;
+    const btn = $('#v-salvar');
+    btn.disabled = true; btn.textContent = 'Salvando...';
     const payload = { titulo, mensagem, fixado: $('#v-fixado').checked };
     if(editando){
       const { data } = await sb.from('avisos').update(payload).eq('id', registro.id).select().single();
