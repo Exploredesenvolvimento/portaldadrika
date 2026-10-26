@@ -435,9 +435,346 @@
   .carregando{ display:flex; align-items:center; justify-content:center; min-height:100vh; color: var(--ink-suave); font-size:14px; }
 
   .cabecalho-impressao{ display:none; }
+
+  /* ===== Exercícios: layout renovado ===== */
+  .ex-topo{ display:flex; align-items:center; gap:10px; margin-top:4px; }
+  .trilho-materias{
+    flex:1; min-width:0; display:flex; gap:8px; overflow-x:auto; padding:4px 2px 8px;
+    scrollbar-width:none; scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
+    mask-image: linear-gradient(to right, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, #000 92%, transparent);
+  }
+  .trilho-materias::-webkit-scrollbar{ display:none; }
+  .trilho-materias.chamando-atencao .pilula-materia:not(.ativa){ animation: pulso-pilula .7s ease 2; }
+  @keyframes pulso-pilula{ 50%{ border-color: var(--cor-materia); } }
+  .pilula-materia{
+    flex-shrink:0; display:flex; align-items:center; gap:8px;
+    padding:9px 14px 9px 16px; border-radius:999px; border:1.5px solid var(--borda);
+    background: var(--card); color: var(--ink); font-family: var(--font-body);
+    font-size:13.5px; font-weight:600; cursor:pointer;
+    transition: background .18s ease, border-color .18s ease, color .18s ease, transform .12s ease;
+  }
+  .pilula-materia:hover{ border-color: var(--cor-materia); }
+  .pilula-materia:active{ transform: scale(.97); }
+  .pilula-materia .pilula-conta{
+    font-family: var(--font-numero); font-size:11.5px; font-weight:600;
+    color: var(--ink-suave); padding:2px 7px; border-radius:999px;
+    background: color-mix(in srgb, var(--cor-materia) 12%, transparent);
+  }
+  .pilula-materia.ativa{ background: var(--cor-materia); border-color: var(--cor-materia); color: var(--texto-materia, #fff); }
+  .pilula-materia.ativa .pilula-conta{ background: rgba(255,255,255,.22); color: var(--texto-materia, #fff); }
+
+  .btn-filtrar{
+    flex-shrink:0; display:flex; align-items:center; gap:6px; align-self:flex-start; margin-top:4px;
+    padding:9px 14px; border-radius:999px; border:1.5px solid var(--borda); background: transparent;
+    color: var(--ink-suave); font-size:13px; font-weight:600;
+  }
+  .btn-filtrar:hover, .btn-filtrar.aberto{ color: var(--ink); border-color: var(--ink-suave); }
+  .btn-filtrar.com-filtro{ color: var(--verde-escuro); border-color: var(--verde); }
+  .btn-filtrar .conta-filtro{
+    font-family: var(--font-numero); font-size:11px; background: var(--verde); color:#fff;
+    border-radius:999px; min-width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; padding:0 5px;
+  }
+
+  .painel-filtros{ display:none; }
+  .painel-filtros.aberto{ display:block; margin-top:10px; animation: surge .2s ease; }
+  .painel-filtros-grade{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:14px;
+    background: var(--card); border:1px solid var(--borda); border-radius:12px 12px 0 0; padding:16px 16px 4px;
+  }
+  .painel-filtros-grade .campo{ margin-bottom:12px; }
+  .painel-filtros-rodape{
+    display:flex; justify-content:space-between; align-items:center;
+    background: var(--card); border:1px solid var(--borda); border-top:1px dashed var(--borda);
+    border-radius:0 0 12px 12px; padding:6px 10px;
+  }
+  .segmentado{ display:flex; gap:0; margin:0; border:1.5px solid var(--borda); border-radius:8px; overflow:hidden; }
+  .segmentado button{
+    flex:1; border:none !important; border-radius:0 !important; background: transparent; padding:9px 6px !important;
+  }
+  .segmentado button + button{ border-left:1.5px solid var(--borda) !important; }
+
+  .ex-posicao{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin:18px 2px 10px; font-size:14px; color: var(--ink-suave);
+  }
+  .ex-posicao .btn-texto, .painel-filtros .btn-texto, .fechamento-acoes .btn-texto{ border:none; }
+  .ex-posicao strong{ color: var(--ink); font-family: var(--font-display); font-weight:600; font-size:15px; }
+  .ex-posicao-faltam{ font-size:13px; }
+
+  .grade-questoes{ display:none; }
+  .grade-questoes.aberta{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; animation: surge .2s ease; }
+  .chip-questao.errou{ background: transparent; border-color: var(--erro); color: var(--erro); }
+
+  .cartao-questao{
+    position:relative; border-left-width:1px; border-radius:16px; padding:26px 28px 20px;
+    box-shadow: 0 1px 0 var(--borda), 0 12px 30px -18px rgba(42,38,34,.28);
+    overflow:hidden;
+  }
+  .cartao-questao::before{
+    content:''; position:absolute; left:0; top:0; right:0; height:5px; background: var(--cor-materia, var(--verde));
+  }
+  .entra-prox{ animation: entra-da-direita .32s cubic-bezier(.2,.8,.2,1); }
+  .entra-ant{ animation: entra-da-esquerda .32s cubic-bezier(.2,.8,.2,1); }
+  @keyframes entra-da-direita{ from{ opacity:0; transform: translateX(34px); } to{ opacity:1; transform:none; } }
+  @keyframes entra-da-esquerda{ from{ opacity:0; transform: translateX(-34px); } to{ opacity:1; transform:none; } }
+
+  .cartao-questao-topo{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px; }
+  .cartao-questao-contexto{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .contexto-materia{ font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color: var(--cor-materia, var(--verde)); }
+  .contexto-assunto{ font-family: var(--font-display); font-size:17px; font-weight:600; color: var(--ink); }
+  .cartao-questao-selos{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .selo-questao{ font-size:11px; font-weight:600; padding:2px 9px; border-radius:3px; white-space:nowrap; }
+  .selo-certo{ background: var(--verde-claro); color: var(--verde-escuro); }
+  .selo-errado{ background: color-mix(in srgb, var(--erro) 14%, var(--card)); color: var(--erro); }
+
+  .enunciado-destaque{ font-size:17px; line-height:1.75; margin:4px 0 22px; }
+
+  .area-resposta{ margin-bottom:18px; }
+  .btn-ver-resposta{
+    width:100%; padding:14px 18px; border-radius:12px; border:1.5px dashed var(--amarelo);
+    background: color-mix(in srgb, var(--amarelo) 8%, transparent); color: var(--ink);
+    font-family: var(--font-display); font-weight:600; font-size:15px;
+    transition: background .15s ease, transform .12s ease;
+  }
+  .btn-ver-resposta:hover{ background: color-mix(in srgb, var(--amarelo) 16%, transparent); }
+  .btn-ver-resposta:active{ transform: scale(.99); }
+  .area-resposta.revelada .btn-ver-resposta{ display:none; }
+  .gabarito-animado{ display:grid; grid-template-rows:0fr; opacity:0; transition: grid-template-rows .35s ease, opacity .3s ease; }
+  .gabarito-animado-interno{ overflow:hidden; min-height:0; }
+  .area-resposta.revelada .gabarito-animado{ grid-template-rows:1fr; opacity:1; }
+  .area-resposta .caixa-gabarito{ border-radius:12px; padding:14px 16px; font-size:15px; }
+  .rotulo-espaco{ margin-top:14px; }
+  .pergunta-avaliacao{ margin:16px 0 8px; font-size:13.5px; color: var(--ink-suave); text-align:center; }
+  .avaliacao-grande{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .avaliacao-grande button{
+    padding:14px 10px; border-radius:12px; border:1.5px solid var(--borda); background: var(--card);
+    font-family: var(--font-display); font-weight:600; font-size:15px; color: var(--ink);
+    transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;
+  }
+  .avaliacao-grande button:active{ transform: scale(.97); }
+  .avaliacao-grande .aval-certo:hover, .avaliacao-grande .aval-certo.marcado{ border-color: var(--verde); background: var(--verde-claro); color: var(--verde-escuro); }
+  .avaliacao-grande .aval-errado:hover, .avaliacao-grande .aval-errado.marcado{ border-color: var(--erro); background: color-mix(in srgb, var(--erro) 12%, var(--card)); color: var(--erro); }
+  .avaliacao-grande button:disabled{ cursor:default; }
+  .avaliacao-grande button:disabled:not(.marcado){ opacity:.4; }
+  .avaliacao-grande button.confirmando{ animation: confirma .45s ease; }
+  @keyframes confirma{ 40%{ transform: scale(1.04); } }
+
+  .barra-ferramentas{
+    display:flex; flex-wrap:wrap; gap:6px; padding-top:14px; border-top:1px solid var(--borda);
+  }
+  .ferramenta{
+    display:inline-flex; align-items:center; padding:7px 12px; border-radius:999px; border:1px solid transparent;
+    background: var(--bg); color: var(--ink-suave); font-size:12.5px; font-weight:600; cursor:pointer; font-family: var(--font-body);
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .ferramenta:hover{ color: var(--ink); }
+  .ferramenta.ativa{ border-color: var(--ink-suave); color: var(--ink); }
+  .texto-suave-pequeno{ font-size:12.5px; color: var(--ink-suave); margin-top:6px; }
+  .painel-ferramenta{ display:none; margin-top:12px; animation: surge .2s ease; }
+  .painel-ferramenta.aberto{ display:block; }
+  @keyframes surge{ from{ opacity:0; transform: translateY(-4px); } to{ opacity:1; transform:none; } }
+  .painel-ferramenta textarea{
+    width:100%; font-family: var(--font-numero); font-size:14px; padding:12px; border-radius:10px;
+    border:1.5px solid var(--borda); resize:vertical; background: var(--bg); color: var(--ink);
+  }
+  .painel-ferramenta textarea:focus{ outline:none; border-color: var(--verde); }
+
+  .cartao-questao .navegacao-questao{ margin-top:18px; padding-top:14px; }
+  .dica-deslizar{ display:none; font-size:12px; color: var(--ink-suave); }
+
+  .cartao-fechamento{
+    background: var(--card); border:1px solid var(--borda); border-radius:16px; padding:34px 30px;
+    position:relative; overflow:hidden; margin-top:18px;
+  }
+  .cartao-fechamento::before{ content:''; position:absolute; left:0; top:0; right:0; height:5px; background: var(--cor-materia, var(--verde)); }
+  .fechamento-rotulo{ font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color: var(--cor-materia, var(--verde)); }
+  .cartao-fechamento h2{ font-size:24px; margin:8px 0 14px; color: var(--ink); }
+  .fechamento-placar{ font-size:16px; margin:0 0 6px; color: var(--ink); }
+  .fechamento-placar strong{ font-family: var(--font-numero); }
+  .fechamento-frase{ font-size:14.5px; color: var(--ink-suave); margin:0 0 22px; line-height:1.6; }
+  .fechamento-acoes{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+
+  @media (max-width: 860px){
+    .ex-topo{ gap:8px; }
+    .cartao-questao{ padding:22px 18px 16px; border-radius:14px; }
+    .enunciado-destaque{ font-size:16px; }
+    .dica-deslizar{ display:inline; }
+    .cartao-fechamento{ padding:28px 20px; }
+    .cartao-fechamento h2{ font-size:21px; }
+  }
+  @media (max-width: 420px){
+    .dica-deslizar{ display:none; }
+  }
+  :root[data-tema="escuro"] .contexto-materia, :root[data-tema="escuro"] .fechamento-rotulo{ color: color-mix(in srgb, var(--cor-materia) 45%, var(--ink)); }
+  :root[data-tema="escuro"] .cartao-questao::before, :root[data-tema="escuro"] .cartao-fechamento::before{ background: color-mix(in srgb, var(--cor-materia) 60%, var(--ink)); }
+  :root[data-tema="escuro"] .pilula-materia.ativa{ background: color-mix(in srgb, var(--cor-materia) 70%, var(--ink) 30%); border-color: transparent; color: var(--bg); }
+  :root[data-tema="escuro"] .pilula-materia.ativa .pilula-conta{ color: var(--bg); background: rgba(0,0,0,.12); }
+  @media (max-width: 860px){
+    .cartao-questao-topo{ flex-direction:column-reverse; gap:10px; margin-bottom:14px; }
+    .cartao-questao-selos{ justify-content:flex-start; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .entra-prox, .entra-ant, .painel-ferramenta, .avaliacao-grande button.confirmando{ animation:none; }
+    .gabarito-animado{ transition:none; }
+  }
+
+
+  /* ===== Etapa 2: Início, Revisão, Simulado e Progresso no novo visual ===== */
+  .titulo-secao{ font-size:15px; color: var(--azul); margin:28px 2px 12px; }
+  .cabecalho-com-acao{ display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+  .cabecalho-com-acao .btn-texto{ border:none; margin-top:6px; }
+  .cabecalho-pagina p strong{ color: var(--ink); }
+
+  .cartao-continuar-novo{ display:flex; flex-direction:column; gap:4px; margin-bottom:16px; }
+  .cartao-continuar-novo .previa-enunciado{ font-size:15.5px; line-height:1.6; color: var(--ink); margin:8px 0 16px; }
+  .cartao-continuar-novo .btn{ align-self:flex-start; }
+
+  .grade-atalhos{ display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:12px; margin-bottom:22px; }
+  .atalho{
+    display:flex; flex-direction:column; gap:3px; text-align:left;
+    background: var(--card); border:1px solid var(--borda); border-radius:14px; padding:16px 18px;
+    font-family: var(--font-body); color: var(--ink);
+  }
+  .atalho strong{ font-family: var(--font-display); font-size:16px; font-weight:600; }
+  .atalho-rotulo{ font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color: var(--ink-suave); }
+  .atalho-detalhe{ font-size:12.5px; color: var(--ink-suave); }
+  .atalho-clicavel{ cursor:pointer; transition: border-color .15s ease, transform .12s ease; }
+  .atalho-clicavel:hover{ border-color: var(--verde); }
+  .atalho-clicavel:active{ transform: scale(.99); }
+
+  .cartao-config{ background: var(--card); border:1px solid var(--borda); border-radius:16px; padding:22px 24px; }
+  .config-bloco{ margin-bottom:20px; }
+  .config-rotulo{ display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; color: var(--azul); margin-bottom:10px; }
+  .btn-texto-mini{ font-size:12.5px; border:none; padding:2px 4px; }
+  .segmentado-largo{ max-width:520px; }
+  .grade-pilulas{ display:flex; flex-wrap:wrap; gap:8px; }
+  .pilula-alternavel:not(.ativa){ color: var(--ink-suave); }
+  .config-rodape{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding-top:16px; border-top:1px solid var(--borda); }
+  .config-rodape p{ margin:0; font-size:13.5px; color: var(--ink-suave); max-width:440px; line-height:1.5; }
+  .config-rodape p strong{ color: var(--ink); }
+
+  .lista-limpa{ background: var(--card); border:1px solid var(--borda); border-radius:14px; overflow:hidden; }
+  .linha-limpa{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; }
+  .linha-limpa + .linha-limpa{ border-top:1px solid var(--borda); }
+  .linha-limpa-principal{ display:flex; flex-direction:column; gap:2px; font-size:14.5px; }
+  .linha-limpa-detalhe{ font-size:12.5px; color: var(--ink-suave); }
+  .numero-destaque{ font-family: var(--font-numero); font-weight:600; font-size:15px; color: var(--ink-suave); white-space:nowrap; }
+  .numero-destaque.bom{ color: var(--verde); }
+  .numero-destaque.medio{ color: #B0700F; }
+  :root[data-tema="escuro"] .numero-destaque.medio{ color: var(--amarelo); }
+  .numero-destaque.baixo{ color: var(--erro); }
+
+  .barra-simulado-nova{
+    position:sticky; top:0; z-index:5; display:flex; align-items:center; justify-content:space-between;
+    background: var(--bg); padding:10px 2px 12px; margin-bottom:6px; font-size:14px; color: var(--ink-suave);
+  }
+  .barra-simulado-nova strong{ color: var(--ink); font-family: var(--font-display); font-size:15px; }
+  .cronometro-novo{
+    font-family: var(--font-numero); font-weight:600; font-size:15px; color: var(--ink);
+    background: var(--card); border:1px solid var(--borda); border-radius:999px; padding:6px 14px;
+  }
+  .pilha-correcao{ display:flex; flex-direction:column; gap:14px; }
+  .cartao-correcao-nova{ scroll-margin-top:16px; transition: opacity .2s ease; }
+  .cartao-correcao-nova.avaliada{ opacity:.78; }
+  .rodape-fixo-correcao{
+    position:sticky; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin-top:16px; padding:12px 16px; background: var(--card); border:1px solid var(--borda); border-radius:14px;
+    box-shadow: 0 -10px 24px -18px rgba(42,38,34,.4); font-size:14px; color: var(--ink-suave);
+  }
+
+  .resumo-grande{ font-size:15px; line-height:1.7; }
+  .cartao-reforco{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    background: color-mix(in srgb, var(--erro) 7%, var(--card)); border:1px solid color-mix(in srgb, var(--erro) 30%, var(--borda));
+    border-radius:14px; padding:18px 20px; margin-top:14px;
+  }
+  .cartao-reforco h3{ font-size:15px; color: var(--ink); margin-bottom:8px; }
+  .cartao-reforco ul{ margin:0; padding-left:18px; font-size:14px; line-height:1.8; color: var(--ink); }
+  .linha-materia{ display:flex; align-items:center; gap:14px; padding:14px 18px; }
+  .linha-materia + .linha-materia{ border-top:1px solid var(--borda); }
+  .marca-materia{ width:10px; height:10px; border-radius:50%; background: var(--cor-materia); flex-shrink:0; }
+  :root[data-tema="escuro"] .marca-materia{ background: color-mix(in srgb, var(--cor-materia) 60%, var(--ink)); }
+  .linha-materia-texto{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .linha-materia-texto strong{ font-size:14.5px; color: var(--ink); }
+  .linha-materia-texto span{ font-size:12.5px; color: var(--ink-suave); }
+  .btn-treinar{ border:none; color: var(--verde-escuro); font-weight:600; }
+
+  @media (max-width: 860px){
+    .cartao-config{ padding:18px 16px; }
+    .config-rodape .btn{ width:100%; }
+    .linha-materia{ flex-wrap:wrap; padding:14px 16px; }
+    .linha-materia-texto{ flex-basis: calc(100% - 30px); }
+    .linha-materia .numero-destaque{ margin-left:24px; }
+    .btn-treinar{ margin-left:auto; }
+  }
+
+
+  /* ===== Resposta digitada ===== */
+  .resposta-digitada{ margin-bottom:12px; }
+  .resposta-digitada label{ display:block; font-size:12.5px; font-weight:600; color: var(--ink-suave); margin-bottom:6px; }
+  .resposta-digitada-linha{ display:flex; gap:8px; }
+  .resposta-digitada-linha input{
+    flex:1; min-width:0; padding:13px 14px; border-radius:12px; border:1.5px solid var(--borda);
+    background: var(--bg); color: var(--ink); font-family: var(--font-numero); font-size:16px;
+  }
+  .resposta-digitada-linha input:focus{ outline:none; border-color: var(--verde); }
+  .resposta-digitada-linha input:disabled{ opacity:.8; }
+  .resposta-digitada-linha .btn{ border-radius:12px; padding-left:20px; padding-right:20px; }
+  .retorno-resposta{ min-height:20px; margin:8px 2px 0; font-size:13.5px; font-weight:600; }
+  .retorno-resposta.certo{ color: var(--verde); animation: surge .25s ease; }
+  .retorno-resposta.errado{ color: var(--erro); }
+  .retorno-resposta.tremer{ animation: tremer .35s ease; }
+  @keyframes tremer{ 20%{ transform: translateX(-5px); } 40%{ transform: translateX(5px); } 60%{ transform: translateX(-3px); } 80%{ transform: translateX(3px); } }
+  .area-resposta.com-digitada .btn-ver-resposta{
+    width:auto; padding:6px 2px; border:none; background:none; font-family: var(--font-body);
+    font-size:13px; font-weight:600; color: var(--ink-suave); text-decoration: underline; text-underline-offset:3px;
+  }
+  .area-resposta.com-digitada .btn-ver-resposta:hover{ background:none; color: var(--ink); }
+  .acerto-automatico{ display:none; }
+  .area-resposta.acertou-digitando .acerto-automatico{ display:flex; justify-content:flex-end; margin-top:14px; }
+  .area-resposta.acertou-digitando .avaliacao-grande, .area-resposta.acertou-digitando .pergunta-avaliacao{ display:none; }
+  .ajuda-campo{ display:block; font-size:12px; color: var(--ink-suave); margin-top:4px; line-height:1.5; }
+  @media (max-width: 420px){
+    .resposta-digitada-linha .btn{ padding-left:14px; padding-right:14px; }
+  }
+
+  /* ===== Etapa 4: Turma e lista da semana ===== */
+  .linha-aluno{ display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 18px; }
+  .linha-aluno + .linha-aluno{ border-top:1px solid var(--borda); }
+  .linha-aluno-texto{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .linha-aluno-nome{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .linha-aluno-nome strong{ font-size:14.5px; color: var(--ink); }
+  .linha-aluno-texto > span{ font-size:12.5px; color: var(--ink-suave); }
+  .linha-aluno-fraco{ color: var(--erro) !important; }
+  .linha-aluno-acoes{ display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .linha-aluno-acoes select{ font-size:12.5px; padding:7px 8px; border-radius:8px; border:1.5px solid var(--borda); background: var(--card); color: var(--ink); }
+  .selo-situacao{ font-size:11px; font-weight:600; padding:2px 8px; border-radius:3px; }
+  .situacao-em-dia{ background: var(--verde-claro); color: var(--verde-escuro); }
+  .situacao-sumido{ background: color-mix(in srgb, var(--erro) 14%, var(--card)); color: var(--erro); }
+  .situacao-dificuldade{ background: var(--amarelo-claro); color: #8A5F0B; }
+  :root[data-tema="escuro"] .situacao-dificuldade{ color: var(--amarelo); }
+  .situacao-nao-comecou{ background: var(--bg); color: var(--ink-suave); }
+  .cartao-semana-prof{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-top:14px; }
+  .lista-opcoes-semana{ max-height:46vh; overflow:auto; margin:0 -4px 14px; padding:0 4px; }
+  .grupo-semana{ display:flex; flex-direction:column; gap:2px; margin-bottom:14px; }
+  .grupo-semana .contexto-materia{ margin-bottom:4px; }
+  .opcao-semana{ display:flex; align-items:flex-start; gap:10px; padding:8px 6px; border-radius:8px; cursor:pointer; }
+  .opcao-semana:hover{ background: var(--bg); }
+  .opcao-semana input{ margin-top:3px; accent-color: var(--verde); }
+  .opcao-semana span{ display:flex; flex-direction:column; gap:1px; font-size:13.5px; color: var(--ink); }
+  .opcao-semana small{ font-size:12px; color: var(--ink-suave); }
+  .texto-pais{ width:100%; padding:12px; border-radius:10px; border:1.5px solid var(--borda); background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size:14px; line-height:1.6; resize:vertical; }
+  .atalho-semana{ border-color: color-mix(in srgb, #E8791E 45%, var(--borda)); }
+  .atalho-semana .atalho-rotulo{ color: #C2610F; }
+  :root[data-tema="escuro"] .atalho-semana .atalho-rotulo{ color: var(--amarelo); }
+  @media (max-width: 860px){
+    .linha-aluno{ flex-direction:column; align-items:stretch; padding:14px 16px; }
+    .linha-aluno-acoes{ justify-content:space-between; }
+  }
   @media print{
     .sidebar, .topo-mobile, .fundo-escurecido, .modal-fundo, button, .btn, .btn-texto, .btn-revelar, .link-aula,
-    .abas-materias, .filtro-status, #busca-exercicios, .navegador-questoes, .navegacao-questao{ display:none !important; }
+    .abas-materias, .filtro-status, #busca-exercicios, .navegador-questoes, .navegacao-questao, .ex-topo, .painel-filtros, .ex-posicao, .grade-questoes, .barra-ferramentas, .area-resposta{ display:none !important; }
     .conteudo{ padding:0; max-width:100%; }
     .cabecalho-impressao{ display:block; margin-bottom:20px; }
     .cabecalho-impressao h1{ font-size:20px; color:var(--azul); }
@@ -664,8 +1001,10 @@ if(linkFavicon) linkFavicon.href = LOGO_DRIKA_MORAES;
   <div style="display:flex; flex-direction:column; align-items:center; gap:14px; max-width:340px; text-align:center; padding:24px;">
     <img id="logo-pendente" alt="Drika Moraes" width="200" height="200" style="width:64px; height:64px;">
     <h2 style="font-family:'Space Grotesk', sans-serif; color:var(--azul); font-size:19px;">Cadastro em análise</h2>
-    <p style="font-size:14px; line-height:1.6;">Sua conta foi criada, mas o código de acesso informado não foi reconhecido. A Drika precisa aprovar seu acesso antes de você ver o conteúdo do curso. Fale com ela para liberar.</p>
-    <button class="btn btn-secundario" id="btn-sair-pendente">Sair</button>
+    <p style="font-size:14px; line-height:1.6;">Sua conta foi criada e está aguardando a liberação da Drika. Assim que ela aprovar, é só tocar no botão abaixo para entrar.</p>
+    <button class="btn btn-primario" id="btn-verificar-aprovacao">Já fui liberado, entrar</button>
+    <p id="msg-ainda-pendente" style="font-size:12.5px; color:var(--ink-suave); display:none;">Ainda não foi liberado. Se já falou com a Drika, tente de novo em alguns minutos.</p>
+    <button class="btn-texto" id="btn-sair-pendente">Sair</button>
   </div>
 </div>
 
@@ -1024,7 +1363,7 @@ async function fazerCadastro(){
   btn.textContent = 'Criando conta...';
   const { error } = await sb.auth.signUp({
     email, password: senha,
-    options: { data: { nome, codigo_convite: codigo } }
+    options: { data: { nome, codigo_convite: codigo }, emailRedirectTo: window.location.origin + window.location.pathname }
   });
   btn.disabled = false; btn.textContent = 'Criar minha conta';
 
@@ -1046,6 +1385,19 @@ async function fazerCadastro(){
 
 $('#btn-sair').addEventListener('click', async () => {
   await sb.auth.signOut();
+});
+$('#btn-verificar-aprovacao').addEventListener('click', async () => {
+  const btn = $('#btn-verificar-aprovacao');
+  btn.disabled = true; btn.textContent = 'Verificando...';
+  const { data: sessao } = await sb.auth.getSession();
+  const { data: perfil } = sessao.session ? await sb.from('profiles').select('role').eq('id', sessao.session.user.id).single() : { data: null };
+  btn.disabled = false; btn.textContent = 'Já fui liberado, entrar';
+  if(perfil && perfil.role !== 'pendente'){
+    $('#tela-pendente').style.display = 'none';
+    await carregarPerfilEIniciar(sessao.session.user.id);
+  } else {
+    $('#msg-ainda-pendente').style.display = 'block';
+  }
 });
 $('#btn-sair-pendente').addEventListener('click', async () => {
   await sb.auth.signOut();
@@ -1339,6 +1691,8 @@ async function carregarDadosBase(){
   comentariosAulaCache = comentariosAula.data || [];
   turmasCache = turmas.data || [];
   turmaHorariosCache = turmaHorarios.data || [];
+  const { data: listaSemana } = await sb.from('lista_semana').select('*').order('ordem');
+  listaSemanaCache = listaSemana || [];
 
   if(perfilAtual.role === 'professora'){
     const { count } = await sb.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'aluno');
@@ -1368,6 +1722,8 @@ function salvarUltimaView(){
 function irParaView(view, opcoes){
   opcoes = opcoes || {};
   viewAtual = view;
+  modoRevisao = view === 'revisao';
+  if(modoRevisao){ indiceAtual = 0; mostrarFimRevisao = false; }
   $$('.nav-item[data-view]').forEach(b => b.classList.toggle('ativo', b.dataset.view === view));
   fecharMenuMobile();
   salvarUltimaView();
@@ -1492,6 +1848,14 @@ function construirCalendarioSemana(){
 }
 
 function proximoExercicioPendente(){
+  const ultimo = progressoCache.filter(p => p.atualizado_em).sort((a,b) => new Date(b.atualizado_em) - new Date(a.atualizado_em))[0];
+  const exUltimo = ultimo && exerciciosCache.find(e => e.id === ultimo.exercicio_id);
+  if(exUltimo){
+    const m = materiasCache.find(mm => mm.id === exUltimo.materia_id);
+    const pend = exerciciosCache.filter(e => e.materia_id === exUltimo.materia_id && !(progressoDe(e.id) || {}).concluido).sort((a,b) => a.ordem - b.ordem);
+    const depois = pend.find(e => e.ordem > exUltimo.ordem) || pend[0];
+    if(m && depois) return { exercicio: depois, materia: m };
+  }
   for(const m of materiasCache){
     const exs = exerciciosCache.filter(e => e.materia_id === m.id).sort((a,b) => a.ordem - b.ordem);
     for(const ex of exs){
@@ -1583,38 +1947,70 @@ function renderInicio(){
     </div>
   `).join('') : `<div class="vazio"><p>Nenhum aviso por aqui ainda.</p></div>`;
 
+  const paraRevisarInicio = exerciciosCache.filter(e => (progressoDe(e.id) || {}).correto === false).length;
+  const proximaAula = calcularProximaAula();
+  const nomesDiasInicio = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+  const quandoAula = proximaAula ? (proximaAula.diasAte === 0 ? 'Hoje' : proximaAula.diasAte === 1 ? 'Amanhã' : nomesDiasInicio[proximaAula.horario.dia_semana].replace(/^./, c => c.toUpperCase())) : '';
+
   $('#conteudo').innerHTML = `
     <div class="cabecalho-pagina">
       <h1>Oi, ${primeiroNome}!</h1>
-      <p>Aqui está o que está rolando no seu curso de matemática.</p>
-      ${perfilAtual.ano_escolar ? `<span class="tag-ano-escolar">${escapeHtml(perfilAtual.ano_escolar)}</span>` : ''}
-    </div>
-
-    <div class="resumo-ficha">
-      Você já concluiu <strong>${feitos} de ${totalExercicios}</strong> exercícios (${pct}%)${sequencia > 0 ? `, está há <strong>${sequencia}</strong> dia${sequencia===1?'':'s'} seguido${sequencia===1?'':'s'} estudando` : ''}, e ainda tem <strong>${pendentes}</strong> pela frente.
+      <p>${feitos ? `Você já fez <strong>${feitos} de ${totalExercicios}</strong> exercícios${sequencia > 1 ? ` e está há <strong>${sequencia} dias seguidos</strong> estudando` : ''}.` : 'Bem-vindo ao seu espaço de estudos. Comece pelo primeiro exercício abaixo.'}</p>
     </div>
 
     ${proximo ? `
-      <div class="cartao-continuar" id="cartao-continuar">
-        <div>
-          <h3>Continue de onde parou</h3>
-          <p>${escapeHtml(proximo.materia.nome)} — ${escapeHtml(proximo.exercicio.titulo)}</p>
-        </div>
-        <button class="btn btn-amarelo" id="btn-continuar">Continuar</button>
+      <div class="cartao-questao cartao-continuar-novo" style="--cor-materia:${proximo.materia.cor}">
+        <span class="contexto-materia">${feitos ? 'Continue de onde parou' : 'Seu primeiro exercício'} · ${escapeHtml(proximo.materia.nome)}</span>
+        <span class="contexto-assunto">${escapeHtml(proximo.exercicio.assunto || proximo.exercicio.titulo)}</span>
+        <p class="previa-enunciado">${escapeHtml(resumirTexto(proximo.exercicio.enunciado, 140))}</p>
+        <button class="btn btn-primario" id="btn-continuar">${feitos ? 'Continuar' : 'Começar'}</button>
       </div>
-    ` : ''}
+    ` : `
+      <div class="cartao-fechamento" style="--cor-materia:var(--verde)">
+        <span class="fechamento-rotulo">Tudo feito</span>
+        <h2>Você fez todos os exercícios do curso.</h2>
+        <p class="fechamento-frase">Que tal um simulado para testar o que aprendeu?</p>
+      </div>
+    `}
 
-    ${construirCartaoProximaAula()}
+    <div class="grade-atalhos">
+      ${listaSemanaCache.length ? (() => { const c = contagemMateria('semana'); return `
+        <button class="atalho atalho-clicavel atalho-semana" id="atalho-semana">
+          <span class="atalho-rotulo">Lista da semana</span>
+          <strong>${c.feitos === c.total ? 'Concluída' : `${c.feitos} de ${c.total} feitas`}</strong>
+          <span class="atalho-detalhe">Escolhida pela Drika</span>
+        </button>`; })() : ''}
+      ${proximaAula ? `
+        <div class="atalho">
+          <span class="atalho-rotulo">Próxima aula</span>
+          <strong>${quandoAula}, ${escapeHtml(proximaAula.horario.horario_inicio)}</strong>
+          <span class="atalho-detalhe">${proximaAula.turma ? escapeHtml(proximaAula.turma.nome) : ''}</span>
+        </div>` : ''}
+      <button class="atalho atalho-clicavel" data-ir-view="revisao">
+        <span class="atalho-rotulo">Para revisar</span>
+        <strong>${paraRevisarInicio ? `${paraRevisarInicio} ${paraRevisarInicio === 1 ? 'questão' : 'questões'}` : 'Nada pendente'}</strong>
+        <span class="atalho-detalhe">${paraRevisarInicio ? 'As que você errou' : 'Revisão em dia'}</span>
+      </button>
+      <button class="atalho atalho-clicavel" data-ir-view="simulado">
+        <span class="atalho-rotulo">Simulado</span>
+        <strong>Treinar como prova</strong>
+        <span class="atalho-detalhe">Questões sorteadas e cronometradas</span>
+      </button>
+    </div>
+
     ${construirCalendarioSemana()}
 
     <h3 style="font-size:15px; color:var(--azul); margin-bottom:12px;">Avisos da Drika</h3>
     ${avisosHtml}
   `;
 
+  const atSemana = $('#atalho-semana');
+  if(atSemana) atSemana.addEventListener('click', () => { materiaSelecionada = 'semana'; filtroAssunto = 'todos'; filtroStatus = 'todas'; termoBusca = ''; irParaView('exercicios'); });
+  $$('[data-ir-view]').forEach(b => b.addEventListener('click', () => { if(b.dataset.irView === 'revisao') revisaoMateria = 'todas'; irParaView(b.dataset.irView); }));
   if(proximo){
     $('#btn-continuar').addEventListener('click', () => {
       materiaSelecionada = proximo.materia.id;
-      termoBusca = '';
+      termoBusca = ''; filtroAssunto = 'todos'; filtroStatus = 'todas';
       irParaView('exercicios');
       const posicao = listaFiltradaAtual().findIndex(e => e.id === proximo.exercicio.id);
       if(posicao > -1){ indiceAtual = posicao; renderSessaoExercicios(); }
@@ -1638,18 +2034,129 @@ function badgeNivel(nivel){
   return `<span class="tag-nivel tag-${nivel}">${nivelLabel(nivel)}</span>`;
 }
 
+let filtrosExerciciosAbertos = false;
+let modoRevisao = false;
+let listaSemanaCache = [];
+const COR_SEMANA = '#E8791E';
+
+// Grupo de exercícios: uma matéria ou a lista da semana ('semana')
+function exerciciosDoGrupo(grupoId){
+  if(grupoId === 'semana'){
+    const ordem = {};
+    listaSemanaCache.forEach((l, i) => { ordem[l.exercicio_id] = l.ordem || i; });
+    return exerciciosCache.filter(e => e.id in ordem).sort((a,b) => ordem[a.id] - ordem[b.id]);
+  }
+  return exerciciosCache.filter(e => e.materia_id === grupoId).sort((a,b) => a.ordem - b.ordem);
+}
+let revisaoMateria = 'todas';
+let mostrarFimRevisao = false;
+
+function corTextoSobre(hex){
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || '').trim());
+  if(!m) return '#fff';
+  const n = parseInt(m[1], 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 165 ? '#2A2622' : '#fff';
+}
+
+// ---------- Resposta digitada ----------
+function normalizarResposta(s){
+  return String(s || '').toLowerCase().normalize('NFC')
+    .replace(/[−–—]/g, '-').replace(/×/g, 'x')
+    .replace(/\s+/g, '').replace(/^r\$/, '').replace(/\.$/, '')
+    .replace(/^(x|y|resposta|r)=(?=-?\d)/, '');
+}
+function valorNumerico(s){
+  const m = /^(-?\d+(?:[.,]\d+)*)(?:\/(\d+(?:[.,]\d+)?))?(.*)$/.exec(s);
+  if(!m) return null;
+  const unidade = m[3];
+  if(unidade && !/^(%|°c?|[a-zçãõáéêíóú]{2,14}[²³]?|m[²³]?|g|l|h)$/.test(unidade)) return null;
+  const conv = t => {
+    if(t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+    else if(/^-?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+    return parseFloat(t);
+  };
+  let v = conv(m[1]);
+  if(m[2]){ const d = conv(m[2]); if(!d) return null; v = v / d; }
+  return isFinite(v) ? { v, unidade } : null;
+}
+function conferirResposta(digitada, aceitas){
+  const d = normalizarResposta(digitada);
+  if(!d) return false;
+  return (aceitas || []).some(aceita => {
+    const a = normalizarResposta(aceita);
+    if(a === d) return true;
+    const na = valorNumerico(a), nd = valorNumerico(d);
+    if(!na || !nd) return false;
+    const igual = Math.abs(na.v - nd.v) <= 1e-6 * Math.max(1, Math.abs(na.v));
+    return igual && (!nd.unidade || !na.unidade || nd.unidade === na.unidade);
+  });
+}
+
+function materiaDe(ex){ return materiasCache.find(m => m.id === ex.materia_id) || {}; }
+
+function listaRevisao(){
+  const ordemMateria = id => { const m = materiasCache.find(mm => mm.id === id); return m ? m.ordem : 999; };
+  return exerciciosCache
+    .filter(e => { const p = progressoDe(e.id); return p && p.correto === false; })
+    .filter(e => revisaoMateria === 'todas' || e.materia_id === revisaoMateria)
+    .sort((a,b) => ordemMateria(a.materia_id) - ordemMateria(b.materia_id) || a.ordem - b.ordem);
+}
+
+function resumirTexto(txt, limite){
+  const t = String(txt || '').replace(/\s+/g, ' ').trim();
+  return t.length > limite ? t.slice(0, limite - 1).trimEnd() + '...' : t;
+}
+let gradeQuestoesAberta = false;
+let ferramentaAbertaNaQuestao = null; // 'rascunho' | 'duvidas' | null
+let mostrarFechamentoMateria = false;
+let respostaRevelada = false;
+
+function progressoDe(exId){
+  return progressoCache.find(p => p.exercicio_id === exId);
+}
+
+function contagemMateria(materiaId){
+  const daMateria = exerciciosDoGrupo(materiaId);
+  const feitos = daMateria.filter(e => { const p = progressoDe(e.id); return p && p.concluido; }).length;
+  return { total: daMateria.length, feitos };
+}
+
+function quantidadeFiltrosAtivos(){
+  let n = 0;
+  if(termoBusca.trim()) n++;
+  if(filtroAssunto !== 'todos') n++;
+  if(filtroStatus !== 'todas') n++;
+  return n;
+}
+
 function renderExercicios(){
+  if(materiaSelecionada === 'semana' && !listaSemanaCache.length) materiaSelecionada = null;
   if(!materiaSelecionada && materiasCache.length){
-    materiaSelecionada = materiasCache[0].id;
+    materiaSelecionada = listaSemanaCache.length && perfilAtual.role !== 'professora' ? 'semana' : materiasCache[0].id;
   }
   indiceAtual = 0;
+  mostrarFechamentoMateria = false;
+  respostaRevelada = false;
+  ferramentaAbertaNaQuestao = null;
 
-  const abas = materiasCache.map(m => `
-    <button class="aba-materia ${m.id === materiaSelecionada ? 'ativa' : ''}" style="--cor-materia:${m.cor}" data-materia="${m.id}">${escapeHtml(m.nome)}</button>
-  `).join('');
+  const cSemana = contagemMateria('semana');
+  const pilulaSemana = listaSemanaCache.length ? `
+      <button class="pilula-materia pilula-semana ${materiaSelecionada === 'semana' ? 'ativa' : ''}" style="--cor-materia:${COR_SEMANA};--texto-materia:#fff" data-materia="semana">
+        <span class="pilula-nome">Lista da semana</span>
+        <span class="pilula-conta">${cSemana.feitos}/${cSemana.total}</span>
+      </button>` : '';
+  const pilulas = pilulaSemana + materiasCache.map(m => {
+    const c = contagemMateria(m.id);
+    return `
+      <button class="pilula-materia ${m.id === materiaSelecionada ? 'ativa' : ''}" style="--cor-materia:${m.cor};--texto-materia:${corTextoSobre(m.cor)}" data-materia="${m.id}">
+        <span class="pilula-nome">${escapeHtml(m.nome)}</span>
+        <span class="pilula-conta">${c.feitos}/${c.total}</span>
+      </button>`;
+  }).join('');
 
-  const assuntosDaMateria = [...new Set(exerciciosCache.filter(e => e.materia_id === materiaSelecionada).map(e => e.assunto).filter(Boolean))].sort();
+  const assuntosDaMateria = [...new Set(exerciciosDoGrupo(materiaSelecionada).map(e => e.assunto).filter(Boolean))].sort();
   if(!assuntosDaMateria.includes(filtroAssunto)) filtroAssunto = 'todos';
+  const ativos = quantidadeFiltrosAtivos();
 
   $('#conteudo').innerHTML = `
     <div class="cabecalho-pagina">
@@ -1657,30 +2164,56 @@ function renderExercicios(){
       <p>Escolha a matéria e avance questão por questão, no seu ritmo.</p>
     </div>
     ${materiasCache.length ? `
-      <div class="campo" style="max-width:320px;">
-        <input type="text" id="busca-exercicios" placeholder="Buscar por palavra-chave..." value="${escapeHtml(termoBusca)}">
+      <div class="ex-topo">
+        <div class="trilho-materias" id="trilho-materias">${pilulas}</div>
+        <button class="btn-filtrar ${filtrosExerciciosAbertos ? 'aberto' : ''} ${ativos ? 'com-filtro' : ''}" id="btn-filtrar-exercicios">
+          Filtrar${ativos ? ` <span class="conta-filtro">${ativos}</span>` : ''}
+        </button>
       </div>
-      <div class="abas-materias" style="margin-top:14px;">${abas}</div>
-      ${assuntosDaMateria.length ? `
-        <div class="campo" style="max-width:280px; margin-top:12px;">
-          <label>Assunto</label>
-          <select id="filtro-assunto-exercicios">
-            <option value="todos" ${filtroAssunto === 'todos' ? 'selected' : ''}>Todos os assuntos</option>
-            ${assuntosDaMateria.map(a => `<option value="${escapeHtml(a)}" ${filtroAssunto === a ? 'selected' : ''}>${escapeHtml(a)}</option>`).join('')}
-          </select>
+      <div class="painel-filtros ${filtrosExerciciosAbertos ? 'aberto' : ''}" id="painel-filtros-exercicios">
+        <div class="painel-filtros-grade">
+          <div class="campo">
+            <label>Buscar</label>
+            <input type="text" id="busca-exercicios" placeholder="Palavra-chave do enunciado" value="${escapeHtml(termoBusca)}">
+          </div>
+          ${assuntosDaMateria.length ? `
+            <div class="campo">
+              <label>Assunto</label>
+              <select id="filtro-assunto-exercicios">
+                <option value="todos" ${filtroAssunto === 'todos' ? 'selected' : ''}>Todos os assuntos</option>
+                ${assuntosDaMateria.map(a => `<option value="${escapeHtml(a)}" ${filtroAssunto === a ? 'selected' : ''}>${escapeHtml(a)}</option>`).join('')}
+              </select>
+            </div>
+          ` : ''}
+          <div class="campo">
+            <label>Mostrar</label>
+            <div class="segmentado filtro-status">
+              <button data-status="todas" class="${filtroStatus === 'todas' ? 'ativo' : ''}">Todas</button>
+              <button data-status="pendentes" class="${filtroStatus === 'pendentes' ? 'ativo' : ''}">Pendentes</button>
+              <button data-status="concluidas" class="${filtroStatus === 'concluidas' ? 'ativo' : ''}">Feitas</button>
+            </div>
+          </div>
         </div>
-      ` : ''}
-      <div class="filtro-status">
-        <button data-status="todas" class="${filtroStatus === 'todas' ? 'ativo' : ''}">Todas</button>
-        <button data-status="pendentes" class="${filtroStatus === 'pendentes' ? 'ativo' : ''}">Pendentes</button>
-        <button data-status="concluidas" class="${filtroStatus === 'concluidas' ? 'ativo' : ''}">Concluídas</button>
-        <button class="btn-texto" id="btn-pdf-exercicios" style="margin-left:auto;">Baixar PDF</button>
+        <div class="painel-filtros-rodape">
+          ${ativos ? `<button class="btn-texto" id="btn-limpar-filtros">Limpar filtros</button>` : '<span></span>'}
+          <button class="btn-texto" id="btn-pdf-exercicios">Baixar PDF desta lista</button>
+        </div>
       </div>
       <div id="sessao-exercicios-container"></div>
     ` : '<div class="painel-ficha-vazio"><div class="vazio"><p>Ainda não há matérias cadastradas.</p></div></div>'}
   `;
 
-  $$('.aba-materia').forEach(a => a.addEventListener('click', () => {
+  const ativa = $('.pilula-materia.ativa');
+  if(ativa){
+    const trilho = $('#trilho-materias');
+    const dentro = ativa.offsetLeft - trilho.offsetLeft;
+    if(dentro + ativa.clientWidth > trilho.clientWidth - 24){
+      trilho.scrollLeft = Math.max(0, dentro - 16);
+    }
+  }
+
+  $$('.pilula-materia').forEach(a => a.addEventListener('click', () => {
+    if(a.dataset.materia === materiaSelecionada) return;
     materiaSelecionada = a.dataset.materia;
     filtroAssunto = 'todos';
     indiceAtual = 0;
@@ -1688,12 +2221,22 @@ function renderExercicios(){
     renderExercicios();
   }));
 
+  const btnFiltrar = $('#btn-filtrar-exercicios');
+  if(btnFiltrar){
+    btnFiltrar.addEventListener('click', () => {
+      filtrosExerciciosAbertos = !filtrosExerciciosAbertos;
+      btnFiltrar.classList.toggle('aberto', filtrosExerciciosAbertos);
+      $('#painel-filtros-exercicios').classList.toggle('aberto', filtrosExerciciosAbertos);
+      if(filtrosExerciciosAbertos){ const b = $('#busca-exercicios'); if(b && window.innerWidth > 860) b.focus(); }
+    });
+  }
+
   const filtroAssuntoSelect = $('#filtro-assunto-exercicios');
   if(filtroAssuntoSelect){
     filtroAssuntoSelect.addEventListener('change', () => {
       filtroAssunto = filtroAssuntoSelect.value;
       indiceAtual = 0;
-      renderSessaoExercicios();
+      renderExercicios();
     });
   }
 
@@ -1703,6 +2246,12 @@ function renderExercicios(){
     renderExercicios();
   }));
 
+  const btnLimpar = $('#btn-limpar-filtros');
+  if(btnLimpar) btnLimpar.addEventListener('click', () => {
+    termoBusca = ''; filtroAssunto = 'todos'; filtroStatus = 'todas'; indiceAtual = 0;
+    renderExercicios();
+  });
+
   const btnPdfExercicios = $('#btn-pdf-exercicios');
   if(btnPdfExercicios) btnPdfExercicios.addEventListener('click', renderPdfExercicios);
 
@@ -1711,6 +2260,9 @@ function renderExercicios(){
     buscaInput.addEventListener('input', () => {
       termoBusca = buscaInput.value;
       indiceAtual = 0;
+      const n = quantidadeFiltrosAtivos();
+      btnFiltrar.classList.toggle('com-filtro', !!n);
+      btnFiltrar.innerHTML = `Filtrar${n ? ` <span class="conta-filtro">${n}</span>` : ''}`;
       renderSessaoExercicios();
     });
   }
@@ -1719,149 +2271,352 @@ function renderExercicios(){
 }
 
 function listaFiltradaAtual(){
+  if(modoRevisao) return listaRevisao();
   const termo = termoBusca.trim().toLowerCase();
-  return exerciciosCache
-    .filter(e => e.materia_id === materiaSelecionada)
+  const grupo = exerciciosDoGrupo(materiaSelecionada);
+  return grupo
     .filter(e => filtroAssunto === 'todos' || e.assunto === filtroAssunto)
     .filter(e => !termo || e.titulo.toLowerCase().includes(termo) || e.enunciado.toLowerCase().includes(termo))
     .filter(e => {
       if(filtroStatus === 'todas') return true;
-      const prog = progressoCache.find(p => p.exercicio_id === e.id);
+      const prog = progressoDe(e.id);
       const feito = prog && prog.concluido;
       return filtroStatus === 'concluidas' ? feito : !feito;
-    })
-    .sort((a,b) => a.ordem - b.ordem);
+    });
 }
 
-function renderSessaoExercicios(){
-  const container = $('#sessao-exercicios-container');
+function irParaQuestao(novoIndice, direcao){
+  indiceAtual = novoIndice;
+  respostaRevelada = false;
+  ferramentaAbertaNaQuestao = null;
+  duvidasAbertasNaQuestao = false;
+  rascunhoAbertoNaQuestao = false;
+  renderSessaoExercicios(direcao);
+  const topo = $('#sessao-exercicios-container');
+  if(topo && topo.getBoundingClientRect().top < 0) topo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Depois de uma autoavaliação: procura a próxima questão ainda não feita, olhando para frente e depois do começo.
+function avancarDepoisDeAvaliar(exIdAtual){
+  if(modoRevisao){
+    const lista = listaRevisao();
+    if(!lista.length){ mostrarFimRevisao = true; renderRevisao(); return; }
+    const aindaNaLista = lista.findIndex(e => e.id === exIdAtual);
+    let prox = aindaNaLista > -1 ? aindaNaLista + 1 : indiceAtual;
+    if(prox >= lista.length) prox = 0;
+    atualizarContagemRevisao();
+    irParaQuestao(prox, 'prox');
+    return;
+  }
+  const todasDaMateria = exerciciosDoGrupo(materiaSelecionada)
+    .filter(e => filtroAssunto === 'todos' || e.assunto === filtroAssunto);
+  const pendentes = todasDaMateria.filter(e => { const p = progressoDe(e.id); return !(p && p.concluido); });
+  if(!pendentes.length){
+    mostrarFechamentoMateria = true;
+    renderSessaoExercicios('prox');
+    return;
+  }
+  const posAtual = todasDaMateria.findIndex(e => e.id === exIdAtual);
+  const proxima = pendentes.find(e => todasDaMateria.indexOf(e) > posAtual) || pendentes[0];
   const lista = listaFiltradaAtual();
+  const idx = lista.findIndex(e => e.id === proxima.id);
+  irParaQuestao(idx > -1 ? idx : 0, 'prox');
+}
+
+function renderFechamentoMateria(container){
+  const materia = materiaSelecionada === 'semana'
+    ? { nome: 'a lista da semana', cor: COR_SEMANA }
+    : (materiasCache.find(m => m.id === materiaSelecionada) || {});
+  const daMateria = exerciciosDoGrupo(materiaSelecionada)
+    .filter(e => filtroAssunto === 'todos' || e.assunto === filtroAssunto);
+  const acertos = daMateria.filter(e => { const p = progressoDe(e.id); return p && p.correto === true; }).length;
+  const erros = daMateria.filter(e => { const p = progressoDe(e.id); return p && p.correto === false; }).length;
+  const escopo = filtroAssunto !== 'todos' ? `${escapeHtml(filtroAssunto)}, de ${escapeHtml(materia.nome || '')}` : escapeHtml(materia.nome || '');
+  const frase = !erros
+    ? 'Você acertou todas. Excelente trabalho.'
+    : erros === 1
+      ? 'Ficou só uma para revisar. Vale dar uma olhada nela com calma.'
+      : `Ficaram ${erros} para revisar. Errar faz parte, é nelas que o aprendizado acontece.`;
+
+  container.innerHTML = `
+    <div class="cartao-fechamento entra-prox" style="--cor-materia:${materia.cor || 'var(--verde)'}">
+      <span class="fechamento-rotulo">${materiaSelecionada === 'semana' ? 'Lista da semana concluída' : 'Matéria concluída'}</span>
+      <h2>Você terminou ${escopo}.</h2>
+      <p class="fechamento-placar">Acertou <strong>${acertos}</strong> de <strong>${daMateria.length}</strong> questões.</p>
+      <p class="fechamento-frase">${frase}</p>
+      <div class="fechamento-acoes">
+        ${erros ? `<button class="btn btn-primario" id="btn-fechamento-revisar">Revisar as que errei</button>` : ''}
+        <button class="btn btn-secundario" id="btn-fechamento-recomecar">Rever desde a primeira</button>
+        <button class="btn-texto" id="btn-fechamento-outra">Escolher outra matéria</button>
+      </div>
+    </div>
+  `;
+  const r = $('#btn-fechamento-revisar');
+  if(r) r.addEventListener('click', () => irParaView('revisao'));
+  $('#btn-fechamento-recomecar').addEventListener('click', () => {
+    mostrarFechamentoMateria = false;
+    filtroStatus = 'todas';
+    renderExercicios();
+  });
+  $('#btn-fechamento-outra').addEventListener('click', () => {
+    mostrarFechamentoMateria = false;
+    const trilho = $('#trilho-materias');
+    if(trilho){
+      trilho.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      trilho.classList.add('chamando-atencao');
+      setTimeout(() => trilho.classList.remove('chamando-atencao'), 1400);
+    }
+  });
+}
+
+function renderSessaoExercicios(direcao){
+  const container = $('#sessao-exercicios-container');
+  if(!container) return;
+
+  if(mostrarFechamentoMateria && !modoRevisao){
+    renderFechamentoMateria(container);
+    return;
+  }
+
+  const lista = listaFiltradaAtual();
+
+  if(modoRevisao && !lista.length){
+    renderFimRevisao(container);
+    return;
+  }
 
   if(!lista.length){
     const motivo = termoBusca.trim() ? 'Nenhum exercício encontrado para essa busca.'
-      : filtroStatus === 'concluidas' ? 'Você ainda não concluiu nenhum exercício desta matéria.'
-      : filtroStatus === 'pendentes' ? 'Todos os exercícios desta matéria já foram concluídos. Parabéns!'
+      : filtroStatus === 'concluidas' ? 'Você ainda não fez nenhum exercício desta matéria.'
+      : filtroStatus === 'pendentes' ? 'Todos os exercícios desta matéria já foram feitos. Parabéns!'
       : 'Ainda não há exercícios nesta matéria.';
     container.innerHTML = `<div class="painel-ficha-vazio"><div class="vazio"><p>${motivo}</p></div></div>`;
     return;
   }
   if(indiceAtual >= lista.length) indiceAtual = 0;
 
-  const materiaAtualObj = materiasCache.find(m => m.id === materiaSelecionada) || {};
-  const materiaAtualCor = materiaAtualObj.cor || 'var(--verde)';
+  const pendentesNaLista = lista.filter(e => { const p = progressoDe(e.id); return !(p && p.concluido); }).length;
 
-  const navegador = lista.map((ex, idx) => {
-    const prog = progressoCache.find(p => p.exercicio_id === ex.id);
-    const feito = prog && prog.concluido;
-    return `<button class="chip-questao ${feito ? 'feito' : ''} ${idx === indiceAtual ? 'atual' : ''}" style="--cor-materia:${materiaAtualCor}" data-ir="${idx}">${feito ? '✓' : String(idx + 1).padStart(2, '0')}</button>`;
+  const grade = lista.map((ex, idx) => {
+    const p = progressoDe(ex.id);
+    const materiaAtualCor = materiaDe(ex).cor || 'var(--verde)';
+    const estado = p && p.concluido ? (p.correto === false ? 'errou' : 'feito') : '';
+    return `<button class="chip-questao ${estado} ${idx === indiceAtual ? 'atual' : ''}" style="--cor-materia:${materiaAtualCor}" data-ir="${idx}" aria-label="Questão ${idx + 1}">${idx + 1}</button>`;
   }).join('');
 
   const ex = lista[indiceAtual];
-  const prog = progressoCache.find(p => p.exercicio_id === ex.id);
+  const temDigitada = Array.isArray(ex.respostas_aceitas) && ex.respostas_aceitas.length > 0;
+  const materiaAtualObj = materiaDe(ex);
+  const materiaAtualCor = materiaAtualObj.cor || 'var(--verde)';
+  const prog = progressoDe(ex.id);
   const feito = prog && prog.concluido;
   const temFoto = prog && prog.foto_resolucao;
   const comentarios = comentariosCache.filter(c => c.exercicio_id === ex.id);
 
+  const selo = feito
+    ? (prog.correto === true ? '<span class="selo-questao selo-certo">Você acertou</span>'
+      : prog.correto === false ? '<span class="selo-questao selo-errado">Para revisar</span>'
+      : '<span class="selo-questao selo-certo">Feita</span>')
+    : '';
+
   const comentariosHtml = comentarios.length ? comentarios.map(c => `
     <div class="comentario-item">
-      <span class="autor-comentario">${escapeHtml(c.profiles ? c.profiles.nome : 'Aluno')}${c.profiles && c.profiles.role === 'professora' ? ' — Professora' : ''}</span>
+      <span class="autor-comentario">${escapeHtml(c.profiles ? c.profiles.nome : 'Aluno')}${c.profiles && c.profiles.role === 'professora' ? ', Professora' : ''}</span>
       ${escapeHtml(c.mensagem)}
     </div>
-  `).join('') : `<p style="font-size:13px; color:var(--ink-suave);">Nenhuma dúvida nessa questão ainda.</p>`;
+  `).join('') : `<p class="texto-suave-pequeno">Nenhuma dúvida nessa questão ainda. Se travou, pergunte aqui.</p>`;
+
+  const textoFaltam = modoRevisao ? 'acerte para tirar da lista'
+    : pendentesNaLista === 0 ? 'todas feitas'
+    : pendentesNaLista === 1 ? 'falta 1' : `faltam ${pendentesNaLista}`;
 
   container.innerHTML = `
-    <div class="navegador-questoes">${navegador}</div>
-    <div class="cartao-questao" style="--cor-materia:${materiaAtualCor}">
-      <div class="cartao-questao-cabecalho">
-        <span class="numero-grande">Questão ${indiceAtual + 1} de ${lista.length}</span>
-        ${badgeNivel(ex.nivel)}
+    <div class="ex-posicao">
+      <span><strong>Questão ${indiceAtual + 1}</strong> de ${lista.length} <span class="ex-posicao-faltam">· ${textoFaltam}</span></span>
+      <button class="btn-texto" id="btn-ver-todas">${gradeQuestoesAberta ? 'Esconder lista' : 'Ver todas'}</button>
+    </div>
+    <div class="grade-questoes ${gradeQuestoesAberta ? 'aberta' : ''}" id="grade-questoes">${grade}</div>
+
+    <div class="cartao-questao ${direcao === 'prox' ? 'entra-prox' : direcao === 'ant' ? 'entra-ant' : ''}" id="cartao-questao" style="--cor-materia:${materiaAtualCor}">
+      <div class="cartao-questao-topo">
+        <div class="cartao-questao-contexto">
+          <span class="contexto-materia">${escapeHtml(materiaAtualObj.nome || '')}</span>
+          ${ex.assunto ? `<span class="contexto-assunto">${escapeHtml(ex.assunto)}</span>` : ''}
+        </div>
+        <div class="cartao-questao-selos">${selo}${badgeNivel(ex.nivel)}</div>
       </div>
-      ${trilhaAssunto(materiaAtualObj.nome, ex.assunto)}
+
       ${construirFiguraSvg(ex.figura)}
-      <div class="enunciado" style="margin-bottom:18px;">${escapeHtml(ex.enunciado)}</div>
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
-        <button class="btn-revelar" id="btn-vergabarito-atual">Ver resposta</button>
-        <button class="btn ${feito ? 'btn-secundario' : 'btn-primario'}" id="btn-marcar-atual">${feito ? '✓ Concluído' : 'Marcar como concluído'}</button>
-      </div>
-      <div class="caixa-gabarito" id="gabarito-atual" style="display:none; margin-bottom:16px;">
-        <span class="rotulo-resposta">Resposta</span>${escapeHtml(ex.gabarito)}
-        ${ex.explicacao ? `<br><br><span class="rotulo-resposta">Como chegar lá</span>${escapeHtml(ex.explicacao)}` : ''}
-        <div class="botoes-autoavaliacao" style="margin-top:12px;">
-          <button data-avaliar-normal="${ex.id}" data-valor="certo" class="${prog && prog.correto === true ? 'marcado-certo' : ''}">Acertei</button>
-          <button data-avaliar-normal="${ex.id}" data-valor="errado" class="${prog && prog.correto === false ? 'marcado-errado' : ''}">Errei</button>
-        </div>
-      </div>
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <label class="btn-revelar" style="margin:0;">Enviar foto da resolução<input type="file" accept="image/*" id="input-foto-atual" style="display:none;"></label>
-        ${temFoto ? `<button class="btn-texto" id="btn-verfoto-atual">Ver foto enviada</button>` : ''}
-        <button class="btn-texto" id="btn-abrir-calculadora">Calculadora</button>
-      </div>
-      <div id="status-foto-atual" style="font-size:12.5px; color:var(--ink-suave); margin-top:6px;"></div>
+      <div class="enunciado enunciado-destaque">${escapeHtml(ex.enunciado)}</div>
 
-      <div class="secao-comentarios">
-        <div class="cabecalho-duvidas ${rascunhoAbertoNaQuestao ? 'aberto' : ''}" id="toggle-rascunho">
-          <h4>Rascunho</h4>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </div>
-        <div class="corpo-duvidas ${rascunhoAbertoNaQuestao ? 'aberto' : ''}" id="corpo-rascunho">
-          <textarea id="textarea-rascunho" rows="4" placeholder="Faça suas contas aqui, é só seu — fica salvo automaticamente." style="width:100%; font-family:var(--font-numero); font-size:13.5px; padding:10px; border-radius:8px; border:1.5px solid var(--borda); resize:vertical;"></textarea>
-        </div>
-      </div>
-
-      <div class="secao-comentarios">
-        <div class="cabecalho-duvidas ${duvidasAbertasNaQuestao ? 'aberto' : ''}" id="toggle-duvidas-questao">
-          <h4>Dúvidas sobre essa questão${comentarios.length ? ` (${comentarios.length})` : ''}</h4>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </div>
-        <div class="corpo-duvidas ${duvidasAbertasNaQuestao ? 'aberto' : ''}" id="corpo-duvidas-questao">
-          <div id="lista-comentarios-atual">${comentariosHtml}</div>
-          <div class="form-comentario">
-            <input type="text" id="input-comentario-atual" placeholder="Escreva sua dúvida sobre essa questão...">
-            <button class="btn btn-secundario" id="btn-comentar-atual">Enviar</button>
+      <div class="area-resposta ${respostaRevelada ? 'revelada' : ''} ${temDigitada ? 'com-digitada' : ''}" id="area-resposta">
+        ${temDigitada ? `
+          <div class="resposta-digitada">
+            <label for="input-resposta-digitada">Sua resposta</label>
+            <div class="resposta-digitada-linha">
+              <input type="text" id="input-resposta-digitada" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Digite o resultado">
+              <button class="btn btn-primario" id="btn-conferir-resposta">Conferir</button>
+            </div>
+            <p class="retorno-resposta" id="retorno-resposta" aria-live="polite"></p>
+          </div>` : ''}
+        <button class="btn-ver-resposta" id="btn-vergabarito-atual">${temDigitada ? 'Não sei, quero ver a resposta' : 'Ver resposta'}</button>
+        <div class="gabarito-animado" id="gabarito-atual">
+          <div class="gabarito-animado-interno">
+            <div class="caixa-gabarito"><span class="rotulo-resposta">Resposta</span>${escapeHtml(ex.gabarito)}${ex.explicacao ? `<span class="rotulo-resposta rotulo-espaco">Como chegar lá</span>${escapeHtml(ex.explicacao)}` : ''}</div>
+            <p class="pergunta-avaliacao" id="pergunta-avaliacao">Como você foi nessa?</p>
+            <div class="acerto-automatico" id="acerto-automatico">
+              <button class="btn btn-proxima-questao" id="btn-seguir-acerto">Próxima questão</button>
+            </div>
+            <div class="avaliacao-grande">
+              <button data-avaliar-normal="${ex.id}" data-valor="certo" class="aval-certo ${prog && prog.correto === true ? 'marcado' : ''}">Acertei</button>
+              <button data-avaliar-normal="${ex.id}" data-valor="errado" class="aval-errado ${prog && prog.correto === false ? 'marcado' : ''}">Errei</button>
+            </div>
           </div>
         </div>
       </div>
 
+      <div class="barra-ferramentas">
+        <label class="ferramenta">Enviar foto da resolução<input type="file" accept="image/*" id="input-foto-atual" style="display:none;"></label>
+        ${temFoto ? `<button class="ferramenta" id="btn-verfoto-atual">Ver foto enviada</button>` : ''}
+        <button class="ferramenta" id="btn-abrir-calculadora">Calculadora</button>
+        <button class="ferramenta ${ferramentaAbertaNaQuestao === 'rascunho' ? 'ativa' : ''}" id="toggle-rascunho">Rascunho</button>
+        <button class="ferramenta ${ferramentaAbertaNaQuestao === 'duvidas' ? 'ativa' : ''}" id="toggle-duvidas-questao">Dúvidas${comentarios.length ? ` (${comentarios.length})` : ''}</button>
+      </div>
+      <div id="status-foto-atual" class="texto-suave-pequeno"></div>
+
+      <div class="painel-ferramenta ${ferramentaAbertaNaQuestao === 'rascunho' ? 'aberto' : ''}" id="corpo-rascunho">
+        <textarea id="textarea-rascunho" rows="4" placeholder="Faça suas contas aqui. É só seu e fica salvo automaticamente."></textarea>
+      </div>
+      <div class="painel-ferramenta ${ferramentaAbertaNaQuestao === 'duvidas' ? 'aberto' : ''}" id="corpo-duvidas-questao">
+        <div id="lista-comentarios-atual">${comentariosHtml}</div>
+        <div class="form-comentario">
+          <input type="text" id="input-comentario-atual" placeholder="Escreva sua dúvida sobre essa questão...">
+          <button class="btn btn-secundario" id="btn-comentar-atual">Enviar</button>
+        </div>
+      </div>
+
       <div class="navegacao-questao">
-        <button class="btn btn-secundario" id="btn-questao-anterior" ${indiceAtual === 0 ? 'disabled' : ''}>← Anterior</button>
-        <button class="btn btn-proxima-questao" id="btn-questao-proxima" ${indiceAtual === lista.length - 1 ? 'disabled' : ''}>Próxima →</button>
+        <button class="btn btn-secundario" id="btn-questao-anterior" ${indiceAtual === 0 ? 'disabled' : ''}>Anterior</button>
+        <span class="dica-deslizar">Deslize para o lado para trocar</span>
+        <button class="btn btn-proxima-questao" id="btn-questao-proxima" ${indiceAtual === lista.length - 1 ? 'disabled' : ''}>Próxima</button>
       </div>
     </div>
   `;
   renderizarMath();
 
+  // Navegação
+  $('#btn-ver-todas').addEventListener('click', () => {
+    gradeQuestoesAberta = !gradeQuestoesAberta;
+    $('#grade-questoes').classList.toggle('aberta', gradeQuestoesAberta);
+    $('#btn-ver-todas').textContent = gradeQuestoesAberta ? 'Esconder lista' : 'Ver todas';
+  });
   $$('.chip-questao').forEach(c => c.addEventListener('click', () => {
-    indiceAtual = parseInt(c.dataset.ir, 10);
-    duvidasAbertasNaQuestao = false;
-    rascunhoAbertoNaQuestao = false;
-    renderSessaoExercicios();
+    const alvo = parseInt(c.dataset.ir, 10);
+    if(alvo === indiceAtual) return;
+    irParaQuestao(alvo, alvo > indiceAtual ? 'prox' : 'ant');
   }));
-  $('#btn-questao-anterior').addEventListener('click', () => { if(indiceAtual > 0){ indiceAtual--; duvidasAbertasNaQuestao = false; rascunhoAbertoNaQuestao = false; renderSessaoExercicios(); } });
-  $('#btn-questao-proxima').addEventListener('click', () => { if(indiceAtual < lista.length - 1){ indiceAtual++; duvidasAbertasNaQuestao = false; rascunhoAbertoNaQuestao = false; renderSessaoExercicios(); } });
+  const anterior = () => { if(indiceAtual > 0) irParaQuestao(indiceAtual - 1, 'ant'); };
+  const proxima = () => { if(indiceAtual < lista.length - 1) irParaQuestao(indiceAtual + 1, 'prox'); };
+  $('#btn-questao-anterior').addEventListener('click', anterior);
+  $('#btn-questao-proxima').addEventListener('click', proxima);
 
+  // Deslizar no celular
+  const cartao = $('#cartao-questao');
+  let toqueX = null, toqueY = null;
+  cartao.addEventListener('touchstart', (e) => {
+    if(e.target.closest('textarea, input, select, .figura-exercicio, svg')) { toqueX = null; return; }
+    toqueX = e.touches[0].clientX; toqueY = e.touches[0].clientY;
+  }, { passive: true });
+  cartao.addEventListener('touchend', (e) => {
+    if(toqueX === null) return;
+    const dx = e.changedTouches[0].clientX - toqueX;
+    const dy = e.changedTouches[0].clientY - toqueY;
+    toqueX = null;
+    if(Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6){
+      if(dx < 0) proxima(); else anterior();
+    }
+  }, { passive: true });
+
+  // Revelar resposta
   $('#btn-vergabarito-atual').addEventListener('click', async () => {
-    $('#gabarito-atual').style.display = 'block';
-    $('#btn-vergabarito-atual').style.display = 'none';
-    const existente = progressoCache.find(p => p.exercicio_id === ex.id);
-    await sb.from('progresso_alunos').upsert({
+    respostaRevelada = true;
+    $('#area-resposta').classList.add('revelada');
+    const ultima = $('#area-resposta').dataset.ultimaDigitada;
+    if(ultima){
+      $('#pergunta-avaliacao').textContent = `Você escreveu "${ultima}". Se for a mesma resposta escrita de outro jeito, marque Acertei.`;
+    }
+    const existente = progressoDe(ex.id);
+    if(existente && existente.viu_gabarito) return;
+    const { error } = await sb.from('progresso_alunos').upsert({
       aluno_id: perfilAtual.id, exercicio_id: ex.id, viu_gabarito: true,
       concluido: existente ? existente.concluido : false, atualizado_em: new Date().toISOString()
     }, { onConflict: 'aluno_id,exercicio_id' });
+    if(error) return;
     if(existente) existente.viu_gabarito = true;
     else progressoCache.push({ aluno_id: perfilAtual.id, exercicio_id: ex.id, viu_gabarito: true, concluido: false });
   });
 
-  $('#btn-marcar-atual').addEventListener('click', async () => {
-    const existente = progressoCache.find(p => p.exercicio_id === ex.id);
-    const novo = !(existente && existente.concluido);
-    await sb.from('progresso_alunos').upsert({
-      aluno_id: perfilAtual.id, exercicio_id: ex.id, concluido: novo, atualizado_em: new Date().toISOString()
-    }, { onConflict: 'aluno_id,exercicio_id' });
-    if(existente) existente.concluido = novo;
-    else progressoCache.push({ aluno_id: perfilAtual.id, exercicio_id: ex.id, concluido: novo });
-    renderSessaoExercicios();
-  });
+  // Resposta digitada: confere sozinho
+  if(temDigitada){
+    let tentativas = 0;
+    const input = $('#input-resposta-digitada');
+    const retorno = $('#retorno-resposta');
+    const conferir = async () => {
+      const valor = input.value.trim();
+      if(!valor){ input.focus(); return; }
+      if(conferirResposta(valor, ex.respostas_aceitas)){
+        input.disabled = true; $('#btn-conferir-resposta').disabled = true;
+        retorno.className = 'retorno-resposta certo';
+        retorno.textContent = 'Certa! Muito bem.';
+        respostaRevelada = true;
+        $('#area-resposta').classList.add('revelada', 'acertou-digitando');
+        const { error } = await sb.from('progresso_alunos').upsert({
+          aluno_id: perfilAtual.id, exercicio_id: ex.id, correto: true, viu_gabarito: true,
+          concluido: true, atualizado_em: new Date().toISOString()
+        }, { onConflict: 'aluno_id,exercicio_id' });
+        if(error){ mostrarToast('Não foi possível salvar. Confira sua internet.', 'erro'); return; }
+        const existente = progressoDe(ex.id);
+        if(existente){ existente.correto = true; existente.concluido = true; existente.viu_gabarito = true; }
+        else progressoCache.push({ aluno_id: perfilAtual.id, exercicio_id: ex.id, correto: true, viu_gabarito: true, concluido: true });
+        atualizarContagemPilula(); atualizarContagemRevisao();
+      } else {
+        tentativas++;
+        retorno.className = 'retorno-resposta errado';
+        void retorno.offsetWidth; retorno.classList.add('tremer');
+        retorno.textContent = tentativas === 1
+          ? 'Ainda não. Confira as contas e tente de novo.'
+          : 'Ainda não bateu. Se quiser, veja a resposta e o passo a passo logo abaixo.';
+        $('#area-resposta').dataset.ultimaDigitada = valor;
+        input.select();
+      }
+    };
+    $('#btn-conferir-resposta').addEventListener('click', conferir);
+    input.addEventListener('keydown', (e) => { if(e.key === 'Enter') conferir(); });
+    $('#btn-seguir-acerto').addEventListener('click', () => avancarDepoisDeAvaliar(ex.id));
+  }
 
+  // Acertei / Errei: registra, marca como feita e avança sozinho
+  $$('[data-avaliar-normal]').forEach(b => b.addEventListener('click', async () => {
+    const valor = b.dataset.valor === 'certo';
+    $$('[data-avaliar-normal]').forEach(o => { o.disabled = true; o.classList.toggle('marcado', o === b); });
+    b.classList.add('confirmando');
+    const { error } = await sb.from('progresso_alunos').upsert({
+      aluno_id: perfilAtual.id, exercicio_id: ex.id, correto: valor, viu_gabarito: true,
+      concluido: true, atualizado_em: new Date().toISOString()
+    }, { onConflict: 'aluno_id,exercicio_id' });
+    if(error){
+      $$('[data-avaliar-normal]').forEach(o => { o.disabled = false; o.classList.remove('confirmando'); });
+      if(typeof mostrarToast === 'function') mostrarToast('Não foi possível salvar. Confira sua internet e tente de novo.', 'erro');
+      return;
+    }
+    const existente = progressoDe(ex.id);
+    if(existente){ existente.correto = valor; existente.concluido = true; existente.viu_gabarito = true; }
+    else progressoCache.push({ aluno_id: perfilAtual.id, exercicio_id: ex.id, correto: valor, viu_gabarito: true, concluido: true });
+    atualizarContagemPilula();
+    setTimeout(() => avancarDepoisDeAvaliar(ex.id), 550);
+  }));
+
+  // Foto da resolução
   $('#input-foto-atual').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if(!file) return;
@@ -1874,7 +2629,7 @@ function renderSessaoExercicios(){
     await sb.from('progresso_alunos').upsert({
       aluno_id: perfilAtual.id, exercicio_id: ex.id, foto_resolucao: caminho, atualizado_em: new Date().toISOString()
     }, { onConflict: 'aluno_id,exercicio_id' });
-    const existente = progressoCache.find(p => p.exercicio_id === ex.id);
+    const existente = progressoDe(ex.id);
     if(existente) existente.foto_resolucao = caminho;
     else progressoCache.push({ aluno_id: perfilAtual.id, exercicio_id: ex.id, foto_resolucao: caminho });
     renderSessaoExercicios();
@@ -1883,46 +2638,37 @@ function renderSessaoExercicios(){
   const btnVerFoto = $('#btn-verfoto-atual');
   if(btnVerFoto){
     btnVerFoto.addEventListener('click', async () => {
-      const p = progressoCache.find(pp => pp.exercicio_id === ex.id);
+      const p = progressoDe(ex.id);
       if(!p || !p.foto_resolucao) return;
       const { data } = await sb.storage.from('resolucoes').createSignedUrl(p.foto_resolucao, 120);
       if(data) window.open(data.signedUrl, '_blank');
     });
   }
 
-  $$('[data-avaliar-normal]').forEach(b => b.addEventListener('click', async () => {
-    const valor = b.dataset.valor === 'certo';
-    const existente = progressoCache.find(p => p.exercicio_id === ex.id);
-    await sb.from('progresso_alunos').upsert({
-      aluno_id: perfilAtual.id, exercicio_id: ex.id, correto: valor, viu_gabarito: true,
-      concluido: existente ? existente.concluido : false, atualizado_em: new Date().toISOString()
-    }, { onConflict: 'aluno_id,exercicio_id' });
-    if(existente) existente.correto = valor;
-    else progressoCache.push({ aluno_id: perfilAtual.id, exercicio_id: ex.id, correto: valor, viu_gabarito: true, concluido: false });
-    renderSessaoExercicios();
-  }));
-
-  $('#toggle-duvidas-questao').addEventListener('click', () => {
-    duvidasAbertasNaQuestao = !duvidasAbertasNaQuestao;
-    $('#toggle-duvidas-questao').classList.toggle('aberto', duvidasAbertasNaQuestao);
-    $('#corpo-duvidas-questao').classList.toggle('aberto', duvidasAbertasNaQuestao);
-  });
-
-  $('#toggle-rascunho').addEventListener('click', () => {
-    rascunhoAbertoNaQuestao = !rascunhoAbertoNaQuestao;
-    $('#toggle-rascunho').classList.toggle('aberto', rascunhoAbertoNaQuestao);
+  // Rascunho e dúvidas (um painel aberto por vez)
+  const alternarFerramenta = (qual) => {
+    ferramentaAbertaNaQuestao = ferramentaAbertaNaQuestao === qual ? null : qual;
+    rascunhoAbertoNaQuestao = ferramentaAbertaNaQuestao === 'rascunho';
+    duvidasAbertasNaQuestao = ferramentaAbertaNaQuestao === 'duvidas';
+    $('#toggle-rascunho').classList.toggle('ativa', rascunhoAbertoNaQuestao);
+    $('#toggle-duvidas-questao').classList.toggle('ativa', duvidasAbertasNaQuestao);
     $('#corpo-rascunho').classList.toggle('aberto', rascunhoAbertoNaQuestao);
-  });
+    $('#corpo-duvidas-questao').classList.toggle('aberto', duvidasAbertasNaQuestao);
+    if(rascunhoAbertoNaQuestao) $('#textarea-rascunho').focus();
+  };
+  $('#toggle-rascunho').addEventListener('click', () => alternarFerramenta('rascunho'));
+  $('#toggle-duvidas-questao').addEventListener('click', () => alternarFerramenta('duvidas'));
+
   const chaveRascunho = `rascunho_${ex.id}_${perfilAtual.id}`;
   const textareaRascunho = $('#textarea-rascunho');
-  textareaRascunho.value = localStorage.getItem(chaveRascunho) || '';
+  try { textareaRascunho.value = localStorage.getItem(chaveRascunho) || ''; } catch(e) {}
   textareaRascunho.addEventListener('input', () => {
-    localStorage.setItem(chaveRascunho, textareaRascunho.value);
+    try { localStorage.setItem(chaveRascunho, textareaRascunho.value); } catch(e) {}
   });
 
   $('#btn-abrir-calculadora').addEventListener('click', abrirModalCalculadora);
 
-  $('#btn-comentar-atual').addEventListener('click', async () => {
+  const enviarComentario = async () => {
     const input = $('#input-comentario-atual');
     const mensagem = input.value.trim();
     if(!mensagem) return;
@@ -1931,10 +2677,41 @@ function renderSessaoExercicios(){
       .select('*, profiles(nome, role)').single();
     if(!error && data){
       comentariosCache.push(data);
+      ferramentaAbertaNaQuestao = 'duvidas';
       renderSessaoExercicios();
+    } else if(typeof mostrarToast === 'function'){
+      mostrarToast('Não foi possível enviar sua dúvida. Tente de novo.', 'erro');
     }
+  };
+  $('#btn-comentar-atual').addEventListener('click', enviarComentario);
+  $('#input-comentario-atual').addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarComentario(); });
+}
+
+function atualizarContagemRevisao(){
+  $$('.pilula-materia[data-revisao]').forEach(b => {
+    const id = b.dataset.revisao;
+    const n = exerciciosCache.filter(e => (id === 'todas' || e.materia_id === id) && (progressoDe(e.id) || {}).correto === false).length;
+    const conta = b.querySelector('.pilula-conta');
+    if(conta) conta.textContent = n;
   });
 }
+
+function atualizarContagemPilula(){
+  if(modoRevisao) return;
+  const pilula = $(`.pilula-materia[data-materia="${materiaSelecionada}"] .pilula-conta`);
+  if(!pilula) return;
+  const c = contagemMateria(materiaSelecionada);
+  pilula.textContent = `${c.feitos}/${c.total}`;
+}
+
+// Setas do teclado trocam de questão no computador (fora de campos de texto)
+document.addEventListener('keydown', (e) => {
+  if(typeof viewAtual === 'undefined' || (viewAtual !== 'exercicios' && viewAtual !== 'revisao')) return;
+  if(e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
+  if(document.querySelector('.modal-fundo.aberto')) return;
+  if(e.key === 'ArrowRight'){ const b = $('#btn-questao-proxima'); if(b && !b.disabled) b.click(); }
+  else if(e.key === 'ArrowLeft'){ const b = $('#btn-questao-anterior'); if(b && !b.disabled) b.click(); }
+});
 
 function construirLinhaExercicio(ex, numero){
   const prog = progressoCache.find(p => p.exercicio_id === ex.id);
@@ -2097,40 +2874,54 @@ function renderSimulado(){
 function renderConfigSimulado(){
   if(!configSimuladoMaterias) configSimuladoMaterias = new Set(materiasCache.map(m => m.id));
 
-  const opcoesQtd = [5, 10, 15, 20].map(n => `<button data-qtd="${n}" class="${configSimuladoQtd === n ? 'ativo' : ''}">${n}</button>`).join('');
-  const checksMaterias = materiasCache.map(m => `
-    <label><input type="checkbox" data-materia-sim="${m.id}" ${configSimuladoMaterias.has(m.id) ? 'checked' : ''}> ${escapeHtml(m.nome)}</label>
+  const opcoesQtd = [5, 10, 15, 20].map(n => `<button data-qtd="${n}" class="${configSimuladoQtd === n ? 'ativo' : ''}">${n} questões</button>`).join('');
+  const pilulas = materiasCache.map(m => `
+    <button class="pilula-materia pilula-alternavel ${configSimuladoMaterias.has(m.id) ? 'ativa' : ''}" style="--cor-materia:${m.cor};--texto-materia:${corTextoSobre(m.cor)}" data-materia-sim="${m.id}">
+      <span class="pilula-nome">${escapeHtml(m.nome)}</span>
+    </button>
   `).join('');
 
   const disponiveis = exerciciosCache.filter(e => configSimuladoMaterias.has(e.materia_id)).length;
+  const qtdReal = Math.min(configSimuladoQtd, disponiveis);
 
   $('#conteudo').innerHTML = `
     <div class="cabecalho-pagina">
       <h1>Simulado</h1>
-      <p>Uma sequência cronometrada de questões, para treinar como se fosse prova de verdade.</p>
+      <p>Questões sorteadas e cronometradas, sem ver a resposta antes. É o treino mais parecido com uma prova.</p>
     </div>
-    <div class="cartao-config-simulado">
-      <label style="display:block; font-size:13px; font-weight:600; color:var(--azul); margin-bottom:6px;">Quantidade de questões</label>
-      <div class="opcoes-quantidade">${opcoesQtd}</div>
-      <label style="display:block; font-size:13px; font-weight:600; color:var(--azul); margin-bottom:6px;">Matérias incluídas</label>
-      <div class="lista-materias-check">${checksMaterias}</div>
-      <p style="font-size:12.5px; color:var(--ink-suave); margin-bottom:16px;">${disponiveis} questão${disponiveis===1?'':'es'} disponível${disponiveis===1?'':'is'} com essa seleção.</p>
-      <button class="btn btn-primario btn-full" id="btn-iniciar-simulado" ${disponiveis === 0 ? 'disabled' : ''}>Iniciar simulado</button>
+    <div class="cartao-config">
+      <div class="config-bloco">
+        <span class="config-rotulo">Quantas questões</span>
+        <div class="segmentado filtro-status segmentado-largo">${opcoesQtd}</div>
+      </div>
+      <div class="config-bloco">
+        <span class="config-rotulo">Quais matérias <button class="btn-texto btn-texto-mini" id="btn-sim-todas">${configSimuladoMaterias.size === materiasCache.length ? 'Desmarcar todas' : 'Marcar todas'}</button></span>
+        <div class="grade-pilulas">${pilulas}</div>
+      </div>
+      <div class="config-rodape">
+        <p>${disponiveis ? `Vão ser <strong>${qtdReal}</strong> questões sorteadas entre ${disponiveis} disponíveis. O tempo começa a contar quando você iniciar.` : 'Escolha pelo menos uma matéria.'}</p>
+        <button class="btn btn-primario" id="btn-iniciar-simulado" ${disponiveis === 0 ? 'disabled' : ''}>Começar simulado</button>
+      </div>
     </div>
 
-    <h3 style="font-size:15px; color:var(--azul); margin:24px 0 12px;">Seus simulados anteriores</h3>
-    <div id="historico-simulados-container"><p style="font-size:13px; color:var(--ink-suave);">Carregando...</p></div>
+    <h3 class="titulo-secao">Seus simulados anteriores</h3>
+    <div id="historico-simulados-container"><p class="texto-suave-pequeno">Carregando...</p></div>
   `;
 
   $$('[data-qtd]').forEach(b => b.addEventListener('click', () => {
     configSimuladoQtd = parseInt(b.dataset.qtd, 10);
     renderConfigSimulado();
   }));
-  $$('[data-materia-sim]').forEach(c => c.addEventListener('change', () => {
-    if(c.checked) configSimuladoMaterias.add(c.dataset.materiaSim);
-    else configSimuladoMaterias.delete(c.dataset.materiaSim);
+  $$('[data-materia-sim]').forEach(c => c.addEventListener('click', () => {
+    const id = c.dataset.materiaSim;
+    if(configSimuladoMaterias.has(id)) configSimuladoMaterias.delete(id);
+    else configSimuladoMaterias.add(id);
     renderConfigSimulado();
   }));
+  $('#btn-sim-todas').addEventListener('click', () => {
+    configSimuladoMaterias = configSimuladoMaterias.size === materiasCache.length ? new Set() : new Set(materiasCache.map(m => m.id));
+    renderConfigSimulado();
+  });
   const btnIniciar = $('#btn-iniciar-simulado');
   if(btnIniciar) btnIniciar.addEventListener('click', iniciarSimulado);
 
@@ -2146,26 +2937,25 @@ async function carregarHistoricoSimulados(){
 
   const lista = data || [];
   if(!lista.length){
-    container.innerHTML = '<div class="vazio"><p>Você ainda não fez nenhum simulado.</p></div>';
+    container.innerHTML = '<div class="painel-ficha-vazio"><p class="texto-suave-pequeno" style="margin:0;">Você ainda não fez nenhum simulado. O resultado de cada um fica guardado aqui.</p></div>';
     return;
   }
 
   container.innerHTML = `
-    <div class="painel-ficha"><div class="lista-ficha">
+    <div class="lista-limpa">
       ${lista.map(s => {
         const pct = s.total_questoes ? Math.round((s.acertos / s.total_questoes) * 100) : 0;
         return `
-          <div class="linha-exercicio">
-            <div class="linha-exercicio-topo" style="cursor:default;">
-              <div class="texto-linha">
-                <span class="texto-exercicio">${s.acertos}/${s.total_questoes} acertos (${pct}%)</span>
-                <div class="rodape-linha"><span style="font-size:12px; color:var(--ink-suave);">${formatarData(s.criado_em)} — ${formatarTempo(s.tempo_segundos)}${s.materias ? ' — ' + escapeHtml(s.materias) : ''}</span></div>
-              </div>
+          <div class="linha-limpa">
+            <div class="linha-limpa-principal">
+              <span><strong>${s.acertos} de ${s.total_questoes}</strong> acertos</span>
+              <span class="linha-limpa-detalhe">${formatarData(s.criado_em)} · ${formatarTempo(s.tempo_segundos)}${s.materias ? ' · ' + escapeHtml(s.materias) : ''}</span>
             </div>
+            <span class="numero-destaque ${pct >= 70 ? 'bom' : pct >= 50 ? 'medio' : 'baixo'}">${pct}%</span>
           </div>
         `;
       }).join('')}
-    </div></div>
+    </div>
   `;
 }
 
@@ -2197,30 +2987,35 @@ function iniciarSimulado(){
 
 function renderExecucaoSimulado(){
   const ex = simulado.questoes[simulado.indice];
-  const materia = materiasCache.find(m => m.id === ex.materia_id);
+  const materia = materiasCache.find(m => m.id === ex.materia_id) || {};
+  const ultima = simulado.indice === simulado.questoes.length - 1;
 
   $('#conteudo').innerHTML = `
-    <div class="barra-simulado">
-      <span class="progresso-simulado">Questão ${simulado.indice + 1} de ${simulado.questoes.length} — ${escapeHtml(materia ? materia.nome : '')}${ex.assunto ? ' · ' + escapeHtml(ex.assunto) : ''}</span>
-      <span class="cronometro" id="cronometro-simulado">${formatarTempo(simulado.tempoSegundos)}</span>
+    <div class="barra-simulado-nova">
+      <span><strong>Questão ${simulado.indice + 1}</strong> de ${simulado.questoes.length}</span>
+      <span class="cronometro-novo" id="cronometro-simulado">${formatarTempo(simulado.tempoSegundos)}</span>
     </div>
-    <div class="cartao-questao" style="--cor-materia:${materia ? materia.cor : 'var(--verde)'}">
-      <div class="cartao-questao-cabecalho">
-        <span class="numero-grande">Sem consulta ao gabarito durante o simulado</span>
-        ${badgeNivel(ex.nivel)}
+    <div class="cartao-questao entra-prox" style="--cor-materia:${materia.cor || 'var(--verde)'}">
+      <div class="cartao-questao-topo">
+        <div class="cartao-questao-contexto">
+          <span class="contexto-materia">${escapeHtml(materia.nome || '')}</span>
+          ${ex.assunto ? `<span class="contexto-assunto">${escapeHtml(ex.assunto)}</span>` : ''}
+        </div>
+        <div class="cartao-questao-selos">${badgeNivel(ex.nivel)}</div>
       </div>
       ${construirFiguraSvg(ex.figura)}
-      <div class="enunciado">${escapeHtml(ex.enunciado)}</div>
-      <div class="navegacao-questao">
-        <button class="btn btn-secundario" id="btn-sim-anterior" ${simulado.indice === 0 ? 'disabled' : ''}>← Anterior</button>
-        ${simulado.indice === simulado.questoes.length - 1
-          ? '<button class="btn btn-primario" id="btn-sim-finalizar">Finalizar simulado</button>'
-          : '<button class="btn btn-secundario" id="btn-sim-proxima">Próxima →</button>'}
+      <div class="enunciado enunciado-destaque">${escapeHtml(ex.enunciado)}</div>
+      <p class="texto-suave-pequeno">Resolva no caderno ou no rascunho. As respostas aparecem só no final.</p>
+      <div class="barra-ferramentas" style="margin-top:14px;">
+        <button class="ferramenta" id="btn-sim-calculadora">Calculadora</button>
+        <button class="ferramenta" id="btn-sim-abandonar">Abandonar simulado</button>
       </div>
-    </div>
-    <div style="text-align:center; margin-top:16px; display:flex; justify-content:center; gap:16px;">
-      <button class="btn-texto" id="btn-sim-calculadora">Calculadora</button>
-      <button class="btn-texto" id="btn-sim-abandonar">Abandonar simulado</button>
+      <div class="navegacao-questao">
+        <button class="btn btn-secundario" id="btn-sim-anterior" ${simulado.indice === 0 ? 'disabled' : ''}>Anterior</button>
+        ${ultima
+          ? '<button class="btn btn-primario" id="btn-sim-finalizar">Terminar e corrigir</button>'
+          : '<button class="btn btn-proxima-questao" id="btn-sim-proxima">Próxima</button>'}
+      </div>
     </div>
   `;
   renderizarMath();
@@ -2232,6 +3027,7 @@ function renderExecucaoSimulado(){
   if(btnFinalizar) btnFinalizar.addEventListener('click', finalizarExecucaoSimulado);
   $('#btn-sim-calculadora').addEventListener('click', abrirModalCalculadora);
   $('#btn-sim-abandonar').addEventListener('click', () => {
+    if(!confirm('Abandonar o simulado? O que você fez até aqui não será salvo.')) return;
     if(simulado.intervalId) clearInterval(simulado.intervalId);
     simulado = null;
     renderSimulado();
@@ -2249,81 +3045,124 @@ function finalizarExecucaoSimulado(){
 function renderCorrecaoSimulado(){
   const cartoes = simulado.questoes.map((ex, idx) => {
     const avaliacao = simulado.autoavaliacoes[ex.id];
+    const materia = materiasCache.find(m => m.id === ex.materia_id) || {};
     return `
-      <div class="cartao-correcao">
-        <span class="numero-grande">Questão ${idx + 1}</span>
-        ${ex.assunto ? `<span style="font-size:12px; color:var(--ink-suave); margin-left:8px;">${escapeHtml(ex.assunto)}</span>` : ''}
-        ${construirFiguraSvg(ex.figura)}
-        <div class="enunciado" style="margin:8px 0 12px;">${escapeHtml(ex.enunciado)}</div>
-        <div class="caixa-gabarito">
-          <span class="rotulo-resposta">Resposta</span>${escapeHtml(ex.gabarito)}
-          ${ex.explicacao ? `<br><br><span class="rotulo-resposta">Como chegar lá</span>${escapeHtml(ex.explicacao)}` : ''}
+      <div class="cartao-questao cartao-correcao-nova ${avaliacao ? 'avaliada' : ''}" style="--cor-materia:${materia.cor || 'var(--verde)'}" id="correcao-${ex.id}">
+        <div class="cartao-questao-topo">
+          <div class="cartao-questao-contexto">
+            <span class="contexto-materia">Questão ${idx + 1} · ${escapeHtml(materia.nome || '')}</span>
+            ${ex.assunto ? `<span class="contexto-assunto">${escapeHtml(ex.assunto)}</span>` : ''}
+          </div>
         </div>
-        <div class="botoes-autoavaliacao">
-          <button data-avaliar="${ex.id}" data-valor="certo" class="${avaliacao === 'certo' ? 'marcado-certo' : ''}">Acertei</button>
-          <button data-avaliar="${ex.id}" data-valor="errado" class="${avaliacao === 'errado' ? 'marcado-errado' : ''}">Errei</button>
+        ${construirFiguraSvg(ex.figura)}
+        <div class="enunciado enunciado-destaque" style="margin-bottom:14px;">${escapeHtml(ex.enunciado)}</div>
+        <div class="caixa-gabarito"><span class="rotulo-resposta">Resposta</span>${escapeHtml(ex.gabarito)}${ex.explicacao ? `<span class="rotulo-resposta rotulo-espaco">Como chegar lá</span>${escapeHtml(ex.explicacao)}` : ''}</div>
+        <div class="avaliacao-grande" style="margin-top:14px;">
+          <button data-avaliar="${ex.id}" data-valor="certo" class="aval-certo ${avaliacao === 'certo' ? 'marcado' : ''}">Acertei</button>
+          <button data-avaliar="${ex.id}" data-valor="errado" class="aval-errado ${avaliacao === 'errado' ? 'marcado' : ''}">Errei</button>
         </div>
       </div>
     `;
   }).join('');
 
   const respondidas = Object.keys(simulado.autoavaliacoes).length;
+  const total = simulado.questoes.length;
 
   $('#conteudo').innerHTML = `
     <div class="cabecalho-pagina">
       <h1>Correção</h1>
-      <p>Confira o gabarito de cada questão e marque se você acertou ou errou.</p>
+      <p>Compare com o que você fez e marque, em cada questão, se acertou ou errou. As que errar vão para a sua Revisão.</p>
     </div>
-    ${cartoes}
-    <button class="btn btn-primario btn-full" id="btn-ver-resultado" ${respondidas < simulado.questoes.length ? 'disabled' : ''}>
-      ${respondidas < simulado.questoes.length ? `Avalie todas as questões (${respondidas}/${simulado.questoes.length})` : 'Ver resultado final'}
-    </button>
+    <div class="pilha-correcao">${cartoes}</div>
+    <div class="rodape-fixo-correcao">
+      <span id="contagem-correcao">${respondidas} de ${total} corrigidas</span>
+      <button class="btn btn-primario" id="btn-ver-resultado" ${respondidas < total ? 'disabled' : ''}>Ver resultado</button>
+    </div>
   `;
   renderizarMath();
 
   $$('[data-avaliar]').forEach(b => b.addEventListener('click', () => {
-    simulado.autoavaliacoes[b.dataset.avaliar] = b.dataset.valor;
-    renderCorrecaoSimulado();
+    const id = b.dataset.avaliar;
+    simulado.autoavaliacoes[id] = b.dataset.valor;
+    const cartao = $(`#correcao-${id}`);
+    cartao.classList.add('avaliada');
+    cartao.querySelectorAll('[data-avaliar]').forEach(o => o.classList.toggle('marcado', o === b));
+    const feitas = Object.keys(simulado.autoavaliacoes).length;
+    $('#contagem-correcao').textContent = `${feitas} de ${total} corrigidas`;
+    $('#btn-ver-resultado').disabled = feitas < total;
+    const proxima = simulado.questoes.find(q => !simulado.autoavaliacoes[q.id]);
+    if(proxima){
+      const alvo = $(`#correcao-${proxima.id}`);
+      if(alvo) setTimeout(() => alvo.scrollIntoView({ behavior: 'smooth', block: 'start' }), 250);
+    }
   }));
-  const btnResultado = $('#btn-ver-resultado');
-  if(btnResultado && respondidas === simulado.questoes.length){
-    btnResultado.addEventListener('click', finalizarSimulado);
-  }
+  $('#btn-ver-resultado').addEventListener('click', () => {
+    if(Object.keys(simulado.autoavaliacoes).length === total) finalizarSimulado();
+  });
 }
 
 async function finalizarSimulado(){
+  const btn = $('#btn-ver-resultado');
+  if(btn){ btn.disabled = true; btn.textContent = 'Salvando...'; }
   const acertos = Object.values(simulado.autoavaliacoes).filter(v => v === 'certo').length;
   simulado.acertos = acertos;
-  simulado.fase = 'resultado';
 
-  const materiasNomes = [...configSimuladoMaterias].map(id => materiasCache.find(m => m.id === id)?.nome).filter(Boolean).join(', ');
-  await sb.from('simulados_resultados').insert({
+  const materiasNomes = [...new Set(simulado.questoes.map(q => (materiasCache.find(m => m.id === q.materia_id) || {}).nome).filter(Boolean))].join(', ');
+  const { error } = await sb.from('simulados_resultados').insert({
     aluno_id: perfilAtual.id,
     total_questoes: simulado.questoes.length,
     acertos,
     tempo_segundos: simulado.tempoSegundos,
     materias: materiasNomes
   });
+  if(error){
+    if(btn){ btn.disabled = false; btn.textContent = 'Ver resultado'; }
+    mostrarToast('Não foi possível salvar o simulado. Confira sua internet e tente de novo.', 'erro');
+    return;
+  }
 
+  // O que foi corrigido no simulado também conta no progresso (e as erradas vão para a Revisão)
+  const agora = new Date().toISOString();
+  const linhas = simulado.questoes.map(q => {
+    const existente = progressoDe(q.id);
+    const correto = simulado.autoavaliacoes[q.id] === 'certo';
+    return { aluno_id: perfilAtual.id, exercicio_id: q.id, correto, concluido: true, viu_gabarito: true,
+             foto_resolucao: existente ? existente.foto_resolucao || null : null, atualizado_em: agora };
+  });
+  const { error: erroProgresso } = await sb.from('progresso_alunos').upsert(linhas, { onConflict: 'aluno_id,exercicio_id' });
+  if(!erroProgresso){
+    linhas.forEach(l => {
+      const existente = progressoDe(l.exercicio_id);
+      if(existente) Object.assign(existente, l); else progressoCache.push(l);
+    });
+  }
+
+  simulado.fase = 'resultado';
   renderSimulado();
 }
 
 function renderResultadoSimulado(){
-  const pct = Math.round((simulado.acertos / simulado.questoes.length) * 100);
+  const total = simulado.questoes.length;
+  const pct = Math.round((simulado.acertos / total) * 100);
+  const erros = total - simulado.acertos;
+  const frase = pct >= 80 ? 'Resultado muito bom. Você está pronto para prova.'
+    : pct >= 60 ? 'Bom resultado. Revise as que errou para chegar lá em cima.'
+    : 'Ainda tem chão pela frente, e tudo bem. As que você errou já estão na sua Revisão.';
   $('#conteudo').innerHTML = `
-    <div class="cabecalho-pagina">
-      <h1>Resultado</h1>
-    </div>
-    <div class="cartao-resultado-simulado">
-      <p>Você acertou</p>
-      <div class="nota-grande">${simulado.acertos}/${simulado.questoes.length}</div>
-      <p>${pct}% de acerto, em ${formatarTempo(simulado.tempoSegundos)}</p>
-    </div>
-    <div style="text-align:center; margin-top:20px; display:flex; justify-content:center; gap:14px;">
-      <button class="btn btn-secundario" id="btn-pdf-simulado">Baixar PDF</button>
-      <button class="btn btn-primario" id="btn-novo-simulado">Fazer outro simulado</button>
+    <div class="cartao-fechamento entra-prox" style="--cor-materia:var(--verde); margin-top:0;">
+      <span class="fechamento-rotulo">Simulado concluído</span>
+      <h2>Você acertou ${simulado.acertos} de ${total}.</h2>
+      <p class="fechamento-placar">${pct}% de acerto em <strong>${formatarTempo(simulado.tempoSegundos)}</strong>.</p>
+      <p class="fechamento-frase">${frase}</p>
+      <div class="fechamento-acoes">
+        ${erros ? `<button class="btn btn-primario" id="btn-sim-revisar">Revisar as ${erros === 1 ? 'que errei' : erros + ' que errei'}</button>` : ''}
+        <button class="btn btn-secundario" id="btn-novo-simulado">Fazer outro simulado</button>
+        <button class="btn-texto" id="btn-pdf-simulado">Baixar PDF do simulado</button>
+      </div>
     </div>
   `;
+  const r = $('#btn-sim-revisar');
+  if(r) r.addEventListener('click', () => { simulado = null; revisaoMateria = 'todas'; irParaView('revisao'); });
   $('#btn-novo-simulado').addEventListener('click', () => {
     simulado = null;
     renderSimulado();
@@ -2371,8 +3210,8 @@ function renderPdfSimulado(){
    VIEW: REVISÃO
    ============================================================ */
 function renderPdfExercicios(){
-  const materia = materiasCache.find(m => m.id === materiaSelecionada);
-  const lista = exerciciosCache.filter(e => e.materia_id === materiaSelecionada).sort((a,b) => a.ordem - b.ordem);
+  const materia = materiaSelecionada === 'semana' ? { nome: 'Lista da semana' } : materiasCache.find(m => m.id === materiaSelecionada);
+  const lista = exerciciosDoGrupo(materiaSelecionada);
 
   const itensHtml = lista.map((ex, idx) => `
     <div class="card" style="margin-bottom:14px; break-inside:avoid;">
@@ -2408,38 +3247,58 @@ function renderRevisao(){
     $('#conteudo').innerHTML = `
       <div class="cabecalho-pagina">
         <h1>Revisão</h1>
-        <p>Este espaço é a lista de pendências de cada aluno. Use o painel "Gerenciar conteúdo" para acompanhar a turma.</p>
+        <p>Aqui cada aluno vê as questões que marcou como erradas, para treinar de novo. Para acompanhar a turma, use a aba "Turma".</p>
       </div>
     `;
     return;
   }
+  modoRevisao = true;
+  const erradas = exerciciosCache.filter(e => (progressoDe(e.id) || {}).correto === false);
+  const materiasComErro = materiasCache.filter(m => erradas.some(e => e.materia_id === m.id));
+  if(revisaoMateria !== 'todas' && !materiasComErro.some(m => m.id === revisaoMateria)) revisaoMateria = 'todas';
 
-  const pendentes = exerciciosCache.filter(ex => {
-    const prog = progressoCache.find(p => p.exercicio_id === ex.id);
-    return !(prog && prog.concluido);
-  });
-
-  const grupos = materiasCache
-    .map(m => ({ materia: m, itens: pendentes.filter(ex => ex.materia_id === m.id).sort((a,b) => a.ordem - b.ordem) }))
-    .filter(g => g.itens.length);
-
-  const blocos = grupos.map(g => `
-    <h3 style="font-size:14px; color:${g.materia.cor}; margin: 20px 0 8px;">${escapeHtml(g.materia.nome)}</h3>
-    <div class="painel-ficha"><div class="lista-ficha">
-      ${g.itens.map((ex, idx) => construirLinhaExercicio(ex, String(idx + 1).padStart(2, '0'))).join('')}
-    </div></div>
-  `).join('');
+  const pilulas = [`<button class="pilula-materia ${revisaoMateria === 'todas' ? 'ativa' : ''}" style="--cor-materia:var(--verde)" data-revisao="todas"><span class="pilula-nome">Todas</span><span class="pilula-conta">${erradas.length}</span></button>`]
+    .concat(materiasComErro.map(m => {
+      const n = erradas.filter(e => e.materia_id === m.id).length;
+      return `<button class="pilula-materia ${revisaoMateria === m.id ? 'ativa' : ''}" style="--cor-materia:${m.cor};--texto-materia:${corTextoSobre(m.cor)}" data-revisao="${m.id}"><span class="pilula-nome">${escapeHtml(m.nome)}</span><span class="pilula-conta">${n}</span></button>`;
+    })).join('');
 
   $('#conteudo').innerHTML = `
     <div class="cabecalho-pagina">
       <h1>Revisão</h1>
-      <p>Tudo o que você ainda não marcou como concluído, juntado num só lugar.</p>
+      <p>As questões que você errou ficam aqui. Quando acertar, ela sai da lista.</p>
     </div>
-    ${grupos.length ? blocos : '<div class="painel-ficha-vazio"><div class="vazio"><p>Você concluiu todos os exercícios disponíveis. Parabéns!</p></div></div>'}
+    ${erradas.length ? `<div class="ex-topo"><div class="trilho-materias" id="trilho-materias">${pilulas}</div></div>` : ''}
+    <div id="sessao-exercicios-container"></div>
   `;
-  renderizarMath();
 
-  attachListaHandlers();
+  $$('.pilula-materia[data-revisao]').forEach(b => b.addEventListener('click', () => {
+    if(b.dataset.revisao === revisaoMateria) return;
+    revisaoMateria = b.dataset.revisao;
+    indiceAtual = 0;
+    renderRevisao();
+  }));
+
+  respostaRevelada = false;
+  ferramentaAbertaNaQuestao = null;
+  renderSessaoExercicios();
+}
+
+function renderFimRevisao(container){
+  const totalAvaliadas = progressoCache.filter(p => p.correto === true || p.correto === false).length;
+  container.innerHTML = `
+    <div class="cartao-fechamento entra-prox" style="--cor-materia:var(--verde)">
+      <span class="fechamento-rotulo">Revisão em dia</span>
+      <h2>${totalAvaliadas ? 'Nenhuma questão para revisar agora.' : 'Ainda não tem nada para revisar.'}</h2>
+      <p class="fechamento-frase">${totalAvaliadas
+        ? 'Tudo o que você tinha errado já foi refeito e acertado. Bom trabalho! Siga nos exercícios, e o que você errar volta para cá.'
+        : 'Conforme você faz os exercícios e marca "Errei", essas questões aparecem aqui para você treinar de novo.'}</p>
+      <div class="fechamento-acoes">
+        <button class="btn btn-primario" id="btn-fim-revisao-exercicios">Ir para os exercícios</button>
+      </div>
+    </div>
+  `;
+  $('#btn-fim-revisao-exercicios').addEventListener('click', () => irParaView('exercicios'));
 }
 
 /* ============================================================
@@ -2653,50 +3512,93 @@ function calcularDiagnostico(){
 function renderProgresso(){
   const diagnostico = calcularDiagnostico();
 
+  const totalExercicios = exerciciosCache.length;
+  const feitos = progressoCache.filter(p => p.concluido && exerciciosCache.some(e => e.id === p.exercicio_id)).length;
+  const avaliadas = progressoCache.filter(p => p.correto === true || p.correto === false);
+  const acertos = avaliadas.filter(p => p.correto === true).length;
+  const pctAcerto = avaliadas.length ? Math.round((acertos / avaliadas.length) * 100) : null;
+  const sequencia = calcularSequenciaEstudo();
+  const paraRevisar = exerciciosCache.filter(e => (progressoDe(e.id) || {}).correto === false).length;
+
   const linhas = materiasCache.map(m => {
     const exs = exerciciosCache.filter(e => e.materia_id === m.id);
-    const feitosEx = exs.filter(e => progressoCache.some(p => p.exercicio_id === e.id && p.concluido)).length;
+    const feitosEx = exs.filter(e => (progressoDe(e.id) || {}).concluido).length;
+    const aval = exs.map(e => progressoDe(e.id)).filter(p => p && (p.correto === true || p.correto === false));
+    const pct = aval.length ? Math.round(aval.filter(p => p.correto).length / aval.length * 100) : null;
     const aulasDaMateria = aulasCache.filter(a => a.materia_id === m.id);
     const assistidas = aulasDaMateria.filter(a => progressoAulasCache.some(p => p.aula_id === a.id && p.assistido)).length;
-    const total = exs.length + aulasDaMateria.length;
-    const feitos = feitosEx + assistidas;
-    const pct = total ? Math.round((feitos/total)*100) : 0;
+    const situacao = feitosEx === 0 ? 'Ainda não começou'
+      : feitosEx === exs.length ? 'Concluída'
+      : `${exs.length - feitosEx} pela frente`;
     return `
-      <div class="card" style="margin-bottom:12px;">
-        <div style="display:flex; align-items:center; justify-content:space-between;">
-          <h4 style="font-size:14.5px; color:var(--azul);">${escapeHtml(m.nome)}</h4>
-          <span style="font-size:13px; color:var(--ink-suave);">${feitos}/${total}</span>
+      <div class="linha-materia" style="--cor-materia:${m.cor}">
+        <span class="marca-materia"></span>
+        <div class="linha-materia-texto">
+          <strong>${escapeHtml(m.nome)}</strong>
+          <span>${feitosEx} de ${exs.length} exercícios feitos · ${situacao}${aulasDaMateria.length ? ` · ${assistidas} de ${aulasDaMateria.length} aulas vistas` : ''}</span>
         </div>
-        <div class="trilho"><div class="preenchido" style="width:${pct}%; background:${m.cor};"></div></div>
+        <span class="numero-destaque ${pct === null ? '' : pct >= 70 ? 'bom' : pct >= 50 ? 'medio' : 'baixo'}" title="Acerto nas questões avaliadas">${pct === null ? 'sem nota' : pct + '%'}</span>
+        <button class="btn-texto btn-treinar" data-treinar="${m.id}">Treinar</button>
       </div>
     `;
   }).join('');
 
-  const totalExercicios = exerciciosCache.length;
-  const feitos = progressoCache.filter(p => p.concluido).length;
-  const pct = totalExercicios ? Math.round((feitos/totalExercicios)*100) : 0;
+  // Assuntos com mais erros
+  const errosPorAssunto = {};
+  exerciciosCache.forEach(e => {
+    const p = progressoDe(e.id);
+    if(p && p.correto === false && e.assunto){
+      const chave = e.materia_id + '|' + e.assunto;
+      errosPorAssunto[chave] = (errosPorAssunto[chave] || 0) + 1;
+    }
+  });
+  const topAssuntos = Object.entries(errosPorAssunto).sort((a,b) => b[1] - a[1]).slice(0, 3).map(([chave, n]) => {
+    const [mid, assunto] = chave.split('|');
+    const m = materiasCache.find(mm => mm.id === mid) || {};
+    return `<li><strong>${escapeHtml(assunto)}</strong>, de ${escapeHtml(m.nome || '')}: ${n} ${n === 1 ? 'questão errada' : 'questões erradas'}</li>`;
+  }).join('');
+
+  const frases = [];
+  frases.push(feitos ? `Você já fez <strong>${feitos} de ${totalExercicios}</strong> exercícios do curso.` : 'Você ainda não começou os exercícios. Que tal fazer o primeiro hoje?');
+  if(pctAcerto !== null) frases.push(`Nas questões que corrigiu, acertou <strong>${pctAcerto}%</strong>.`);
+  if(sequencia > 1) frases.push(`Está há <strong>${sequencia} dias seguidos</strong> estudando.`);
 
   $('#conteudo').innerHTML = `
-    ${construirCabecalhoImpressaoPdf('Relatório de progresso — ' + perfilAtual.nome, perfilAtual.ano_escolar || '')}
-    <div class="cabecalho-pagina">
-      <h1>Meu progresso</h1>
-      <p>Acompanhe sua evolução por matéria.</p>
+    ${construirCabecalhoImpressaoPdf('Relatório de progresso: ' + perfilAtual.nome, perfilAtual.ano_escolar || '')}
+    <div class="cabecalho-pagina cabecalho-com-acao">
+      <div>
+        <h1>Meu progresso</h1>
+        <p>Como você está em cada matéria do curso.</p>
+      </div>
+      <button class="btn-texto" id="btn-baixar-relatorio">Baixar relatório em PDF</button>
     </div>
-    <button class="btn btn-secundario" id="btn-baixar-relatorio" style="margin-bottom:18px;">Baixar relatório em PDF</button>
-    <div class="barra-progresso-geral">
-      <h3 style="font-size:15px; color:var(--azul); margin-bottom:8px;">Total geral</h3>
-      <div class="trilho"><div class="preenchido" style="width:${pct}%;"></div></div>
-      <span style="font-size:13px; color:var(--ink-suave);">${feitos} de ${totalExercicios} exercícios concluídos (${pct}%)</span>
+
+    <div class="resumo-ficha resumo-grande">${frases.join(' ')}
+      ${diagnostico ? ` Seu ponto forte é <strong>${escapeHtml(diagnostico.forte.materia.nome)}</strong> e vale reforçar <strong>${escapeHtml(diagnostico.fraco.materia.nome)}</strong>.` : ''}
     </div>
-    ${diagnostico ? `
-      <div class="cartao-diagnostico">
-        <p>Seu ponto forte agora é <strong>${escapeHtml(diagnostico.forte.materia.nome)}</strong>, com ${Math.round(diagnostico.forte.pct*100)}% de acerto nas questões avaliadas. Vale reforçar <strong>${escapeHtml(diagnostico.fraco.materia.nome)}</strong>, onde o acerto está em ${Math.round(diagnostico.fraco.pct*100)}%.</p>
+
+    ${topAssuntos ? `
+      <div class="cartao-reforco">
+        <div>
+          <h3>Assuntos para reforçar</h3>
+          <ul>${topAssuntos}</ul>
+        </div>
+        ${paraRevisar ? `<button class="btn btn-secundario" id="btn-progresso-revisar">Revisar ${paraRevisar === 1 ? 'a questão' : 'as ' + paraRevisar + ' questões'}</button>` : ''}
       </div>
     ` : ''}
-    ${linhas || '<div class="vazio"><p>Ainda não há matérias para acompanhar.</p></div>'}
+
+    <h3 class="titulo-secao">Por matéria</h3>
+    <div class="lista-limpa">${linhas || '<div class="vazio"><p>Ainda não há matérias para acompanhar.</p></div>'}</div>
   `;
 
   $('#btn-baixar-relatorio').addEventListener('click', () => window.print());
+  const br = $('#btn-progresso-revisar');
+  if(br) br.addEventListener('click', () => { revisaoMateria = 'todas'; irParaView('revisao'); });
+  $$('[data-treinar]').forEach(b => b.addEventListener('click', () => {
+    materiaSelecionada = b.dataset.treinar;
+    filtroAssunto = 'todos'; filtroStatus = 'todas'; termoBusca = '';
+    irParaView('exercicios');
+  }));
 }
 
 /* ============================================================
@@ -2825,124 +3727,258 @@ async function renderTurma(){
   renderTurmaConteudo();
 }
 
+function textoUltimaAtividade(dias){
+  if(dias === null) return 'ainda não começou';
+  if(dias === 0) return 'estudou hoje';
+  if(dias === 1) return 'estudou ontem';
+  return `última atividade há ${dias} dias`;
+}
+
+function analisarAluno(aluno, progresso){
+  const progAluno = progresso.filter(p => p.aluno_id === aluno.id && exerciciosCache.some(e => e.id === p.exercicio_id));
+  const concluidos = progAluno.filter(p => p.concluido).length;
+  const avaliadas = progAluno.filter(p => p.correto === true || p.correto === false);
+  const acertos = avaliadas.filter(p => p.correto === true).length;
+  const pctAcerto = avaliadas.length ? Math.round(acertos / avaliadas.length * 100) : null;
+  const ultima = progAluno.reduce((max, p) => (p.atualizado_em && (!max || new Date(p.atualizado_em) > new Date(max))) ? p.atualizado_em : max, null);
+  const diasInativo = ultima ? Math.floor((Date.now() - new Date(ultima).getTime()) / 86400000) : null;
+  const errosAssunto = {};
+  progAluno.filter(p => p.correto === false).forEach(p => {
+    const ex = exerciciosCache.find(e => e.id === p.exercicio_id);
+    const chave = ex && (ex.assunto || (materiasCache.find(m => m.id === ex.materia_id) || {}).nome);
+    if(chave) errosAssunto[chave] = (errosAssunto[chave] || 0) + 1;
+  });
+  const assuntosFracos = Object.entries(errosAssunto).sort((a,b) => b[1] - a[1]).slice(0, 3).map(([a]) => a);
+  const situacao = diasInativo === null ? 'nao-comecou' : diasInativo > 7 ? 'sumido' : pctAcerto !== null && pctAcerto < 50 && avaliadas.length >= 4 ? 'dificuldade' : 'em-dia';
+  return { aluno, progAluno, concluidos, avaliadas: avaliadas.length, pctAcerto, diasInativo, assuntosFracos, situacao };
+}
+
 function renderTurmaConteudo(){
   const { alunos, progresso } = dadosTurmaCache;
-  const totalExercicios = exerciciosCache.length;
+  const analises = alunos.map(a => analisarAluno(a, progresso));
+  const ordemSituacao = { 'sumido': 0, 'dificuldade': 1, 'nao-comecou': 2, 'em-dia': 3 };
+  analises.sort((a,b) => ordemSituacao[a.situacao] - ordemSituacao[b.situacao] || (a.diasInativo ?? 999) - (b.diasInativo ?? 999));
 
-  const linhasAlunos = alunos.map(aluno => {
-    const progAluno = progresso.filter(p => p.aluno_id === aluno.id);
-    const concluidos = progAluno.filter(p => p.concluido).length;
-    const ultimaAtividade = progAluno.reduce((max, p) => (!max || new Date(p.atualizado_em) > new Date(max)) ? p.atualizado_em : max, null);
-    const diasInativo = ultimaAtividade ? Math.floor((Date.now() - new Date(ultimaAtividade).getTime()) / 86400000) : null;
-    return { aluno, concluidos, pct: totalExercicios ? Math.round((concluidos / totalExercicios) * 100) : 0, diasInativo };
-  }).sort((a,b) => b.concluidos - a.concluidos);
+  const emDia = analises.filter(a => a.situacao === 'em-dia').length;
+  const sumidos = analises.filter(a => a.situacao === 'sumido').length;
+  const dificuldade = analises.filter(a => a.situacao === 'dificuldade').length;
+  const naoComecaram = analises.filter(a => a.situacao === 'nao-comecou').length;
+  const rotulo = { 'sumido': 'Sumido', 'dificuldade': 'Com dificuldade', 'nao-comecou': 'Não começou', 'em-dia': 'Em dia' };
 
-  const inativos = linhasAlunos.filter(l => l.diasInativo === null || l.diasInativo > 7);
-
-  const porMateria = materiasCache.map(m => {
-    const idsExercicios = exerciciosCache.filter(e => e.materia_id === m.id).map(e => e.id);
-    const avaliacoes = progresso.filter(p => idsExercicios.includes(p.exercicio_id) && p.correto !== null && p.correto !== undefined);
-    const acertos = avaliacoes.filter(p => p.correto === true).length;
-    return { materia: m, avaliadas: avaliacoes.length, pct: avaliacoes.length ? Math.round((acertos / avaliacoes.length) * 100) : 0 };
-  }).filter(d => d.avaliadas > 0);
-
-  const rankingHtml = linhasAlunos.map((l, idx) => {
-    const cadastro = matriculaCache.find(a => a.email && l.aluno.email && a.email.toLowerCase() === l.aluno.email.toLowerCase());
-    const linhaCadastro = cadastro ? `${cadastro.turma ? escapeHtml(cadastro.turma) : ''}${cadastro.idade ? ' — ' + cadastro.idade + ' anos' : ''}${cadastro.observacoes ? ' — ' + escapeHtml(cadastro.observacoes) : ''}` : '';
-    const opcoesTurmaAluno = `<option value="" ${!l.aluno.turma_id ? 'selected' : ''}>Sem turma</option>` +
-      turmasCache.map(t => `<option value="${t.id}" ${l.aluno.turma_id === t.id ? 'selected' : ''}>${escapeHtml(t.nome)}</option>`).join('');
+  const linhas = analises.map(a => {
+    const opcoesTurmaAluno = `<option value="" ${!a.aluno.turma_id ? 'selected' : ''}>Sem turma</option>` +
+      turmasCache.map(t => `<option value="${t.id}" ${a.aluno.turma_id === t.id ? 'selected' : ''}>${escapeHtml(t.nome)}</option>`).join('');
     return `
-    <div class="linha-exercicio">
-      <div class="linha-exercicio-topo" style="cursor:default;">
-        <span class="numero-exercicio">${idx+1}º</span>
-        <div class="texto-linha">
-          <span class="texto-exercicio">${escapeHtml(l.aluno.nome)}</span>
-          <div class="rodape-linha"><span style="font-size:12px; color:var(--ink-suave);">${l.concluidos} de ${totalExercicios} exercícios (${l.pct}%) ${l.diasInativo !== null ? '— última atividade há ' + l.diasInativo + ' dia' + (l.diasInativo === 1 ? '' : 's') : '— ainda não começou'}</span></div>
-          ${linhaCadastro ? `<div style="font-size:12px; color:var(--verde-escuro); margin-top:2px;">${linhaCadastro}</div>` : ''}
+      <div class="linha-aluno">
+        <div class="linha-aluno-texto">
+          <div class="linha-aluno-nome"><strong>${escapeHtml(a.aluno.nome)}</strong><span class="selo-situacao situacao-${a.situacao}">${rotulo[a.situacao]}</span></div>
+          <span>${a.concluidos} exercícios feitos${a.pctAcerto !== null ? ` · ${a.pctAcerto}% de acerto` : ''} · ${textoUltimaAtividade(a.diasInativo)}</span>
+          ${a.assuntosFracos.length ? `<span class="linha-aluno-fraco">Mais erra em: ${a.assuntosFracos.map(escapeHtml).join(', ')}</span>` : ''}
         </div>
-        <select data-atribuir-turma="${l.aluno.id}" style="font-size:12.5px; padding:6px 8px; border-radius:6px; border:1.5px solid var(--borda); margin-right:6px;">
-          ${opcoesTurmaAluno}
-        </select>
-        <button class="btn-texto" data-ver-relatorio="${l.aluno.id}">Ver relatório</button>
+        <div class="linha-aluno-acoes">
+          <select data-atribuir-turma="${a.aluno.id}" aria-label="Turma de ${escapeHtml(a.aluno.nome)}">${opcoesTurmaAluno}</select>
+          <button class="btn-texto btn-treinar" data-ver-relatorio="${a.aluno.id}">Ver aluno</button>
+        </div>
       </div>
-    </div>
-  `;
+    `;
   }).join('');
 
-  const desempenhoMateriaHtml = porMateria.map(d => `
-    <div class="card" style="margin-bottom:12px;">
-      <div style="display:flex; align-items:center; justify-content:space-between;">
-        <h4 style="font-size:14.5px; color:var(--azul);">${escapeHtml(d.materia.nome)}</h4>
-        <span style="font-size:13px; color:var(--ink-suave);">${d.pct}% de acerto</span>
-      </div>
-      <div class="trilho"><div class="preenchido" style="width:${d.pct}%; background:${d.materia.cor};"></div></div>
-    </div>
-  `).join('');
+  const porMateria = materiasCache.map(m => {
+    const ids = new Set(exerciciosCache.filter(e => e.materia_id === m.id).map(e => e.id));
+    const av = progresso.filter(p => ids.has(p.exercicio_id) && (p.correto === true || p.correto === false));
+    const pct = av.length ? Math.round(av.filter(p => p.correto).length / av.length * 100) : null;
+    return { m, n: av.length, pct };
+  }).filter(d => d.n > 0);
 
+  const frase = !alunos.length ? 'Ainda não há alunos cadastrados. Quando a turma entrar, você acompanha cada um por aqui.'
+    : [`<strong>${alunos.length}</strong> aluno${alunos.length === 1 ? '' : 's'} no portal.`,
+       emDia ? `<strong>${emDia}</strong> em dia.` : '',
+       sumidos ? `<strong>${sumidos}</strong> sem estudar há mais de uma semana.` : '',
+       dificuldade ? `<strong>${dificuldade}</strong> com acerto abaixo de 50%.` : '',
+       naoComecaram ? `<strong>${naoComecaram}</strong> ainda não ${naoComecaram === 1 ? 'começou' : 'começaram'}.` : ''].filter(Boolean).join(' ');
+
+  const cSemana = listaSemanaCache.length;
   $('#conteudo').innerHTML = `
     <div class="cabecalho-pagina">
       <h1>Turma</h1>
-      <p>Acompanhamento geral dos alunos.</p>
+      <p>Quem está em dia, quem sumiu e onde cada um mais erra.</p>
     </div>
-    <div class="resumo-ficha">
-      <strong>${alunos.length}</strong> aluno${alunos.length===1?'':'s'} cadastrado${alunos.length===1?'':'s'}, sendo <strong>${inativos.length}</strong> sem atividade há mais de 7 dias.
+    <div class="resumo-ficha resumo-grande">${frase}</div>
+
+    <div class="cartao-config cartao-semana-prof">
+      <div>
+        <span class="config-rotulo" style="margin-bottom:4px;">Lista da semana</span>
+        <p class="texto-suave-pequeno" style="margin:0;">${cSemana ? `${cSemana} ${cSemana === 1 ? 'questão escolhida' : 'questões escolhidas'}. Aparece em destaque para os alunos, no Início e nos Exercícios.` : 'Escolha as questões que a turma deve fazer nesta semana. Elas aparecem em destaque para os alunos.'}</p>
+      </div>
+      <div class="fechamento-acoes">
+        <button class="btn btn-primario" id="btn-montar-semana">${cSemana ? 'Editar lista' : 'Montar lista'}</button>
+        ${cSemana ? '<button class="btn-texto" id="btn-limpar-semana">Limpar lista</button>' : ''}
+      </div>
     </div>
-    <h3 style="font-size:15px; color:var(--azul); margin-bottom:12px;">Desempenho médio por matéria</h3>
-    ${desempenhoMateriaHtml || '<div class="vazio"><p>Ainda não há questões avaliadas pelos alunos.</p></div>'}
-    <h3 style="font-size:15px; color:var(--azul); margin:20px 0 12px;">Ranking de atividade</h3>
-    <div class="painel-ficha"><div class="lista-ficha">${rankingHtml || '<div class="vazio"><p>Nenhum aluno cadastrado ainda.</p></div>'}</div></div>
+
+    <h3 class="titulo-secao">Alunos</h3>
+    <div class="lista-limpa">${linhas || '<div class="vazio"><p>Nenhum aluno cadastrado ainda.</p></div>'}</div>
+
+    ${porMateria.length ? `
+      <h3 class="titulo-secao">Acerto médio da turma por matéria</h3>
+      <div class="lista-limpa">
+        ${porMateria.map(d => `
+          <div class="linha-materia" style="--cor-materia:${d.m.cor}">
+            <span class="marca-materia"></span>
+            <div class="linha-materia-texto"><strong>${escapeHtml(d.m.nome)}</strong><span>${d.n} ${d.n === 1 ? 'questão corrigida' : 'questões corrigidas'} pela turma</span></div>
+            <span class="numero-destaque ${d.pct >= 70 ? 'bom' : d.pct >= 50 ? 'medio' : 'baixo'}">${d.pct}%</span>
+          </div>`).join('')}
+      </div>` : ''}
   `;
 
   $$('[data-ver-relatorio]').forEach(b => b.addEventListener('click', () => renderRelatorioAlunoView(b.dataset.verRelatorio)));
   $$('[data-atribuir-turma]').forEach(s => s.addEventListener('change', async () => {
     const alunoId = s.dataset.atribuirTurma;
     const turmaId = s.value || null;
-    await sb.from('profiles').update({ turma_id: turmaId }).eq('id', alunoId);
+    const { error } = await sb.from('profiles').update({ turma_id: turmaId }).eq('id', alunoId);
+    if(error){ mostrarToast('Não foi possível trocar a turma. Tente de novo.', 'erro'); return; }
     const aluno = dadosTurmaCache.alunos.find(a => a.id === alunoId);
     if(aluno) aluno.turma_id = turmaId;
+    mostrarToast('Turma atualizada.', 'sucesso');
   }));
+  $('#btn-montar-semana').addEventListener('click', abrirModalListaSemana);
+  const limpar = $('#btn-limpar-semana');
+  if(limpar) limpar.addEventListener('click', async () => {
+    if(!confirm('Tirar todas as questões da lista da semana?')) return;
+    const { error } = await sb.from('lista_semana').delete().not('id', 'is', null);
+    if(error){ mostrarToast('Não foi possível limpar a lista.', 'erro'); return; }
+    listaSemanaCache = [];
+    renderTurmaConteudo();
+  });
+}
+
+function abrirModalListaSemana(){
+  const selecionadas = new Set(listaSemanaCache.map(l => l.exercicio_id));
+  let filtroModal = '';
+  const montar = () => {
+    const termo = filtroModal.trim().toLowerCase();
+    const grupos = materiasCache.map(m => {
+      const exs = exerciciosCache.filter(e => e.materia_id === m.id).sort((a,b) => a.ordem - b.ordem)
+        .filter(e => !termo || (e.titulo + ' ' + (e.assunto || '') + ' ' + e.enunciado).toLowerCase().includes(termo));
+      if(!exs.length) return '';
+      return `
+        <div class="grupo-semana">
+          <span class="contexto-materia" style="--cor-materia:${m.cor}">${escapeHtml(m.nome)}</span>
+          ${exs.map(e => `
+            <label class="opcao-semana">
+              <input type="checkbox" data-semana-ex="${e.id}" ${selecionadas.has(e.id) ? 'checked' : ''}>
+              <span><strong>${escapeHtml(e.assunto || e.titulo)}</strong><small>${escapeHtml(resumirTexto(e.enunciado, 90))}</small></span>
+            </label>`).join('')}
+        </div>`;
+    }).join('');
+    return grupos || '<p class="texto-suave-pequeno">Nenhuma questão encontrada.</p>';
+  };
+  abrirModal(`
+    <h3>Lista da semana</h3>
+    <p class="texto-suave-pequeno" style="margin:-4px 0 12px;">Marque as questões que a turma deve fazer. A ordem segue a das matérias.</p>
+    <div class="campo"><input type="text" id="busca-semana" placeholder="Buscar por assunto ou palavra do enunciado"></div>
+    <div class="lista-opcoes-semana" id="lista-opcoes-semana">${montar()}</div>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario btn-full" id="semana-cancelar">Cancelar</button>
+      <button class="btn btn-primario btn-full" id="semana-salvar">Salvar lista (${selecionadas.size})</button>
+    </div>
+  `);
+  const ligar = () => {
+    $$('[data-semana-ex]').forEach(c => c.addEventListener('change', () => {
+      if(c.checked) selecionadas.add(c.dataset.semanaEx); else selecionadas.delete(c.dataset.semanaEx);
+      $('#semana-salvar').textContent = `Salvar lista (${selecionadas.size})`;
+    }));
+  };
+  ligar();
+  $('#busca-semana').addEventListener('input', (e) => { filtroModal = e.target.value; $('#lista-opcoes-semana').innerHTML = montar(); ligar(); });
+  $('#semana-cancelar').addEventListener('click', fecharModal);
+  $('#semana-salvar').addEventListener('click', async () => {
+    const btn = $('#semana-salvar');
+    btn.disabled = true; btn.textContent = 'Salvando...';
+    const ordemMateria = id => { const m = materiasCache.find(mm => mm.id === id); return m ? m.ordem : 999; };
+    const escolhidas = exerciciosCache.filter(e => selecionadas.has(e.id))
+      .sort((a,b) => ordemMateria(a.materia_id) - ordemMateria(b.materia_id) || a.ordem - b.ordem);
+    const { error: e1 } = await sb.from('lista_semana').delete().not('id', 'is', null);
+    let e2 = null, novos = [];
+    if(!e1 && escolhidas.length){
+      const r = await sb.from('lista_semana').insert(escolhidas.map((e, i) => ({ exercicio_id: e.id, ordem: i + 1 }))).select();
+      e2 = r.error; novos = r.data || [];
+    }
+    if(e1 || e2){ btn.disabled = false; btn.textContent = 'Salvar lista'; mostrarToast('Não foi possível salvar a lista. Tente de novo.', 'erro'); return; }
+    listaSemanaCache = novos.length ? novos : escolhidas.map((e, i) => ({ exercicio_id: e.id, ordem: i + 1 }));
+    if(!escolhidas.length) listaSemanaCache = [];
+    fecharModal();
+    mostrarToast(escolhidas.length ? 'Lista da semana salva.' : 'Lista da semana limpa.', 'sucesso');
+    renderTurmaConteudo();
+  });
 }
 
 function renderRelatorioAlunoView(alunoId){
   const { alunos, progresso } = dadosTurmaCache;
   const aluno = alunos.find(a => a.id === alunoId);
   if(!aluno) return;
-  const progAluno = progresso.filter(p => p.aluno_id === alunoId);
-  const concluidos = progAluno.filter(p => p.concluido).length;
+  const a = analisarAluno(aluno, progresso);
   const totalExercicios = exerciciosCache.length;
-  const pct = totalExercicios ? Math.round((concluidos / totalExercicios) * 100) : 0;
 
   const porMateria = materiasCache.map(m => {
     const exs = exerciciosCache.filter(e => e.materia_id === m.id);
-    const feitos = exs.filter(e => progAluno.some(p => p.exercicio_id === e.id && p.concluido)).length;
-    const avaliadas = exs.filter(e => progAluno.some(p => p.exercicio_id === e.id && p.correto !== null && p.correto !== undefined));
-    const acertos = avaliadas.filter(e => progAluno.find(p => p.exercicio_id === e.id).correto === true).length;
-    return { materia: m, feitos, total: exs.length, pctAcerto: avaliadas.length ? Math.round((acertos / avaliadas.length) * 100) : null };
+    const progs = exs.map(e => a.progAluno.find(p => p.exercicio_id === e.id)).filter(Boolean);
+    const feitos = progs.filter(p => p.concluido).length;
+    const av = progs.filter(p => p.correto === true || p.correto === false);
+    const pct = av.length ? Math.round(av.filter(p => p.correto).length / av.length * 100) : null;
+    return { m, feitos, total: exs.length, pct };
   }).filter(d => d.total > 0);
 
-  const linhasHtml = porMateria.map(d => `
-    <div class="card" style="margin-bottom:12px;">
-      <div style="display:flex; align-items:center; justify-content:space-between;">
-        <h4 style="font-size:14.5px; color:var(--azul);">${escapeHtml(d.materia.nome)}</h4>
-        <span style="font-size:13px; color:var(--ink-suave);">${d.feitos}/${d.total}${d.pctAcerto !== null ? ' — ' + d.pctAcerto + '% de acerto' : ''}</span>
-      </div>
-      <div class="trilho"><div class="preenchido" style="width:${d.total ? Math.round((d.feitos/d.total)*100) : 0}%; background:${d.materia.cor};"></div></div>
-    </div>
-  `).join('');
+  const primeiroNome = aluno.nome.split(' ')[0];
+  const resumoPais = [
+    `Olá! Aqui vai um resumo de como ${primeiroNome} está no curso de matemática.`,
+    `Já fez ${a.concluidos} de ${totalExercicios} exercícios do portal${a.pctAcerto !== null ? `, com ${a.pctAcerto}% de acerto nas questões corrigidas` : ''}.`,
+    a.diasInativo === null ? 'Ainda não começou a usar o portal em casa.' : a.diasInativo <= 1 ? 'Tem estudado com frequência.' : `A última atividade foi há ${a.diasInativo} dias.`,
+    a.assuntosFracos.length ? `Os assuntos que mais precisam de atenção agora: ${a.assuntosFracos.join(', ')}.` : '',
+    'Qualquer dúvida, estou à disposição.',
+    'Drika Moraes'
+  ].filter(Boolean).join('\n');
 
   $('#conteudo').innerHTML = `
-    ${construirCabecalhoImpressaoPdf('Relatório de progresso — ' + aluno.nome, aluno.ano_escolar || '')}
+    ${construirCabecalhoImpressaoPdf('Relatório de progresso: ' + aluno.nome, aluno.ano_escolar || '')}
     <div class="cabecalho-pagina">
-      <button class="btn-texto" id="btn-voltar-turma">← Voltar para Turma</button>
+      <button class="btn-texto" id="btn-voltar-turma" style="border:none; padding-left:0;">Voltar para a turma</button>
       <h1 style="margin-top:8px;">${escapeHtml(aluno.nome)}</h1>
-      <p>${concluidos} de ${totalExercicios} exercícios concluídos (${pct}%)</p>
+      <p>${aluno.ano_escolar ? escapeHtml(aluno.ano_escolar) + ' · ' : ''}${textoUltimaAtividade(a.diasInativo).replace(/^./, c => c.toUpperCase())}</p>
     </div>
-    <button class="btn btn-secundario" id="btn-baixar-relatorio-aluno" style="margin-bottom:18px;">Baixar relatório em PDF</button>
-    ${linhasHtml || '<div class="vazio"><p>Sem dados ainda.</p></div>'}
+    <div class="resumo-ficha resumo-grande">
+      Fez <strong>${a.concluidos} de ${totalExercicios}</strong> exercícios${a.pctAcerto !== null ? ` e acertou <strong>${a.pctAcerto}%</strong> das ${a.avaliadas} que corrigiu` : ''}.
+      ${a.assuntosFracos.length ? ` Onde mais erra: <strong>${a.assuntosFracos.map(escapeHtml).join(', ')}</strong>.` : ''}
+    </div>
+
+    <h3 class="titulo-secao">Por matéria</h3>
+    <div class="lista-limpa">
+      ${porMateria.map(d => `
+        <div class="linha-materia" style="--cor-materia:${d.m.cor}">
+          <span class="marca-materia"></span>
+          <div class="linha-materia-texto"><strong>${escapeHtml(d.m.nome)}</strong><span>${d.feitos} de ${d.total} exercícios feitos</span></div>
+          <span class="numero-destaque ${d.pct === null ? '' : d.pct >= 70 ? 'bom' : d.pct >= 50 ? 'medio' : 'baixo'}">${d.pct === null ? 'sem nota' : d.pct + '%'}</span>
+        </div>`).join('')}
+    </div>
+
+    <h3 class="titulo-secao">Mensagem para a família</h3>
+    <div class="cartao-config">
+      <textarea id="texto-pais" rows="7" class="texto-pais">${escapeHtml(resumoPais)}</textarea>
+      <div class="fechamento-acoes" style="margin-top:12px;">
+        <button class="btn btn-primario" id="btn-copiar-pais">Copiar mensagem</button>
+        <button class="btn-texto" id="btn-baixar-relatorio-aluno">Baixar relatório em PDF</button>
+      </div>
+      <p class="texto-suave-pequeno">Dá para ajustar o texto antes de copiar e colar no WhatsApp.</p>
+    </div>
   `;
 
   $('#btn-voltar-turma').addEventListener('click', renderTurmaConteudo);
   $('#btn-baixar-relatorio-aluno').addEventListener('click', () => window.print());
+  $('#btn-copiar-pais').addEventListener('click', async () => {
+    const txt = $('#texto-pais').value;
+    try { await navigator.clipboard.writeText(txt); mostrarToast('Mensagem copiada.', 'sucesso'); }
+    catch(e){ $('#texto-pais').select(); document.execCommand && document.execCommand('copy'); mostrarToast('Mensagem copiada.', 'sucesso'); }
+  });
 }
 
 /* ============================================================
@@ -4299,7 +5335,8 @@ function abrirModalExercicio(registro){
     nivel: registro ? registro.nivel : 'aprendizado',
     enunciado: registro ? registro.enunciado : '',
     gabarito: registro ? registro.gabarito : '',
-    explicacao: registro && registro.explicacao ? registro.explicacao : ''
+    explicacao: registro && registro.explicacao ? registro.explicacao : '',
+    aceitas: registro && Array.isArray(registro.respostas_aceitas) ? registro.respostas_aceitas.join('\n') : ''
   };
   let figuraEdicao = registro && registro.figura ? { ...registro.figura } : { tipo: '' };
 
@@ -4311,6 +5348,7 @@ function abrirModalExercicio(registro){
     valoresAtuais.enunciado = $('#e-enunciado').value;
     valoresAtuais.gabarito = $('#e-gabarito').value;
     valoresAtuais.explicacao = $('#e-explicacao').value;
+    valoresAtuais.aceitas = $('#e-aceitas').value;
   }
 
   function montarHtml(){
@@ -4353,6 +5391,11 @@ function abrirModalExercicio(registro){
       <div class="campo"><label>Enunciado</label><textarea id="e-enunciado" rows="4" placeholder="Escreva o exercício">${escapeHtml(valoresAtuais.enunciado)}</textarea></div>
       <div class="campo"><label>Gabarito</label><textarea id="e-gabarito" rows="2" placeholder="Resposta correta">${escapeHtml(valoresAtuais.gabarito)}</textarea></div>
       <div class="campo"><label>Explicação (opcional)</label><textarea id="e-explicacao" rows="2" placeholder="Como chegar na resposta">${escapeHtml(valoresAtuais.explicacao)}</textarea></div>
+      <div class="campo">
+        <label>Correção automática (opcional)</label>
+        <textarea id="e-aceitas" rows="2" placeholder="Ex: 16&#10;x = 5&#10;1/2">${escapeHtml(valoresAtuais.aceitas)}</textarea>
+        <span class="ajuda-campo">Uma resposta por linha. Se preencher, o aluno digita o resultado e o portal confere sozinho (aceita 0,5 e 1/2, com ou sem a unidade). Deixe vazio em questões de resposta longa.</span>
+      </div>
       <div class="modal-acoes">
         <button class="btn btn-secundario btn-full" id="e-cancelar">Cancelar</button>
         <button class="btn btn-primario btn-full" id="e-salvar">${editando ? 'Salvar alterações' : 'Salvar'}</button>
@@ -4386,7 +5429,8 @@ function abrirModalExercicio(registro){
         assunto: $('#e-assunto').value.trim() || null,
         explicacao: $('#e-explicacao').value.trim() || null,
         nivel: $('#e-nivel').value,
-        figura: figuraEdicao.tipo ? figuraEdicao : null
+        figura: figuraEdicao.tipo ? figuraEdicao : null,
+        respostas_aceitas: (() => { const l = $('#e-aceitas').value.split('\n').map(s => s.trim()).filter(Boolean); return l.length ? l : null; })()
       };
       if(editando){
         const { data } = await sb.from('exercicios').update(payload).eq('id', registro.id).select().single();
