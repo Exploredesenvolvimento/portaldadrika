@@ -22,8 +22,9 @@
   }
   window.MathJax = {
     tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']],
-      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      // Sem "$" como marcador: os valores em reais (R$ 13 ... R$ 6) virariam fórmula.
+      inlineMath: [['\\(', '\\)']],
+      displayMath: [['\\[', '\\]']]
     },
     options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
   };
@@ -256,6 +257,12 @@
 
   .barra-lote{ background: var(--azul-bloco); color:#fff; border-radius:8px; padding:10px 16px; margin-bottom:14px; display:none; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; }
   .barra-lote select{ padding:6px 10px; border-radius:6px; border:none; font-size:13px; font-family:var(--font-body); }
+  .barra-lote .btn{ padding:7px 14px; font-size:13px; }
+  .barra-lote .btn-secundario{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,.55); }
+  .barra-lote .btn-secundario:hover{ background:rgba(255,255,255,.12); }
+  .barra-lote .btn-publicar-lote{ background:var(--laranja, #E8791E); color:#fff; border:none; }
+  .barra-lote .rotulo-lote{ opacity:.8; }
+  .barra-lote .separador-lote{ width:1px; align-self:stretch; background:rgba(255,255,255,.25); }
   .tag-tipo-aula{ font-size:11px; padding:2px 9px; border-radius:3px; font-weight:600; white-space:nowrap; }
   .tag-tipo-video{ background: var(--azul-claro); color: var(--azul); }
   .tag-tipo-pdf{ background: var(--amarelo-claro); color:#8A5F0B; }
@@ -336,6 +343,22 @@
   .corpo-exercicio.aberto{ display:block; }
   .figura-geometrica{ background: var(--card); border:1px solid var(--borda); border-radius:8px; padding:14px; margin-bottom:16px; max-width:300px; }
   .figura-geometrica svg{ width:100%; height:auto; display:block; }
+  :root[data-tema="escuro"] .figura-geometrica [stroke="#2C5F35"]{ stroke:#7FBF8A; }
+  :root[data-tema="escuro"] .figura-geometrica [fill="#2C5F35"]{ fill:#7FBF8A; }
+  :root[data-tema="escuro"] .figura-geometrica [fill="#E3EBD9"]{ fill:#22352A; }
+  :root[data-tema="escuro"] .figura-geometrica [fill="#1B2E4A"]{ fill:#EDE6D6; }
+  :root[data-tema="escuro"] .figura-geometrica [stroke="#1B2E4A"]{ stroke:#EDE6D6; }
+  :root[data-tema="escuro"] .figura-geometrica [fill="#F0E0C0"]{ fill:#3A3226; }
+  :root[data-tema="escuro"] .figura-geometrica [fill="#D9C9A3"]{ fill:#2E281F; }
+  :root[data-tema="escuro"] .figura-geometrica [stroke="#E4DCC4"]{ stroke:#3A352C; }
+  :root[data-tema="escuro"] .figura-geometrica [stroke="#7A7259"]{ stroke:#A89F86; }
+  :root[data-tema="escuro"] .figura-geometrica [fill="#7A7259"]{ fill:#A89F86; }
+  :root[data-tema="escuro"] .figura-geometrica [stroke="#FBF6EC"]{ stroke: var(--card); }
+  :root[data-tema="escuro"] .figura-geometrica span[style*="#1B2E4A"]{ color: var(--ink) !important; }
+  .figura-geometrica{ max-width:320px; }
+  .previa-questao{ display:none; background: var(--bg); border:1px dashed var(--borda); border-radius:8px; padding:12px 14px; margin:-6px 0 14px; font-size:14px; }
+  mjx-container[jax="CHTML"]{ font-size:116% !important; }
+  .enunciado mjx-container[display="false"], .caixa-gabarito mjx-container[display="false"]{ margin:0 .08em; }
   .enunciado{ font-size:15.5px; line-height:1.75; white-space:pre-wrap; margin-bottom:12px; color: var(--ink); }
   .btn-revelar{
     background:none; border:1px dashed var(--ink-suave); color: var(--ink-suave);
@@ -854,7 +877,7 @@
   :root[data-tema="escuro"] .bloco-aula em{ color: color-mix(in srgb, var(--cor-turma) 50%, var(--ink)); }
   .bloco-aula.proxima, .bloco-aula.agora{ box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--cor-turma) 70%, transparent), 0 6px 16px -10px rgba(0,0,0,.35); }
   .agenda-lista-aula.agora span, .agenda-lista-aula.proxima span{ color: var(--ink); font-weight:600; }
-  .bloco-aula.passou, .agenda-lista-aula.passou{ opacity:.5; }
+  .bloco-aula.passou, .agenda-lista-aula.passou{ opacity:.72; filter: saturate(.55); }
   .linha-agora{ position:absolute; left:-3px; right:-3px; height:2px; background: var(--erro); border-radius:2px; z-index:1; }
   .linha-agora::before{ content:''; position:absolute; left:-3px; top:-3px; width:8px; height:8px; border-radius:50%; background: var(--erro); }
   :root[data-tema="escuro"] .bloco-aula, :root[data-tema="escuro"] .agenda-lista-aula{
@@ -1077,6 +1100,25 @@
     .fundo-escurecido{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:35; }
     .fundo-escurecido.ativo{ display:block; }
   }
+
+  /* Ajustes de contraste encontrados na auditoria */
+  .nav-rotulo{ color: rgba(255,255,255,.72); }
+  .perfil-mini .papel{ color: rgba(255,255,255,.78); }
+  .capa-novo{ color:#2A2622; }
+  .pilula-materia .pilula-conta{ color: var(--ink); }
+  .barra-lote .btn-publicar-lote{ background:#F0A050; color:#2A2622; }
+  :root[data-tema="escuro"] .btn-amarelo{ color:#2A2622; }
+  :root[data-tema="escuro"] .tag-tipo-pdf,
+  :root[data-tema="escuro"] .tag-pratica{ color: var(--amarelo); }
+  :root[data-tema="escuro"] .tag-novo{ color:#14261A; }
+  .tag-fixado{ background: var(--amarelo-claro); color:#8A5F0B; }
+  .titulo-grupo-materia{ color: color-mix(in srgb, var(--cor-materia) 62%, #1B1A17); }
+  :root[data-tema="escuro"] .titulo-grupo-materia{ color: color-mix(in srgb, var(--cor-materia) 45%, var(--ink)); }
+  :root[data-tema="escuro"] .tag-fixado{ background: var(--amarelo-claro); color: var(--amarelo); }
+  .contexto-materia{ color: color-mix(in srgb, var(--cor-materia, var(--verde)) 62%, #1B1A17); }
+  .balao-autor{ color: color-mix(in srgb, var(--ink-suave) 70%, var(--ink)); }
+  :root[data-tema="escuro"] .pilula-materia.ativa{ background: color-mix(in srgb, var(--cor-materia) 38%, var(--bg)); border-color: color-mix(in srgb, var(--cor-materia) 70%, var(--ink)); color: var(--ink); }
+  :root[data-tema="escuro"] .pilula-materia.ativa .pilula-conta{ color: var(--ink); background: rgba(255,255,255,.12); }
 </style>
 </head>
 <body>
@@ -1354,7 +1396,23 @@ const CAMPOS_FIGURA = {
   retangulo: [{ chave: 'base', rotulo: 'Base', placeholder: 'Ex: 8 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 5 cm' }],
   quadrado: [{ chave: 'lado', rotulo: 'Lado', placeholder: 'Ex: 6 cm' }],
   triangulo: [{ chave: 'base', rotulo: 'Base', placeholder: 'Ex: 10 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 7 cm' }],
-  circulo: [{ chave: 'raio', rotulo: 'Raio', placeholder: 'Ex: 4 cm' }],
+  circulo: [{ chave: 'raio', rotulo: 'Raio', placeholder: 'Ex: 4 cm' }, { chave: 'diametro', rotulo: 'Ou diâmetro (mostra a linha inteira)', placeholder: 'Ex: 40 cm' }],
+  retangulo_diagonal: [{ chave: 'base', rotulo: 'Base', placeholder: 'Ex: 48 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 36 cm' }, { chave: 'diagonal', rotulo: 'Diagonal', placeholder: 'Ex: ?' }],
+  triangulo_retangulo: [{ chave: 'cateto_base', rotulo: 'Cateto de baixo', placeholder: 'Ex: 8 cm' }, { chave: 'cateto_altura', rotulo: 'Cateto em pé', placeholder: 'Ex: 6 cm' }, { chave: 'hipotenusa', rotulo: 'Hipotenusa', placeholder: 'Ex: ?' }, { chave: 'angulo', rotulo: 'Ângulo da ponta esquerda (opcional)', placeholder: 'Ex: 30°' }],
+  triangulo_angulos: [{ chave: 'angulo_a', rotulo: 'Ângulo de cima', placeholder: 'Ex: 40°' }, { chave: 'angulo_b', rotulo: 'Ângulo de baixo à esquerda', placeholder: 'Ex: 70°' }, { chave: 'angulo_c', rotulo: 'Ângulo de baixo à direita', placeholder: 'Ex: ?' }],
+  triangulo_lados: [{ chave: 'lado_a', rotulo: 'Lado de baixo', placeholder: 'Ex: 8 cm' }, { chave: 'lado_b', rotulo: 'Lado esquerdo', placeholder: 'Ex: 5 cm' }, { chave: 'lado_c', rotulo: 'Lado direito', placeholder: 'Ex: ?' }, { chave: 'angulo', rotulo: 'Ângulo entre o de baixo e o esquerdo', placeholder: 'Ex: 60°' }],
+  trapezio: [{ chave: 'base_maior', rotulo: 'Base maior', placeholder: 'Ex: 10 m' }, { chave: 'base_menor', rotulo: 'Base menor', placeholder: 'Ex: 6 m' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 4 m' }],
+  angulos_adjacentes: [{ chave: 'total', rotulo: 'Juntos somam (90 ou 180)', placeholder: '180' }, { chave: 'angulo_1', rotulo: 'Primeiro ângulo', placeholder: 'Ex: 128°' }, { chave: 'angulo_2', rotulo: 'Segundo ângulo', placeholder: 'Ex: ?' }],
+  retas_concorrentes: [{ chave: 'angulo_1', rotulo: 'Ângulo de cima', placeholder: 'Ex: 3x + 10' }, { chave: 'angulo_2', rotulo: 'Ângulo oposto (de baixo)', placeholder: 'Ex: 5x - 20' }],
+  poligono_regular: [{ chave: 'lados', rotulo: 'Número de lados', placeholder: 'Ex: 6' }, { chave: 'angulo_interno', rotulo: 'Rótulo de um ângulo interno (opcional)', placeholder: 'Ex: ?' }],
+  paralelas_tales: [{ chave: 'seg_a1', rotulo: 'Transversal esquerda, de cima', placeholder: 'Ex: 4 cm' }, { chave: 'seg_a2', rotulo: 'Transversal esquerda, de baixo', placeholder: 'Ex: 6 cm' }, { chave: 'seg_b1', rotulo: 'Transversal direita, de cima', placeholder: 'Ex: 6 cm' }, { chave: 'seg_b2', rotulo: 'Transversal direita, de baixo', placeholder: 'Ex: x' }],
+  sombras: [{ chave: 'altura_1', rotulo: 'Altura do objeto menor', placeholder: 'Ex: 3 m' }, { chave: 'sombra_1', rotulo: 'Sombra do objeto menor', placeholder: 'Ex: 2 m' }, { chave: 'altura_2', rotulo: 'Altura do objeto maior', placeholder: 'Ex: ?' }, { chave: 'sombra_2', rotulo: 'Sombra do objeto maior', placeholder: 'Ex: 14 m' }],
+  altura_hipotenusa: [{ chave: 'm', rotulo: 'Pedaço esquerdo da hipotenusa', placeholder: 'Ex: 4 cm' }, { chave: 'n', rotulo: 'Pedaço direito da hipotenusa', placeholder: 'Ex: 9 cm' }, { chave: 'h', rotulo: 'Altura', placeholder: 'Ex: h' }],
+  plano_cartesiano: [{ chave: 'pontos', rotulo: 'Pontos (um por linha: Nome: x, y)', placeholder: 'A: 1, 2\nB: 4, 6', tipo: 'textarea' }, { chave: 'ligar', rotulo: 'Ligar os pontos (segmento, reta, poligono ou vazio)', placeholder: 'segmento' }, { chave: 'circulo', rotulo: 'Circunferência (centro x, centro y, raio), opcional', placeholder: 'Ex: 3, -1, 7' }, { chave: 'rotulo_raio', rotulo: 'Rótulo do raio (opcional)', placeholder: 'Ex: r' }],
+  cone: [{ chave: 'raio', rotulo: 'Raio', placeholder: 'Ex: 3 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 10 cm' }],
+  esfera: [{ chave: 'raio', rotulo: 'Raio', placeholder: 'Ex: 3 cm' }],
+  piramide: [{ chave: 'lado_base', rotulo: 'Lado da base', placeholder: 'Ex: 6 m' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 10 m' }],
+  relogio: [{ chave: 'hora', rotulo: 'Hora', placeholder: 'Ex: 3' }, { chave: 'minuto', rotulo: 'Minutos', placeholder: 'Ex: 0' }],
   cubo: [{ chave: 'aresta', rotulo: 'Aresta', placeholder: 'Ex: 4 cm' }],
   paralelepipedo: [{ chave: 'comprimento', rotulo: 'Comprimento', placeholder: 'Ex: 5 cm' }, { chave: 'largura', rotulo: 'Largura', placeholder: 'Ex: 3 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 2 cm' }],
   cilindro: [{ chave: 'raio', rotulo: 'Raio', placeholder: 'Ex: 2 cm' }, { chave: 'altura', rotulo: 'Altura', placeholder: 'Ex: 10 cm' }],
@@ -1365,7 +1423,11 @@ const CAMPOS_FIGURA = {
 };
 const NOMES_FIGURA = {
   retangulo: 'Retângulo', quadrado: 'Quadrado', triangulo: 'Triângulo', circulo: 'Círculo', cubo: 'Cubo',
-  paralelepipedo: 'Paralelepípedo', cilindro: 'Cilindro',
+  paralelepipedo: 'Paralelepípedo', cilindro: 'Cilindro', retangulo_diagonal: 'Retângulo com diagonal',
+  triangulo_retangulo: 'Triângulo retângulo', triangulo_angulos: 'Triângulo com ângulos', triangulo_lados: 'Triângulo com lados e ângulo',
+  trapezio: 'Trapézio', angulos_adjacentes: 'Ângulos lado a lado (90° ou 180°)', retas_concorrentes: 'Retas que se cruzam',
+  poligono_regular: 'Polígono regular', paralelas_tales: 'Paralelas cortadas por transversais (Tales)', sombras: 'Sombras (semelhança)',
+  altura_hipotenusa: 'Altura sobre a hipotenusa', plano_cartesiano: 'Plano cartesiano', cone: 'Cone', esfera: 'Esfera', piramide: 'Pirâmide', relogio: 'Relógio',
   funcao_linear: 'Gráfico de função (1º grau)', funcao_quadratica: 'Gráfico de função (2º grau)',
   grafico_barras: 'Gráfico de barras', grafico_pizza: 'Gráfico de pizza'
 };
@@ -1474,13 +1536,276 @@ function construirGraficoPizza(dados){
   return `<div class="figura-geometrica"><svg viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg">${fatias}</svg><div style="margin-top:8px; display:flex; flex-wrap:wrap;">${legenda}</div></div>`;
 }
 
+// ---------- Figuras novas (geometria, trigonometria, plano cartesiano, sólidos) ----------
+// Cores da paleta do portal. No modo escuro o CSS troca cada uma pela versão clara.
+const FG = { linha:'#2C5F35', fundo:'#E3EBD9', texto:'#1B2E4A', destaque:'#E8791E', face1:'#F0E0C0', face2:'#D9C9A3', grade:'#E4DCC4', eixo:'#7A7259' };
+function numeroDe(v){ const m = String(v || '').replace(',', '.').match(/-?\d+(\.\d+)?/); return m ? parseFloat(m[0]) : null; }
+function fgTexto(x, y, txt, opc = {}){
+  if(txt === undefined || txt === null || String(txt).trim() === '') return '';
+  const anc = opc.anchor || 'middle', tam = opc.tamanho || 13, cor = opc.cor || FG.texto;
+  return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anc}" dominant-baseline="middle" font-family="Space Grotesk, sans-serif" font-size="${tam}" font-weight="600" fill="${cor}" paint-order="stroke" stroke="#FBF6EC" stroke-width="4" stroke-linejoin="round">${escapeHtml(String(txt))}</text>`;
+}
+// rótulo no meio de um segmento, empurrado para fora (lado indicado pelo sinal)
+function fgRotuloLado(x1, y1, x2, y2, txt, dist = 14, sinal = 1){
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+  return fgTexto(mx + sinal * (dy / L) * dist, my - sinal * (dx / L) * dist, txt);
+}
+function fgArco(cx, cy, r, a1, a2, cor = FG.destaque){
+  const p = a => [cx + r * Math.cos(a), cy - r * Math.sin(a)];
+  const [x1, y1] = p(a1), [x2, y2] = p(a2), grande = Math.abs(a2 - a1) > Math.PI ? 1 : 0;
+  return `<path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${grande} 0 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${cor}" stroke-width="2"/>`;
+}
+function fgRotuloAngulo(cx, cy, r, a1, a2, txt){
+  const m = (a1 + a2) / 2; return fgTexto(cx + r * Math.cos(m), cy - r * Math.sin(m), txt, { tamanho: 12.5 });
+}
+function fgAnguloReto(x, y, ux, uy, vx, vy, s = 12){
+  return `<path d="M ${(x+ux*s).toFixed(1)} ${(y+uy*s).toFixed(1)} L ${(x+ux*s+vx*s).toFixed(1)} ${(y+uy*s+vy*s).toFixed(1)} L ${(x+vx*s).toFixed(1)} ${(y+vy*s).toFixed(1)}" fill="none" stroke="${FG.linha}" stroke-width="1.5"/>`;
+}
+function fgEnvolver(W, H, conteudo){ return `<div class="figura-geometrica"><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${conteudo}</svg></div>`; }
+
+function figuraTrianguloRetangulo(f){
+  // Ângulo reto embaixo à direita. Base = chão, altura = lado em pé, hipotenusa = lado inclinado.
+  const W = 300, H = 210;
+  let razao = 0.62;
+  const b = numeroDe(f.cateto_base), a = numeroDe(f.cateto_altura), hip = numeroDe(f.hipotenusa), ang = numeroDe(f.angulo);
+  if(b && a) razao = a / b; else if(ang) razao = Math.tan(ang * Math.PI / 180); else if(hip && b && hip > b) razao = Math.sqrt(hip*hip - b*b) / b; else if(hip && a && hip > a) razao = a / Math.sqrt(hip*hip - a*a);
+  razao = Math.min(Math.max(razao, 0.32), 1.7);
+  let bw = 190, bh = bw * razao; if(bh > 140){ bh = 140; bw = bh / razao; }
+  const xA = (W - bw) / 2 - 6, yA = H - 36, xB = xA + bw, yB = yA, xC = xB, yC = yA - bh;
+  let s = `<polygon points="${xA},${yA} ${xB},${yB} ${xC},${yC}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  s += fgAnguloReto(xB, yB, -1, 0, 0, -1);
+  s += fgTexto((xA + xB) / 2, yA + 18, f.cateto_base);
+  s += fgTexto(xB + 10, (yB + yC) / 2, f.cateto_altura, { anchor: 'start' });
+  s += fgRotuloLado(xA, yA, xC, yC, f.hipotenusa, 16, 1);
+  if(f.angulo){ const t = Math.atan2(bh, bw); s += fgArco(xA, yA, 28, 0, t) + fgRotuloAngulo(xA, yA, 46, 0, t, f.angulo); }
+  return fgEnvolver(W, H, s);
+}
+
+function figuraTrianguloAngulos(f){
+  const W = 300, H = 200, iso = String(f.angulo_b || '') === String(f.angulo_c || '') && f.angulo_b;
+  const A = iso ? [150, 34] : [112, 34], B = [52, 168], C = [248, 168];
+  let s = `<polygon points="${A} ${B} ${C}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  const canto = (P, Q, R, txt, raio) => {
+    const a1 = Math.atan2(-(Q[1] - P[1]), Q[0] - P[0]), a2 = Math.atan2(-(R[1] - P[1]), R[0] - P[0]);
+    let i = Math.min(a1, a2), j = Math.max(a1, a2); if(j - i > Math.PI){ const k = i; i = j; j = k + 2 * Math.PI; }
+    return txt ? fgArco(P[0], P[1], raio, i, j) + fgRotuloAngulo(P[0], P[1], raio + 17, i, j, txt) : '';
+  };
+  s += canto(A, B, C, f.angulo_a, 20) + canto(B, A, C, f.angulo_b, 24) + canto(C, A, B, f.angulo_c, 24);
+  if(iso){ // marcas de lados iguais
+    const marca = (P, Q) => { const mx = (P[0]+Q[0])/2, my = (P[1]+Q[1])/2, dx = Q[0]-P[0], dy = Q[1]-P[1], L = Math.hypot(dx, dy); return `<line x1="${(mx - dy/L*6).toFixed(1)}" y1="${(my + dx/L*6).toFixed(1)}" x2="${(mx + dy/L*6).toFixed(1)}" y2="${(my - dx/L*6).toFixed(1)}" stroke="${FG.linha}" stroke-width="2"/>`; };
+    s += marca(A, B) + marca(A, C);
+  }
+  return fgEnvolver(W, H, s);
+}
+
+function figuraTrianguloLados(f){
+  // lado_a = base (embaixo), lado_b = lado esquerdo, lado_c = lado direito, angulo = entre base e lado esquerdo
+  const W = 300, H = 200, ang = (numeroDe(f.angulo) || 60) * Math.PI / 180;
+  const b = numeroDe(f.lado_a) || 8, l = numeroDe(f.lado_b) || 5, esc = 180 / Math.max(b, l * Math.cos(ang) + 1, 1);
+  const B = [60, 168], C = [60 + b * esc, 168], A = [60 + l * esc * Math.cos(ang), 168 - Math.min(l * esc * Math.sin(ang), 140)];
+  let s = `<polygon points="${B} ${C} ${A}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  s += fgTexto((B[0] + C[0]) / 2, 186, f.lado_a) + fgRotuloLado(B[0], B[1], A[0], A[1], f.lado_b, 16, 1) + fgRotuloLado(A[0], A[1], C[0], C[1], f.lado_c, 16, 1);
+  if(f.angulo){ const t = Math.atan2(B[1] - A[1], A[0] - B[0]); s += fgArco(B[0], B[1], 26, 0, t) + fgRotuloAngulo(B[0], B[1], 42, 0, t, f.angulo); }
+  return fgEnvolver(W, H, s);
+}
+
+function figuraTrapezio(f){
+  const W = 300, H = 190, bM = numeroDe(f.base_maior) || 10, bm = numeroDe(f.base_menor) || 6;
+  const largM = 200, largm = Math.max(70, largM * bm / bM), x0 = 50, yB = 150, yT = 52, xt = x0 + (largM - largm) / 2;
+  let s = `<polygon points="${x0},${yB} ${x0 + largM},${yB} ${xt + largm},${yT} ${xt},${yT}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  s += `<line x1="${xt}" y1="${yT}" x2="${xt}" y2="${yB}" stroke="${FG.linha}" stroke-width="1.3" stroke-dasharray="4,3"/>` + fgAnguloReto(xt, yB, 1, 0, 0, -1, 9);
+  s += fgTexto(x0 + largM / 2, yB + 18, f.base_maior) + fgTexto(xt + largm / 2, yT - 14, f.base_menor) + fgTexto(xt - 8, (yT + yB) / 2, f.altura, { anchor: 'end' });
+  return fgEnvolver(W, H, s);
+}
+
+function figuraAngulosAdjacentes(f){
+  // dois ângulos lado a lado que somam 90° (reto) ou 180° (raso)
+  const W = 300, H = 185, total = numeroDe(f.total) === 90 ? 90 : 180;
+  const v1 = numeroDe(f.angulo_1) || total * 0.4, O = total === 90 ? [95, 160] : [150, 140], R = total === 90 ? 135 : 110;
+  const a1 = v1 * Math.PI / 180, aT = total * Math.PI / 180;
+  const raio = a => `<line x1="${O[0]}" y1="${O[1]}" x2="${(O[0] + R * Math.cos(a)).toFixed(1)}" y2="${(O[1] - R * Math.sin(a)).toFixed(1)}" stroke="${FG.linha}" stroke-width="2.5" stroke-linecap="round"/>`;
+  let s = (total === 180 ? `<line x1="${O[0] - R}" y1="${O[1]}" x2="${O[0] + R}" y2="${O[1]}" stroke="${FG.linha}" stroke-width="2.5" stroke-linecap="round"/>` : raio(0) + raio(aT)) + raio(a1);
+  s += fgArco(O[0], O[1], 30, 0, a1) + fgRotuloAngulo(O[0], O[1], 50, 0, a1, f.angulo_1);
+  s += fgArco(O[0], O[1], 38, a1, aT, FG.linha) + fgRotuloAngulo(O[0], O[1], 60, a1, aT, f.angulo_2);
+  return fgEnvolver(W, H, s);
+}
+
+function figuraRetasConcorrentes(f){
+  const W = 300, H = 190, O = [150, 95], R = 120, t = 0.55;
+  const reta = a => `<line x1="${(O[0] - R * Math.cos(a)).toFixed(1)}" y1="${(O[1] + R * Math.sin(a) * 0.75).toFixed(1)}" x2="${(O[0] + R * Math.cos(a)).toFixed(1)}" y2="${(O[1] - R * Math.sin(a) * 0.75).toFixed(1)}" stroke="${FG.linha}" stroke-width="2.5" stroke-linecap="round"/>`;
+  const a1 = Math.atan2(R * Math.sin(t) * 0.75, R * Math.cos(t)), a2 = Math.PI - a1;
+  let s = reta(t) + reta(Math.PI - t);
+  s += fgArco(O[0], O[1], 26, a1, a2) + fgRotuloAngulo(O[0], O[1], 50, a1, a2, f.angulo_1);
+  s += fgArco(O[0], O[1], 26, a1 + Math.PI, a2 + Math.PI) + fgRotuloAngulo(O[0], O[1], 50, a1 + Math.PI, a2 + Math.PI, f.angulo_2);
+  return fgEnvolver(W, H, s);
+}
+
+function figuraPoligonoRegular(f){
+  const W = 260, H = 210, n = Math.min(Math.max(parseInt(f.lados) || 6, 3), 12), cx = 130, cy = 105, R = 82;
+  const pts = Array.from({ length: n }, (_, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; });
+  let s = `<polygon points="${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  s += pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="${FG.linha}"/>`).join('');
+  if(f.angulo_interno){
+    const [P, Q, Rr] = [pts[n - 1], pts[0], pts[1]];
+    const a1 = Math.atan2(-(P[1] - Q[1]), P[0] - Q[0]), a2 = Math.atan2(-(Rr[1] - Q[1]), Rr[0] - Q[0]);
+    const i = Math.min(a1, a2), j = Math.max(a1, a2);
+    s += fgArco(Q[0], Q[1], 20, i, j) + fgRotuloAngulo(Q[0], Q[1], 36, i, j, f.angulo_interno);
+  }
+  return fgEnvolver(W, H, s);
+}
+
+function figuraParalelasTales(f){
+  const W = 300, H = 200, ys = [40, 100, 175];
+  let s = ys.map(y => `<line x1="20" y1="${y}" x2="280" y2="${y}" stroke="${FG.eixo}" stroke-width="1.6"/>`).join('');
+  const t1 = [[70, ys[0]], [92, ys[1]], [120, ys[2]]], t2 = [[170, ys[0]], [208, ys[1]], [262, ys[2]]];
+  const trans = t => `<line x1="${t[0][0] - 8}" y1="${t[0][1] - 18}" x2="${t[2][0] + 6}" y2="${t[2][1] + 14}" stroke="${FG.linha}" stroke-width="2.5" stroke-linecap="round"/>` + t.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3.2" fill="${FG.linha}"/>`).join('');
+  s += trans(t1) + trans(t2);
+  s += fgTexto((t1[0][0] + t1[1][0]) / 2 - 14, (ys[0] + ys[1]) / 2, f.seg_a1, { anchor: 'end' }) + fgTexto((t1[1][0] + t1[2][0]) / 2 - 14, (ys[1] + ys[2]) / 2, f.seg_a2, { anchor: 'end' });
+  s += fgTexto((t2[0][0] + t2[1][0]) / 2 + 14, (ys[0] + ys[1]) / 2, f.seg_b1, { anchor: 'start' }) + fgTexto((t2[1][0] + t2[2][0]) / 2 + 14, (ys[1] + ys[2]) / 2, f.seg_b2, { anchor: 'start' });
+  return fgEnvolver(W, H, s);
+}
+
+function figuraSombras(f){
+  // objeto 1 (ex.: poste) e objeto 2 (ex.: prédio) com as sombras no chão e o raio de sol
+  const W = 320, H = 210, chao = 180;
+  const h1 = numeroDe(f.altura_1) || 3, s1 = numeroDe(f.sombra_1) || 2, s2 = numeroDe(f.sombra_2) || 14, h2 = numeroDe(f.altura_2) || h1 / s1 * s2;
+  const esc = Math.min(150 / Math.max(h2, h1), 190 / (s2 + s1 * 1.5));
+  const x1 = 38, x2 = 38 + s1 * esc + 40;
+  const p1 = Math.max(h1 * esc, 18), p2 = Math.max(h2 * esc, 30);
+  let s = `<line x1="10" y1="${chao}" x2="${W - 10}" y2="${chao}" stroke="${FG.eixo}" stroke-width="1.6"/>`;
+  s += `<rect x="${x1 - 3}" y="${chao - p1}" width="6" height="${p1}" fill="${FG.linha}"/>`;
+  s += `<rect x="${x2 - 14}" y="${chao - p2}" width="28" height="${p2}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2"/>`;
+  s += `<line x1="${x1}" y1="${chao - p1}" x2="${x1 + s1 * esc}" y2="${chao}" stroke="${FG.destaque}" stroke-width="1.6" stroke-dasharray="5,3"/>`;
+  s += `<line x1="${x2 + 14}" y1="${chao - p2}" x2="${x2 + 14 + s2 * esc}" y2="${chao}" stroke="${FG.destaque}" stroke-width="1.6" stroke-dasharray="5,3"/>`;
+  s += `<line x1="${x1}" y1="${chao + 1}" x2="${x1 + s1 * esc}" y2="${chao + 1}" stroke="${FG.texto}" stroke-width="3" opacity=".55"/>`;
+  s += `<line x1="${x2 + 14}" y1="${chao + 1}" x2="${x2 + 14 + s2 * esc}" y2="${chao + 1}" stroke="${FG.texto}" stroke-width="3" opacity=".55"/>`;
+  s += fgTexto(x1 - 8, chao - p1 / 2, f.altura_1, { anchor: 'end' }) + fgTexto(x2 - 20, chao - p2 / 2, f.altura_2, { anchor: 'end' });
+  s += fgTexto(x1 + s1 * esc / 2, chao + 16, f.sombra_1, { tamanho: 12 }) + fgTexto(x2 + 14 + s2 * esc / 2, chao + 16, f.sombra_2);
+  return fgEnvolver(W, H, s);
+}
+
+function figuraAlturaHipotenusa(f){
+  const W = 300, H = 190, m = numeroDe(f.m) || 4, n = numeroDe(f.n) || 9, total = 220, xa = 40, yb = 160;
+  const xH = xa + total * m / (m + n), h = Math.sqrt(m * n) * total / (m + n);
+  const A = [xa, yb], B = [xa + total, yb], C = [xH, yb - h];
+  let s = `<polygon points="${A} ${B} ${C}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  s += `<line x1="${xH}" y1="${C[1]}" x2="${xH}" y2="${yb}" stroke="${FG.destaque}" stroke-width="2" stroke-dasharray="5,3"/>` + fgAnguloReto(xH, yb, 1, 0, 0, -1, 9);
+  const u1 = [(A[0] - C[0]), (A[1] - C[1])], u2 = [(B[0] - C[0]), (B[1] - C[1])], L1 = Math.hypot(...u1), L2 = Math.hypot(...u2);
+  s += fgAnguloReto(C[0], C[1], u1[0] / L1, u1[1] / L1, u2[0] / L2, u2[1] / L2, 11);
+  s += fgTexto((xa + xH) / 2, yb + 16, f.m) + fgTexto((xH + B[0]) / 2, yb + 16, f.n) + fgTexto(xH + 8, yb - h / 2, f.h, { anchor: 'start' });
+  return fgEnvolver(W, H, s);
+}
+
+function figuraPlanoPontos(f){
+  const pts = String(f.pontos || '').split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const m = l.match(/^([^:]*):?\s*\(?\s*(-?[\d.,]+)\s*[;,]\s*(-?[\d.,]+)\s*\)?$/) || l.match(/^()\(?\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)?$/);
+    return m ? { nome: (m[1] || '').trim(), x: parseFloat(m[2].replace(',', '.')), y: parseFloat(m[3].replace(',', '.')) } : null;
+  }).filter(Boolean);
+  const circ = String(f.circulo || '').split(/[;,]/).map(v => parseFloat(v)); const temCirc = circ.length === 3 && circ.every(v => !isNaN(v));
+  const xs = pts.map(p => p.x).concat(0, temCirc ? [circ[0] - circ[2], circ[0] + circ[2]] : []), ys = pts.map(p => p.y).concat(0, temCirc ? [circ[1] - circ[2], circ[1] + circ[2]] : []);
+  const xMin = Math.floor(Math.min(...xs)) - 1, xMax = Math.ceil(Math.max(...xs)) + 1, yMin = Math.floor(Math.min(...ys)) - 1, yMax = Math.ceil(Math.max(...ys)) + 1;
+  const W = 300, H = 240, pad = 24;
+  let escX = (W - 2 * pad) / (xMax - xMin), escY = (H - 2 * pad) / (yMax - yMin);
+  if(temCirc || Math.max(escX, escY) / Math.min(escX, escY) < 2.2){ escX = escY = Math.min(escX, escY); }
+  const esc = escX;
+  const ox = pad + (W - 2 * pad - escX * (xMax - xMin)) / 2, oy = pad + (H - 2 * pad - escY * (yMax - yMin)) / 2;
+  const X = x => ox + (x - xMin) * escX, Y = y => oy + (yMax - y) * escY;
+  let s = '';
+  const passo = (xMax - xMin) > 14 ? 2 : 1;
+  const passoY = (yMax - yMin) > 14 ? 2 : 1;
+  for(let x = xMin; x <= xMax; x++) s += `<line x1="${X(x)}" y1="${Y(yMin)}" x2="${X(x)}" y2="${Y(yMax)}" stroke="${FG.grade}" stroke-width="1"/>`;
+  for(let y = yMin; y <= yMax; y++) s += `<line x1="${X(xMin)}" y1="${Y(y)}" x2="${X(xMax)}" y2="${Y(y)}" stroke="${FG.grade}" stroke-width="1"/>`;
+  s += `<line x1="${X(xMin)}" y1="${Y(0)}" x2="${X(xMax)}" y2="${Y(0)}" stroke="${FG.eixo}" stroke-width="1.6"/><line x1="${X(0)}" y1="${Y(yMin)}" x2="${X(0)}" y2="${Y(yMax)}" stroke="${FG.eixo}" stroke-width="1.6"/>`;
+  for(let x = xMin + 1; x < xMax; x += passo) if(x) s += fgTexto(X(x), Y(0) + 10, x, { tamanho: 9, cor: FG.eixo });
+  for(let y = yMin + 1; y < yMax; y += passoY) if(y) s += fgTexto(X(0) - 7, Y(y), y, { tamanho: 9, cor: FG.eixo, anchor: 'end' });
+  s += fgTexto(X(xMax) - 4, Y(0) - 9, 'x', { tamanho: 11, cor: FG.eixo }) + fgTexto(X(0) + 9, Y(yMax) + 4, 'y', { tamanho: 11, cor: FG.eixo });
+  if(temCirc){
+    s += `<circle cx="${X(circ[0])}" cy="${Y(circ[1])}" r="${circ[2] * esc}" fill="${FG.fundo}" fill-opacity=".6" stroke="${FG.linha}" stroke-width="2.5"/>`;
+    s += `<line x1="${X(circ[0])}" y1="${Y(circ[1])}" x2="${X(circ[0] + circ[2])}" y2="${Y(circ[1])}" stroke="${FG.destaque}" stroke-width="2"/>`;
+    if(f.rotulo_raio) s += fgTexto(X(circ[0] + circ[2] / 2), Y(circ[1]) - 10, f.rotulo_raio);
+  }
+  const ligar = String(f.ligar || '').toLowerCase();
+  if(pts.length >= 2 && (ligar === 'segmento' || ligar === 'poligono' || ligar === 'reta')){
+    if(ligar === 'poligono' && pts.length >= 3) s += `<polygon points="${pts.map(p => X(p.x) + ',' + Y(p.y)).join(' ')}" fill="${FG.fundo}" fill-opacity=".75" stroke="${FG.linha}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    else if(ligar === 'reta'){
+      const [p, q] = pts, k = 30, dx = q.x - p.x, dy = q.y - p.y;
+      s += `<clipPath id="corte-plano"><rect x="${X(xMin)}" y="${Y(yMax)}" width="${(xMax - xMin) * esc}" height="${(yMax - yMin) * esc}"/></clipPath><line clip-path="url(#corte-plano)" x1="${X(p.x - k * dx)}" y1="${Y(p.y - k * dy)}" x2="${X(p.x + k * dx)}" y2="${Y(p.y + k * dy)}" stroke="${FG.linha}" stroke-width="2.5"/>`;
+    } else s += `<line x1="${X(pts[0].x)}" y1="${Y(pts[0].y)}" x2="${X(pts[1].x)}" y2="${Y(pts[1].y)}" stroke="${FG.linha}" stroke-width="2.5"/>`;
+  }
+  pts.forEach(p => {
+    s += `<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="4.2" fill="${FG.destaque}"/>`;
+    const txt = (p.nome ? p.nome : '') + (f.mostrar_coordenadas === 'nao' ? '' : `(${String(p.x).replace('.', ',')}, ${String(p.y).replace('.', ',')})`);
+    s += fgTexto(X(p.x) + 7, Y(p.y) - 11, txt, { anchor: 'start', tamanho: 11.5 });
+  });
+  return fgEnvolver(W, H, s);
+}
+
+function figuraCone(f){
+  const W = 260, H = 210, cx = 130, rx = 62, ry = 16, yB = 170, yT = 30;
+  let s = `<path d="M ${cx - rx} ${yB} L ${cx} ${yT} L ${cx + rx} ${yB}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.2" stroke-linejoin="round"/>`;
+  s += `<path d="M ${cx - rx} ${yB} A ${rx} ${ry} 0 0 0 ${cx + rx} ${yB}" fill="${FG.face1}" stroke="${FG.linha}" stroke-width="2.2"/>`;
+  s += `<path d="M ${cx - rx} ${yB} A ${rx} ${ry} 0 0 1 ${cx + rx} ${yB}" fill="none" stroke="${FG.linha}" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  s += `<line x1="${cx}" y1="${yT}" x2="${cx}" y2="${yB}" stroke="${FG.destaque}" stroke-width="1.8" stroke-dasharray="5,3"/><line x1="${cx}" y1="${yB}" x2="${cx + rx}" y2="${yB}" stroke="${FG.destaque}" stroke-width="1.8"/>`;
+  s += fgAnguloReto(cx, yB, 1, 0, 0, -1, 8) + fgTexto(cx + rx / 2, yB + ry + 12, f.raio);
+  if(f.altura) s += `<line x1="${cx + rx + 16}" y1="${yT}" x2="${cx + rx + 16}" y2="${yB}" stroke="${FG.eixo}" stroke-width="1.2"/><line x1="${cx + rx + 11}" y1="${yT}" x2="${cx + rx + 21}" y2="${yT}" stroke="${FG.eixo}" stroke-width="1.2"/><line x1="${cx + rx + 11}" y1="${yB}" x2="${cx + rx + 21}" y2="${yB}" stroke="${FG.eixo}" stroke-width="1.2"/>` + fgTexto(cx + rx + 26, (yT + yB) / 2, f.altura, { anchor: 'start' });
+  return fgEnvolver(W, H, s);
+}
+
+function figuraEsfera(f){
+  const W = 240, H = 200, cx = 120, cy = 100, R = 78;
+  let s = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.5"/>`;
+  s += `<path d="M ${cx - R} ${cy} A ${R} ${R * 0.28} 0 0 0 ${cx + R} ${cy}" fill="none" stroke="${FG.linha}" stroke-width="1.6"/><path d="M ${cx - R} ${cy} A ${R} ${R * 0.28} 0 0 1 ${cx + R} ${cy}" fill="none" stroke="${FG.linha}" stroke-width="1.3" stroke-dasharray="4,3"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="3" fill="${FG.linha}"/><line x1="${cx}" y1="${cy}" x2="${cx + R * 0.8}" y2="${cy - R * 0.6}" stroke="${FG.destaque}" stroke-width="2"/>`;
+  s += fgTexto(cx + R * 0.32, cy - R * 0.42, f.raio);
+  return fgEnvolver(W, H, s);
+}
+
+function figuraPiramide(f){
+  const W = 300, H = 210, x = 46, y = 158, l = 130, dx = 56, dy = -34, apx = x + l / 2 + dx / 2, apy = 24;
+  const A = [x, y], B = [x + l, y], C = [x + l + dx, y + dy], D = [x + dx, y + dy], centro = [x + l / 2 + dx / 2, y + dy / 2];
+  let s = `<polygon points="${A} ${B} ${apx},${apy}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.2" stroke-linejoin="round"/>`;
+  s += `<polygon points="${B} ${C} ${apx},${apy}" fill="${FG.face2}" stroke="${FG.linha}" stroke-width="2.2" stroke-linejoin="round"/>`;
+  s += `<path d="M ${A} L ${D} L ${C} M ${D} L ${apx} ${apy}" fill="none" stroke="${FG.linha}" stroke-width="1.4" stroke-dasharray="4,3"/>`;
+  s += `<line x1="${apx}" y1="${apy}" x2="${centro[0]}" y2="${centro[1]}" stroke="${FG.destaque}" stroke-width="1.8" stroke-dasharray="5,3"/>`;
+  const xc = C[0] + 14;
+  s += fgTexto((A[0] + B[0]) / 2, y + 17, f.lado_base);
+  if(f.altura) s += `<line x1="${apx}" y1="${apy}" x2="${xc}" y2="${apy}" stroke="${FG.eixo}" stroke-width="1" stroke-dasharray="2,3"/><line x1="${centro[0]}" y1="${centro[1]}" x2="${xc}" y2="${centro[1]}" stroke="${FG.eixo}" stroke-width="1" stroke-dasharray="2,3"/><line x1="${xc}" y1="${apy}" x2="${xc}" y2="${centro[1]}" stroke="${FG.eixo}" stroke-width="1.2"/>` + fgTexto(xc + 6, (apy + centro[1]) / 2, f.altura, { anchor: 'start' });
+  return fgEnvolver(W, H, s);
+}
+
+function figuraRelogio(f){
+  const W = 220, H = 220, c = 110, R = 92, hora = (numeroDe(f.hora) || 3) % 12, minuto = numeroDe(f.minuto) || 0;
+  let s = `<circle cx="${c}" cy="${c}" r="${R}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="3"/>`;
+  for(let i = 1; i <= 12; i++){ const a = (i * 30 - 90) * Math.PI / 180; s += fgTexto(c + (R - 17) * Math.cos(a), c + (R - 17) * Math.sin(a), i, { tamanho: 12.5 }); }
+  for(let i = 0; i < 60; i++){ if(i % 5){ const a = i * 6 * Math.PI / 180; s += `<circle cx="${(c + (R - 5) * Math.cos(a)).toFixed(1)}" cy="${(c + (R - 5) * Math.sin(a)).toFixed(1)}" r="1" fill="${FG.eixo}"/>`; } }
+  const ponteiro = (graus, comp, larg, cor) => { const a = (graus - 90) * Math.PI / 180; return `<line x1="${c}" y1="${c}" x2="${(c + comp * Math.cos(a)).toFixed(1)}" y2="${(c + comp * Math.sin(a)).toFixed(1)}" stroke="${cor}" stroke-width="${larg}" stroke-linecap="round"/>`; };
+  s += ponteiro(hora * 30 + minuto * 0.5, R * 0.5, 5, FG.texto) + ponteiro(minuto * 6, R * 0.72, 3, FG.linha) + `<circle cx="${c}" cy="${c}" r="5" fill="${FG.destaque}"/>`;
+  return fgEnvolver(W, H, s);
+}
+
+function figuraRetanguloDiagonal(f){
+  const W = 300, H = 200, b = numeroDe(f.base) || 16, a = numeroDe(f.altura) || 9, r = Math.min(Math.max(a / b, 0.3), 1.2);
+  let bw = 200, bh = bw * r; if(bh > 130){ bh = 130; bw = bh / r; }
+  const x = (W - bw) / 2, y = (H - bh) / 2 - 6;
+  let s = `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${FG.fundo}" stroke="${FG.linha}" stroke-width="2.5"/>`;
+  s += `<line x1="${x}" y1="${y + bh}" x2="${x + bw}" y2="${y}" stroke="${FG.destaque}" stroke-width="2.2" stroke-dasharray="6,4"/>`;
+  s += fgTexto(x + bw / 2, y + bh + 17, f.base) + fgTexto(x - 8, y + bh / 2, f.altura, { anchor: 'end' }) + fgRotuloLado(x, y + bh, x + bw, y, f.diagonal, 14, 1);
+  return fgEnvolver(W, H, s);
+}
+
+const FIGURAS_NOVAS = { triangulo_retangulo: figuraTrianguloRetangulo, triangulo_angulos: figuraTrianguloAngulos, triangulo_lados: figuraTrianguloLados,
+  trapezio: figuraTrapezio, angulos_adjacentes: figuraAngulosAdjacentes, retas_concorrentes: figuraRetasConcorrentes, poligono_regular: figuraPoligonoRegular,
+  paralelas_tales: figuraParalelasTales, sombras: figuraSombras, altura_hipotenusa: figuraAlturaHipotenusa, plano_cartesiano: figuraPlanoPontos,
+  cone: figuraCone, esfera: figuraEsfera, piramide: figuraPiramide, relogio: figuraRelogio, retangulo_diagonal: figuraRetanguloDiagonal };
+
 function construirFiguraSvg(figura){
   if(!figura || !figura.tipo) return '';
+  if(FIGURAS_NOVAS[figura.tipo]){ try { return FIGURAS_NOVAS[figura.tipo](figura); } catch(e){ return ''; } }
   if(figura.tipo === 'funcao_linear' || figura.tipo === 'funcao_quadratica') return construirGraficoFuncao(figura);
   if(figura.tipo === 'grafico_barras') return construirGraficoBarras(parseDadosGrafico(figura.dados));
   if(figura.tipo === 'grafico_pizza') return construirGraficoPizza(parseDadosGrafico(figura.dados));
   const cor = '#2C5F35', corClara = '#E3EBD9', corTexto = '#1B2E4A';
-  const fonte = `font-family="Space Grotesk, sans-serif" font-size="13" font-weight="600"`;
+  const fonte = `font-family="Space Grotesk, sans-serif" font-size="13" font-weight="600" paint-order="stroke" stroke="#FBF6EC" stroke-width="4" stroke-linejoin="round"`;
   const W = 280, H = 190;
   const r = (v) => escapeHtml(v || '');
   let conteudo = '';
@@ -1504,9 +1829,9 @@ function construirFiguraSvg(figura){
   } else if(figura.tipo === 'circulo'){
     const raio=72, cx=W/2, cy=H/2 - 4;
     conteudo = `<circle cx="${cx}" cy="${cy}" r="${raio}" fill="${corClara}" stroke="${cor}" stroke-width="2.5"/>
-      <line x1="${cx}" y1="${cy}" x2="${cx+raio}" y2="${cy}" stroke="${cor}" stroke-width="1.5"/>
+      <line x1="${figura.diametro ? cx-raio : cx}" y1="${cy}" x2="${cx+raio}" y2="${cy}" stroke="${cor}" stroke-width="1.5"/>
       <circle cx="${cx}" cy="${cy}" r="2.5" fill="${cor}"/>
-      <text x="${cx+raio/2}" y="${cy-8}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.raio)}</text>`;
+      <text x="${figura.diametro ? cx : cx+raio/2}" y="${cy-8}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.diametro || figura.raio)}</text>`;
   } else if(figura.tipo === 'cubo'){
     const s=85, x=95, y=62, dx=34, dy=-22;
     conteudo = `<polygon points="${x},${y} ${x+s},${y} ${x+s},${y+s} ${x},${y+s}" fill="${corClara}" stroke="${cor}" stroke-width="2"/>
@@ -1519,17 +1844,19 @@ function construirFiguraSvg(figura){
       <polygon points="${x},${y} ${x+dx},${y+dy} ${x+w+dx},${y+dy} ${x+w},${y}" fill="#F0E0C0" stroke="${cor}" stroke-width="2"/>
       <polygon points="${x+w},${y} ${x+w+dx},${y+dy} ${x+w+dx},${y+h+dy} ${x+w},${y+h}" fill="#D9C9A3" stroke="${cor}" stroke-width="2"/>
       <text x="${x+w/2}" y="${y+h+22}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.comprimento)}</text>
-      <text x="${x-18}" y="${y+h/2}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.altura)}</text>
-      <text x="${x+w+dx/2+16}" y="${y+dy/2-4}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.largura)}</text>`;
+      <text x="${x-8}" y="${y+h/2+4}" text-anchor="end" ${fonte} fill="${corTexto}">${r(figura.altura)}</text>
+      <text x="${x+w+dx/2+8}" y="${y+h+dy/2+10}" text-anchor="start" ${fonte} fill="${corTexto}">${r(figura.largura)}</text>`;
   } else if(figura.tipo === 'cilindro'){
     const rx=52, ry=15, cx=W/2, yTop=48, h=100;
-    conteudo = `<path d="M ${cx-rx} ${yTop+h} A ${rx} ${ry} 0 0 0 ${cx+rx} ${yTop+h}" fill="${corClara}" stroke="${cor}" stroke-width="2" stroke-dasharray="3,3"/>
+    conteudo = `<path d="M ${cx-rx} ${yTop} L ${cx-rx} ${yTop+h} A ${rx} ${ry} 0 0 0 ${cx+rx} ${yTop+h} L ${cx+rx} ${yTop} Z" fill="${corClara}" stroke="none"/>
+      <path d="M ${cx-rx} ${yTop+h} A ${rx} ${ry} 0 0 1 ${cx+rx} ${yTop+h}" fill="none" stroke="${cor}" stroke-width="1.4" stroke-dasharray="4,3"/>
+      <path d="M ${cx-rx} ${yTop+h} A ${rx} ${ry} 0 0 0 ${cx+rx} ${yTop+h}" fill="none" stroke="${cor}" stroke-width="2"/>
       <line x1="${cx-rx}" y1="${yTop}" x2="${cx-rx}" y2="${yTop+h}" stroke="${cor}" stroke-width="2"/>
       <line x1="${cx+rx}" y1="${yTop}" x2="${cx+rx}" y2="${yTop+h}" stroke="${cor}" stroke-width="2"/>
       <ellipse cx="${cx}" cy="${yTop}" rx="${rx}" ry="${ry}" fill="${corClara}" stroke="${cor}" stroke-width="2"/>
       <line x1="${cx}" y1="${yTop}" x2="${cx+rx}" y2="${yTop}" stroke="${cor}" stroke-width="1.3"/>
-      <text x="${cx+rx/2}" y="${yTop-8}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.raio)}</text>
-      <text x="${cx+rx+22}" y="${yTop+h/2}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.altura)}</text>`;
+      <text x="${cx+rx/2}" y="${yTop-ry-8}" text-anchor="middle" ${fonte} fill="${corTexto}">${r(figura.raio)}</text>
+      <text x="${cx+rx+10}" y="${yTop+h/2}" text-anchor="start" ${fonte} fill="${corTexto}">${r(figura.altura)}</text>`;
   } else {
     return '';
   }
@@ -2041,6 +2368,12 @@ async function carregarDadosBase(){
   }
   const { data: listaSemana } = await sb.from('lista_semana').select('*').order('ordem');
   listaSemanaCache = listaSemana || [];
+  if(perfilAtual.role !== 'professora'){
+    const { data: serie } = await sb.rpc('meu_ano_escolar');
+    serieAlunoAtual = serie || '';
+    // A lista da semana pode ter questões de outra série: o aluno só conta as que ele enxerga
+    listaSemanaCache = listaSemanaCache.filter(l => exerciciosCache.some(e => e.id === l.exercicio_id));
+  }
   const { data: colegios } = await sb.from('colegios').select('*').is('excluido_em', null).order('nome');
   colegiosCache = colegios || [];
 
@@ -2320,12 +2653,12 @@ function proximoExercicioPendente(){
   const exUltimo = ultimo && exerciciosCache.find(e => e.id === ultimo.exercicio_id);
   if(exUltimo){
     const m = materiasCache.find(mm => mm.id === exUltimo.materia_id);
-    const pend = exerciciosCache.filter(e => e.materia_id === exUltimo.materia_id && !(progressoDe(e.id) || {}).concluido).sort((a,b) => a.ordem - b.ordem);
+    const pend = exerciciosAtivos().filter(e => e.materia_id === exUltimo.materia_id && !(progressoDe(e.id) || {}).concluido).sort((a,b) => a.ordem - b.ordem);
     const depois = pend.find(e => e.ordem > exUltimo.ordem) || pend[0];
     if(m && depois) return { exercicio: depois, materia: m };
   }
   for(const m of materiasCache){
-    const exs = exerciciosCache.filter(e => e.materia_id === m.id).sort((a,b) => a.ordem - b.ordem);
+    const exs = exerciciosAtivos().filter(e => e.materia_id === m.id).sort((a,b) => a.ordem - b.ordem);
     for(const ex of exs){
       const prog = progressoCache.find(p => p.exercicio_id === ex.id);
       if(!(prog && prog.concluido)) return { exercicio: ex, materia: m };
@@ -2569,7 +2902,7 @@ function renderInicio(){
     $('#conteudo').innerHTML = `
       <div class="cabecalho-pagina">
         <h1>Oi, ${primeiroNome}!</h1>
-        <p>A turma tem <strong>${totalAlunos}</strong> aluno${totalAlunos === 1 ? '' : 's'} e <strong>${exerciciosCache.length}</strong> exercícios no portal.</p>
+        <p>A turma tem <strong>${totalAlunos}</strong> aluno${totalAlunos === 1 ? '' : 's'} e <strong>${exerciciosAtivos().length}</strong> exercícios no portal.</p>
       </div>
       <div class="grade-atalhos">
         <button class="atalho atalho-clicavel" ${resumoPres ? 'id="atalho-presenca-prof"' : 'data-ir-view="calendario"'}>
@@ -2617,7 +2950,7 @@ function renderInicio(){
     return;
   }
 
-  const totalExercicios = exerciciosCache.length;
+  const totalExercicios = exerciciosAtivos().length;
   const feitos = progressoCache.filter(p => p.concluido).length;
   const pendentes = totalExercicios - feitos;
   const pct = totalExercicios ? Math.round((feitos / totalExercicios) * 100) : 0;
@@ -2632,7 +2965,7 @@ function renderInicio(){
     </div>
   `).join('') : `<div class="vazio"><p>Nenhum aviso por aqui ainda.</p></div>`;
 
-  const paraRevisarInicio = exerciciosCache.filter(e => (progressoDe(e.id) || {}).correto === false).length;
+  const paraRevisarInicio = exerciciosAtivos().filter(e => (progressoDe(e.id) || {}).correto === false).length;
   const proximaAula = calcularProximaAula();
   const nomesDiasInicio = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
   const quandoAula = proximaAula ? (proximaAula.diasAte === 0 ? 'Hoje' : proximaAula.diasAte === 1 ? 'Amanhã' : nomesDiasInicio[proximaAula.horario.dia_semana].replace(/^./, c => c.toUpperCase())) : '';
@@ -2743,6 +3076,7 @@ function badgeNivel(nivel){
 let filtrosExerciciosAbertos = false;
 let modoRevisao = false;
 let listaSemanaCache = [];
+let serieAlunoAtual = '';
 let colegiosCache = [];
 let presencasCache = [];
 let configSimuladoFoco = false;
@@ -2757,7 +3091,7 @@ function aulasDoAssunto(assunto, materiaId){
 function exerciciosDoAssunto(assunto, materiaId){
   const n = normalizarAssunto(assunto);
   if(!n) return [];
-  return exerciciosCache.filter(e => normalizarAssunto(e.assunto) === n && (!materiaId || e.materia_id === materiaId));
+  return exerciciosAtivos().filter(e => normalizarAssunto(e.assunto) === n && (!materiaId || e.materia_id === materiaId));
 }
 function irParaAssunto(materiaId, assunto){
   const exs = exerciciosDoAssunto(assunto, materiaId);
@@ -2828,9 +3162,9 @@ function exerciciosDoGrupo(grupoId){
   if(grupoId === 'semana'){
     const ordem = {};
     listaSemanaCache.forEach((l, i) => { ordem[l.exercicio_id] = l.ordem || i; });
-    return exerciciosCache.filter(e => e.id in ordem).sort((a,b) => ordem[a.id] - ordem[b.id]);
+    return exerciciosAtivos().filter(e => e.id in ordem).sort((a,b) => ordem[a.id] - ordem[b.id]);
   }
-  return exerciciosCache.filter(e => e.materia_id === grupoId).sort((a,b) => a.ordem - b.ordem);
+  return exerciciosAtivos().filter(e => e.materia_id === grupoId).sort((a,b) => a.ordem - b.ordem);
 }
 let revisaoMateria = 'todas';
 let mostrarFimRevisao = false;
@@ -2840,6 +3174,22 @@ function corTextoSobre(hex){
   if(!m) return '#fff';
   const n = parseInt(m[1], 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
   return (0.299 * r + 0.587 * g + 0.114 * b) > 165 ? '#2A2622' : '#fff';
+}
+
+// Questões que os alunos enxergam: rascunhos ficam só no Gerenciar conteúdo
+// e não entram em contagens, porcentagens, simulados, revisão nem relatórios.
+function exerciciosAtivos(){ return exerciciosCache.filter(e => e.publicado !== false); }
+// Série que vale para liberar questões: a da matrícula ou a da turma (quem define é a professora).
+// A série que o aluno marca no próprio perfil não conta. Mesma regra da função meu_ano_escolar do banco.
+function serieOficialDoAluno(perfil){
+  const mat = matriculaDoPerfil(perfil);
+  const turma = turmasCache.find(t => t.id === (perfil.turma_id || (mat && mat.turma_id))) || null;
+  const turmaMat = mat && turmasCache.find(t => t.id === mat.turma_id);
+  return (mat && mat.ano_escolar) || (perfil.turma_id && turma && turma.ano_escolar) || (turmaMat && turmaMat.ano_escolar) || '';
+}
+function exerciciosDoAluno(perfil){
+  const serie = serieOficialDoAluno(perfil);
+  return exerciciosAtivos().filter(e => !e.ano_escolar || e.ano_escolar === serie);
 }
 
 // ---------- Resposta digitada ----------
@@ -2942,8 +3292,18 @@ function listaRevisao(){
     .sort((a,b) => ordemMateria(a.materia_id) - ordemMateria(b.materia_id) || a.ordem - b.ordem);
 }
 
+// Tira os códigos de fórmula para mostrar em listas e resumos ("\\(\\frac{3}{4}\\)" vira "3/4")
+function textoSemFormula(txt){
+  return String(txt || '')
+    .replace(/\\begin\{bmatrix\}([\s\S]*?)\\end\{bmatrix\}/g, (m, c) => '[' + c.split('\\\\').map(l => l.trim().split(/\s*&\s*/).join(', ')).join('; ') + ']')
+    .replace(/\^\{([^{}]*)\}/g, (m, e) => e === '2' ? '²' : e === '3' ? '³' : '^' + e)
+    .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '$1/$2')
+    .replace(/(\d*)\\sqrt\{([^{}]*)\}/g, (m, c, d) => c + '√' + (/^[\w,]+$/.test(d) ? d : '(' + d + ')'))
+    .replace(/\\(times|cdot)\s*/g, '× ').replace(/\\pi\s*/g, 'π').replace(/\\Delta\s*/g, 'Δ')
+    .replace(/\\[()\[\]]/g, '');
+}
 function resumirTexto(txt, limite){
-  const t = String(txt || '').replace(/\s+/g, ' ').trim();
+  const t = textoSemFormula(txt).replace(/\s+/g, ' ').trim();
   return t.length > limite ? t.slice(0, limite - 1).trimEnd() + '...' : t;
 }
 let gradeQuestoesAberta = false;
@@ -3003,7 +3363,7 @@ function renderExercicios(){
   $('#conteudo').innerHTML = `
     <div class="cabecalho-pagina">
       <h1>Exercícios</h1>
-      <p>Escolha a matéria e avance questão por questão, no seu ritmo.</p>
+      <p>Escolha a matéria e avance questão por questão, no seu ritmo.${perfilAtual.role !== 'professora' && serieAlunoAtual ? ` As questões são as do <strong>${escapeHtml(serieAlunoAtual)}</strong> e as de revisão geral.` : ''}</p>
     </div>
     ${materiasCache.length ? `
       <div class="ex-topo">
@@ -3540,7 +3900,7 @@ function renderSessaoExercicios(direcao){
 function atualizarContagemRevisao(){
   $$('.pilula-materia[data-revisao]').forEach(b => {
     const id = b.dataset.revisao;
-    const n = exerciciosCache.filter(e => (id === 'todas' || e.materia_id === id) && (progressoDe(e.id) || {}).correto === false).length;
+    const n = exerciciosAtivos().filter(e => (id === 'todas' || e.materia_id === id) && (progressoDe(e.id) || {}).correto === false).length;
     const conta = b.querySelector('.pilula-conta');
     if(conta) conta.textContent = n;
   });
@@ -3733,7 +4093,7 @@ function renderConfigSimulado(){
     </button>
   `).join('');
 
-  const disponiveis = exerciciosCache.filter(e => configSimuladoMaterias.has(e.materia_id)).length;
+  const disponiveis = exerciciosAtivos().filter(e => configSimuladoMaterias.has(e.materia_id)).length;
   const qtdReal = Math.min(configSimuladoQtd, disponiveis);
 
   $('#conteudo').innerHTML = `
@@ -3752,7 +4112,7 @@ function renderConfigSimulado(){
           <button data-foco="0" class="${!configSimuladoFoco ? 'ativo' : ''}">Questões variadas</button>
           <button data-foco="1" class="${configSimuladoFoco ? 'ativo' : ''}">Focar no que eu mais erro</button>
         </div>
-        ${configSimuladoFoco ? `<p class="texto-suave-pequeno">${(() => { const n = exerciciosCache.filter(e => (progressoDe(e.id) || {}).correto === false).length; return n ? `Prioriza as ${n} questões que você errou e os assuntos onde mais erra, e completa com questões que você ainda não fez.` : 'Você ainda não errou nenhuma questão. O simulado vai priorizar as que você ainda não fez.'; })()}</p>` : ''}
+        ${configSimuladoFoco ? `<p class="texto-suave-pequeno">${(() => { const n = exerciciosAtivos().filter(e => (progressoDe(e.id) || {}).correto === false).length; return n ? `Prioriza as ${n} questões que você errou e os assuntos onde mais erra, e completa com questões que você ainda não fez.` : 'Você ainda não errou nenhuma questão. O simulado vai priorizar as que você ainda não fez.'; })()}</p>` : ''}
       </div>
       <div class="config-bloco">
         <span class="config-rotulo">Quais matérias <button class="btn-texto btn-texto-mini" id="btn-sim-todas">${configSimuladoMaterias.size === materiasCache.length ? 'Desmarcar todas' : 'Marcar todas'}</button></span>
@@ -3821,7 +4181,7 @@ async function carregarHistoricoSimulados(){
 }
 
 function iniciarSimulado(){
-  const disponiveis = exerciciosCache.filter(e => configSimuladoMaterias.has(e.materia_id));
+  const disponiveis = exerciciosAtivos().filter(e => configSimuladoMaterias.has(e.materia_id));
   const embaralhadas = disponiveis.slice();
   for(let i = embaralhadas.length - 1; i > 0; i--){
     const j = Math.floor(Math.random() * (i + 1));
@@ -3829,7 +4189,7 @@ function iniciarSimulado(){
   }
   if(configSimuladoFoco){
     const errosAssunto = {};
-    exerciciosCache.forEach(e => { if((progressoDe(e.id) || {}).correto === false && e.assunto) errosAssunto[normalizarAssunto(e.assunto)] = (errosAssunto[normalizarAssunto(e.assunto)] || 0) + 1; });
+    exerciciosAtivos().forEach(e => { if((progressoDe(e.id) || {}).correto === false && e.assunto) errosAssunto[normalizarAssunto(e.assunto)] = (errosAssunto[normalizarAssunto(e.assunto)] || 0) + 1; });
     const peso = e => {
       const pr = progressoDe(e.id) || {};
       if(pr.correto === false) return 4;
@@ -4129,7 +4489,7 @@ function renderRevisao(){
     return;
   }
   modoRevisao = true;
-  const erradas = exerciciosCache.filter(e => (progressoDe(e.id) || {}).correto === false);
+  const erradas = exerciciosAtivos().filter(e => (progressoDe(e.id) || {}).correto === false);
   const materiasComErro = materiasCache.filter(m => erradas.some(e => e.materia_id === m.id));
   if(revisaoMateria !== 'todas' && !materiasComErro.some(m => m.id === revisaoMateria)) revisaoMateria = 'todas';
 
@@ -4268,7 +4628,7 @@ function renderListaAulas(){
   const corGrupo = materiaAtual ? materiaAtual.cor : '#2C5F35';
   const doGrupo = aulasCache.filter(a => materiaSelecionadaAulas === 'geral' ? !a.materia_id : a.materia_id === materiaSelecionadaAulas);
   const vistas = doGrupo.filter(a => progressoAulasCache.some(p => p.aula_id === a.id && p.assistido)).length;
-  const temExercicios = materiaAtual && exerciciosCache.some(e => e.materia_id === materiaAtual.id);
+  const temExercicios = materiaAtual && exerciciosAtivos().some(e => e.materia_id === materiaAtual.id);
 
   const cartoes = lista.map(a => {
     const assistido = progressoAulasCache.some(p => p.aula_id === a.id && p.assistido);
@@ -4398,7 +4758,7 @@ function baloaoMensagem(perfil, mensagem, quando, autorId){
    ============================================================ */
 function calcularDiagnostico(){
   const dados = materiasCache.map(m => {
-    const exs = exerciciosCache.filter(e => e.materia_id === m.id);
+    const exs = exerciciosAtivos().filter(e => e.materia_id === m.id);
     const avaliadas = exs.filter(e => {
       const p = progressoCache.find(pp => pp.exercicio_id === e.id);
       return p && p.correto !== null && p.correto !== undefined;
@@ -4417,16 +4777,16 @@ function calcularDiagnostico(){
 function renderProgresso(){
   const diagnostico = calcularDiagnostico();
 
-  const totalExercicios = exerciciosCache.length;
-  const feitos = progressoCache.filter(p => p.concluido && exerciciosCache.some(e => e.id === p.exercicio_id)).length;
+  const totalExercicios = exerciciosAtivos().length;
+  const feitos = progressoCache.filter(p => p.concluido && exerciciosAtivos().some(e => e.id === p.exercicio_id)).length;
   const avaliadas = progressoCache.filter(p => p.correto === true || p.correto === false);
   const acertos = avaliadas.filter(p => p.correto === true).length;
   const pctAcerto = avaliadas.length ? Math.round((acertos / avaliadas.length) * 100) : null;
   const sequencia = calcularSequenciaEstudo();
-  const paraRevisar = exerciciosCache.filter(e => (progressoDe(e.id) || {}).correto === false).length;
+  const paraRevisar = exerciciosAtivos().filter(e => (progressoDe(e.id) || {}).correto === false).length;
 
   const linhas = materiasCache.map(m => {
-    const exs = exerciciosCache.filter(e => e.materia_id === m.id);
+    const exs = exerciciosAtivos().filter(e => e.materia_id === m.id);
     const feitosEx = exs.filter(e => (progressoDe(e.id) || {}).concluido).length;
     const aval = exs.map(e => progressoDe(e.id)).filter(p => p && (p.correto === true || p.correto === false));
     const pct = aval.length ? Math.round(aval.filter(p => p.correto).length / aval.length * 100) : null;
@@ -4450,7 +4810,7 @@ function renderProgresso(){
 
   // Assuntos com mais erros
   const errosPorAssunto = {};
-  exerciciosCache.forEach(e => {
+  exerciciosAtivos().forEach(e => {
     const p = progressoDe(e.id);
     if(p && p.correto === false && e.assunto){
       const chave = e.materia_id + '|' + e.assunto;
@@ -4661,7 +5021,7 @@ function linkWhatsApp(telefone, texto){
 
 function mensagemFamilia(aluno, analise){
   const primeiroNome = aluno.nome.split(' ')[0];
-  const total = exerciciosCache.length;
+  const total = exerciciosDoAluno(aluno).length;
   return [
     `Olá! Aqui é a Drika, professora de matemática de ${primeiroNome}.`,
     analise.diasInativo === null ? `Notei que ${primeiroNome} ainda não começou a usar o portal de exercícios em casa. Vale incentivar, são questões curtas com o passo a passo.`
@@ -4695,6 +5055,7 @@ function alertasDaTurma(){
     if(an.diasInativo !== null && an.diasInativo > 7) motivos.push(`sem estudar há ${an.diasInativo} dias`);
     if(an.diasInativo === null) motivos.push('ainda não começou');
     seguidos.forEach(s => motivos.push(`errou 3 seguidas de ${s}`));
+    if(!serieOficialDoAluno(a) && exerciciosAtivos().some(e => e.ano_escolar)) motivos.push('sem série definida: só vê as questões gerais. Defina a série em Gerenciar conteúdo > Alunos');
     return { aluno: a, analise: an, motivos, urgente: seguidos.length > 0 || (an.diasInativo !== null && an.diasInativo > 7) };
   }).filter(x => x.motivos.length).sort((x, y) => (y.urgente ? 1 : 0) - (x.urgente ? 1 : 0));
 }
@@ -4707,7 +5068,7 @@ function textoUltimaAtividade(dias){
 }
 
 function analisarAluno(aluno, progresso){
-  const progAluno = progresso.filter(p => p.aluno_id === aluno.id && exerciciosCache.some(e => e.id === p.exercicio_id));
+  const progAluno = progresso.filter(p => p.aluno_id === aluno.id && exerciciosAtivos().some(e => e.id === p.exercicio_id));
   const concluidos = progAluno.filter(p => p.concluido).length;
   const avaliadas = progAluno.filter(p => p.correto === true || p.correto === false);
   const acertos = avaliadas.filter(p => p.correto === true).length;
@@ -4764,7 +5125,7 @@ function renderTurmaConteudo(){
   }).join('');
 
   const porMateria = materiasCache.map(m => {
-    const ids = new Set(exerciciosCache.filter(e => e.materia_id === m.id).map(e => e.id));
+    const ids = new Set(exerciciosAtivos().filter(e => e.materia_id === m.id).map(e => e.id));
     const av = progresso.filter(p => ids.has(p.exercicio_id) && (p.correto === true || p.correto === false));
     const pct = av.length ? Math.round(av.filter(p => p.correto).length / av.length * 100) : null;
     return { m, n: av.length, pct };
@@ -4947,10 +5308,10 @@ function renderRelatorioAlunoView(alunoId){
   const aluno = alunos.find(a => a.id === alunoId);
   if(!aluno) return;
   const a = analisarAluno(aluno, progresso);
-  const totalExercicios = exerciciosCache.length;
+  const totalExercicios = exerciciosDoAluno(aluno).length;
 
   const porMateria = materiasCache.map(m => {
-    const exs = exerciciosCache.filter(e => e.materia_id === m.id);
+    const exs = exerciciosDoAluno(aluno).filter(e => e.materia_id === m.id);
     const progs = exs.map(e => a.progAluno.find(p => p.exercicio_id === e.id)).filter(Boolean);
     const feitos = progs.filter(p => p.concluido).length;
     const av = progs.filter(p => p.correto === true || p.correto === false);
@@ -5675,7 +6036,7 @@ function renderGerenciarExercicios(){
   const opcoesMateriaLote = materiasCache.map(m => `<option value="${m.id}">${escapeHtml(m.nome)}</option>`).join('');
 
   const gruposHtml = grupos.map(g => `
-    <h4 style="font-size:13.5px; color:${g.materia.cor}; margin:18px 0 8px;">${escapeHtml(g.materia.nome)}</h4>
+    <h4 class="titulo-grupo-materia" style="--cor-materia:${g.materia.cor}; font-size:13.5px; margin:18px 0 8px;">${escapeHtml(g.materia.nome)}</h4>
     <div class="painel-ficha"><div class="lista-ficha">
       ${g.itens.map((ex, idx) => `
         <div class="linha-item-gerenciar" data-abrir-exercicio="${ex.id}">
@@ -5732,10 +6093,10 @@ function renderGerenciarExercicios(){
     </div>
     <div class="barra-lote" id="barra-lote-exercicios">
       <span id="contagem-lote-exercicios"></span>
-      <button class="btn btn-secundario" id="btn-publicar-lote-exercicios">Publicar selecionados</button>
-
+      ${nRascunhos ? '<button class="btn btn-publicar-lote" id="btn-publicar-lote-exercicios">Publicar selecionados</button><span class="separador-lote"></span>' : '<button id="btn-publicar-lote-exercicios" hidden></button>'}
+      <span class="rotulo-lote">Mudar de matéria:</span>
       <select id="mover-lote-materia-exercicios">${opcoesMateriaLote}</select>
-      <button class="btn btn-secundario" id="btn-mover-lote-exercicios">Mover selecionados</button>
+      <button class="btn btn-secundario" id="btn-mover-lote-exercicios">Mover</button>
       <button class="btn-texto" id="btn-excluir-lote-exercicios" style="color:#fff; text-decoration:underline;">Excluir selecionados</button>
     </div>
     ${gruposHtml || '<div class="vazio"><p>Nenhum exercício encontrado.</p></div>'}
@@ -5883,7 +6244,7 @@ function renderGerenciarAulas(){
   const opcoesMateriaLote = `<option value="">Geral</option>` + materiasCache.map(m => `<option value="${m.id}">${escapeHtml(m.nome)}</option>`).join('');
 
   const gruposHtml = grupos.map(g => `
-    <h4 style="font-size:13.5px; color:${g.materia.cor}; margin:18px 0 8px;">${escapeHtml(g.materia.nome)}</h4>
+    <h4 class="titulo-grupo-materia" style="--cor-materia:${g.materia.cor}; font-size:13.5px; margin:18px 0 8px;">${escapeHtml(g.materia.nome)}</h4>
     <div class="painel-ficha"><div class="lista-ficha">
       ${g.itens.map((a, idx) => `
         <div class="linha-item-gerenciar" data-abrir-aula="${a.id}">
@@ -6015,7 +6376,7 @@ function renderGerenciarAvisos(){
     ${lista.map((v) => `
       <div class="linha-item-gerenciar" data-abrir-aviso="${v.id}">
         <div class="texto-linha">
-          <span class="texto-exercicio">${escapeHtml(v.titulo)} ${v.fixado ? '<span class="tag-novo" style="background:var(--amarelo); color:#8A5F0B;">Fixado</span>' : ''}${badgeVisibilidade('avisos', v.id)}</span>
+          <span class="texto-exercicio">${escapeHtml(v.titulo)} ${v.fixado ? '<span class="tag-novo tag-fixado">Fixado</span>' : ''}${badgeVisibilidade('avisos', v.id)}</span>
           <div class="rodape-linha">
             <span style="font-size:12px; color:var(--ink-suave);">${formatarData(v.criado_em)}</span>
             ${professorasCache.length > 1 && nomeAutor(v.atualizado_por) ? `<span style="font-size:12px; color:var(--ink-suave);">editado por ${escapeHtml(nomeAutor(v.atualizado_por))}</span>` : ''}
@@ -6695,7 +7056,9 @@ function abrirModalExercicio(registro){
       <div class="campo"><label>Figura geométrica (opcional)</label><select id="e-figura-tipo">${opcoesTipoFigura}</select></div>
       ${camposFigura}
       ${preview}
-      <div class="campo"><label>Enunciado</label><textarea id="e-enunciado" rows="4" placeholder="Escreva o exercício">${escapeHtml(valoresAtuais.enunciado)}</textarea></div>
+      <div class="campo"><label>Enunciado</label><textarea id="e-enunciado" rows="4" placeholder="Escreva o exercício">${escapeHtml(valoresAtuais.enunciado)}</textarea>
+        <span class="ajuda-campo tex2jax_ignore">Fórmulas ficam entre \\( e \\). Exemplos: fração \\(\\frac{3}{4}\\), raiz \\(\\sqrt{50}\\), potência \\(x^{2}\\). A prévia abaixo mostra como o aluno vai ver.</span></div>
+      <div class="previa-questao" id="e-previa" aria-live="polite"></div>
       <div class="campo"><label>Gabarito</label><textarea id="e-gabarito" rows="2" placeholder="Resposta correta">${escapeHtml(valoresAtuais.gabarito)}</textarea></div>
       <div class="campo"><label>Explicação (opcional)</label><textarea id="e-explicacao" rows="2" placeholder="Como chegar na resposta">${escapeHtml(valoresAtuais.explicacao)}</textarea></div>
       <div class="campo">
@@ -6720,6 +7083,20 @@ function abrirModalExercicio(registro){
 
   function ligarEventos(){
     $('#e-cancelar').addEventListener('click', fecharModal);
+    // Prévia: mostra enunciado, resposta e explicação já com as fórmulas desenhadas
+    let tempoPrevia = null;
+    const atualizarPrevia = () => {
+      const caixa = $('#e-previa'); if(!caixa) return;
+      const en = $('#e-enunciado').value.trim(), ga = $('#e-gabarito').value.trim(), ex = $('#e-explicacao').value.trim();
+      const temFormula = /\\\(|\\\[/.test(en + ga + ex);
+      caixa.style.display = temFormula ? 'block' : 'none';
+      if(!temFormula) return;
+      caixa.innerHTML = `<span class="rotulo-resposta">Prévia</span><div class="enunciado" style="margin-bottom:6px;">${escapeHtml(en)}</div>`
+        + (ga ? `<div><strong>Resposta:</strong> ${escapeHtml(ga)}</div>` : '') + (ex ? `<div class="texto-suave-pequeno" style="margin-top:4px;">${escapeHtml(ex)}</div>` : '');
+      if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([caixa]).catch(() => {});
+    };
+    ['#e-enunciado', '#e-gabarito', '#e-explicacao'].forEach(s => $(s).addEventListener('input', () => { clearTimeout(tempoPrevia); tempoPrevia = setTimeout(atualizarPrevia, 400); }));
+    atualizarPrevia();
     $('#e-figura-tipo').addEventListener('change', (e) => {
       capturarValores();
       figuraEdicao = e.target.value ? { tipo: e.target.value } : { tipo: '' };
